@@ -1,0 +1,30 @@
+{
+  "name": "dlserver",
+  "version": "0.0.1",
+  "description": "Web API for dongnelibrary",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afrontend/dlserver.git"
+  },
+  "keywords": [
+    "dongnelibrary"
+  ],
+  "author": "afrontend",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/afrontend/dlserver/issues"
+  },
+  "homepage": "https://github.com/afrontend/dlserver#readme",
+  "dependencies": {
+    "dongnelibrary": "^0.1.14",
+    "express": "^4.15.4"
+  }
+}
