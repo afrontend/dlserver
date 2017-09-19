@@ -2,6 +2,32 @@ const express = require('express');
 const app = express();
 const dl = require('dongnelibrary');
 
+app.get('/search/:title/:libraryName', function (req, res, next) {
+  var title = '';
+  var libraryName = '';
+
+  if (req.params.title) {
+    title = req.params.title
+  }
+
+  if (req.params.libraryName) {
+    libraryName = req.params.libraryName
+  }
+
+  dl.search({
+    title: title,
+    libraryName: libraryName
+  }, null, function (err, books) {
+    if(err) {
+      res.json({
+        message: err.msg
+      });
+    } else {
+      res.json(books);
+    }
+  });
+})
+
 app.get('/search', function (req, res, next) {
   var title = '';
   var libraryName = '';
