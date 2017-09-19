@@ -28,6 +28,11 @@ app.get('/search', function (req, res, next) {
   });
 })
 
+app.get('/libraryList', function (req, res, next) {
+  var libs = dl.getLibraryNames();
+  res.json(libs);
+})
+
 app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;

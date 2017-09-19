@@ -6,7 +6,11 @@
     npm install
     node app.js
 
-**브라우저에서 아래 주소를 읽는다.**
+**도서관 목록을 읽는다**
+
+http://localhost:3000/libraryList
+
+**책을 검색한다.**
 
 http://localhost:3000/search?title=javascript&libraryName=판교
 
