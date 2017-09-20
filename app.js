@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const dl = require('dongnelibrary');
 
-app.get('/search/:title/:libraryName', function (req, res, next) {
+app.get('/:title/:libraryName', function (req, res, next) {
   var title = '';
   var libraryName = '';
 
@@ -28,7 +28,7 @@ app.get('/search/:title/:libraryName', function (req, res, next) {
   });
 })
 
-app.get('/search', function (req, res, next) {
+app.get('/', function (req, res, next) {
   var title = '';
   var libraryName = '';
 

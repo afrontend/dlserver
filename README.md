@@ -12,8 +12,8 @@ http://localhost:3000/libraryList
 
 **책을 검색한다.**
 
-http://localhost:3000/search?title=javascript&libraryName=판교
+http://localhost:3000/?title=javascript&libraryName=판교
 
 **간편 URL로 검색한다.**
 
-http://localhost:3000/search/javascript/판교
+http://localhost:3000/javascript/판교
