@@ -23,7 +23,7 @@ app.get('/search/:title/:libraryName', function (req, res, next) {
         message: err.msg
       });
     } else {
-      res.json(books);
+      res.send(books[0].booklist.reduce(function (memo, book) { return memo + "<br/> ("+book.exist+")" + book.title; }, ''));
     }
   });
 })
