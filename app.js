@@ -23,7 +23,7 @@ app.get('/:title/:libraryName', function (req, res, next) {
         message: err.msg
       });
     } else {
-      res.send(books[0].booklist.reduce(function (memo, book) { return memo + "<br/> ("+book.exist+")" + book.title; }, ''));
+      res.send(books[0].booklist.reduce(function (memo, book) { return memo + "<br> ("+book.exist+")" + book.title; }, ''));
     }
   });
 })
@@ -40,18 +40,23 @@ app.get('/', function (req, res, next) {
     libraryName = req.query.libraryName
   }
 
-  dl.search({
-    title: title,
-    libraryName: libraryName
-  }, null, function (err, books) {
-    if(err) {
-      res.json({
-        message: err.msg
-      });
-    } else {
-      res.json(books);
-    }
-  });
+  if (title === '' && libraryName === '') {
+    var libs = dl.getLibraryNames();
+    res.send(libs.join("<br>"));
+  } else {
+    dl.search({
+      title: title,
+      libraryName: libraryName
+    }, null, function (err, books) {
+      if(err) {
+        res.json({
+          message: err.msg
+        });
+      } else {
+        res.json(books);
+      }
+    });
+  }
 })
 
 app.get('/libraryList', function (req, res, next) {
