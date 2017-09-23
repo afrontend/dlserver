@@ -23,7 +23,10 @@ app.get('/:title/:libraryName', function (req, res, next) {
         message: err.msg
       });
     } else {
-      res.send(books[0].booklist.reduce(function (memo, book) { return memo + "("+book.exist+")" + book.title + "<br>"; }, ''));
+      res.send(books[0].booklist.reduce(function (memo, book) {
+        var mark = book.exist ? '✓ ' : '✖ ';
+        return memo + " "+mark+" " + book.title + "<br>";
+      }, ''));
     }
   });
 })
