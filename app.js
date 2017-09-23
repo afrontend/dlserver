@@ -2,6 +2,12 @@ const express = require('express');
 const app = express();
 const dl = require('dongnelibrary');
 
+
+function makeBookDescription(book) {
+  var mark = book.exist ? '✓ ' : '✖ ';
+  return " "+mark+" " + book.title + "<br>";
+}
+
 app.get('/:title/:libraryName', function (req, res, next) {
   var title = '';
   var libraryName = '';
@@ -24,8 +30,7 @@ app.get('/:title/:libraryName', function (req, res, next) {
       });
     } else {
       res.send(books[0].booklist.reduce(function (memo, book) {
-        var mark = book.exist ? '✓ ' : '✖ ';
-        return memo + " "+mark+" " + book.title + "<br>";
+        return memo + makeBookDescription(book);
       }, ''));
     }
   });
