@@ -1,26 +1,28 @@
 도서관 책을 빌릴 수 있는지 알려주는 Web API 서버
 
-### Install
+https://agvim.wordpress.com/2017/01/20/check-if-a-library-book-was-rented/
+
+## Install
 
     git clone https://github.com/afrontend/dlserver.git
     cd dlserver
     npm install
 
-### Run
+## Run
 
     npm start
 
-### 도서관 목록 읽기
+## 도서관 목록 읽기
 
 * http://localhost:3000/
 * http://localhost:3000/libraryList
 
-### 책 검색
+## 책 검색
 
 * http://localhost:3000/javascript/판교
 * http://localhost:3000/?title=javascript&libraryName=판교
 
-### 서버에서 확인
+## 서버에서 확인
 
 * https://dlserver.herokuapp.com/
 * https://dlserver.herokuapp.com/libraryList
