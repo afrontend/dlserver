@@ -24,9 +24,9 @@ https://agvim.wordpress.com/2017/09/20/web-api-check-if-a-library-book-was-rente
 
 ## 서버에서 확인
 
+무료 서버에서 동작함으로 잠들어 있다면 깨어나는데 10초 정도 걸릴수 있어요.
+
 * https://dlserver.herokuapp.com/
 * https://dlserver.herokuapp.com/libraryList
 * https://dlserver.herokuapp.com/javascript/판교
 * https://dlserver.herokuapp.com/?title=javascript&libraryName=판교
-
-
