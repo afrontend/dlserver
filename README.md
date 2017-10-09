@@ -2,13 +2,13 @@
 
 https://agvim.wordpress.com/2017/09/20/web-api-check-if-a-library-book-was-rented/
 
-## Install
+## Installation
 
     git clone https://github.com/afrontend/dlserver.git
     cd dlserver
     npm install
 
-## Run
+## Usage
 
     npm start
 
