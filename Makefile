@@ -1,5 +1,8 @@
-build:
-	npm start
+all:
+	node app.js
 
-.PHONY: build
+build:
+	npm install
+
+.PHONY: build all
 

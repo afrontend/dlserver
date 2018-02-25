@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const dl = require('dongnelibrary');
 
+app.use('/app', express.static(__dirname + '/public'));
 
 function makeBookDescription(book) {
   var mark = book.exist ? '✓ ' : '✖ ';
