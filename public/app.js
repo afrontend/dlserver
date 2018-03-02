@@ -31,8 +31,7 @@
         }
         $log.log('status: ' + response.status);
         $log.log('statusText: ' + response.statusText);
-      }
-      );
+      });
     }
 
     function getLibraryNames(callback) {
@@ -46,8 +45,7 @@
       }, function errorCallback(response) {
         $log.log('status: ' + response.status);
         $log.log('statusText: ' + response.statusText);
-      }
-      );
+      });
     }
   }
 
