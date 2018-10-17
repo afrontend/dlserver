@@ -108,9 +108,19 @@
           };
         });
 
+        ReactDOM.render(
+          React.createElement('select', {}, React.createElement('option', {
+            'label': '경기도립중앙도서관',
+            'value': '0',
+            'selected': 'selected'
+          }, '경기도립중앙도서관')),
+          document.getElementById('root')
+        );
+
         if(list.length > 0) {
           $scope.libraryName = $scope.libraryNames[0];
         }
+
         $timeout(function () {
           $scope.$apply();
         },100);
