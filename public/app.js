@@ -67,6 +67,8 @@
     ];
 
     $scope.search = function () {
+      $scope.libraryName = {};
+      $scope.libraryName.name = $scope.reactLibraryName ? $scope.reactLibraryName : '';
       $scope.books = [];
       $log.log("search " + $scope.libraryName.name);
       if($scope.searchText && $scope.searchText.length > 0) {
@@ -111,12 +113,17 @@
         var options = _.map($scope.libraryNames, function (lib) {
           return React.createElement('option', {
             'label': lib.name,
-            'value': lib.id
+            'value': lib.value
           }, lib.name);
         })
 
         ReactDOM.render(
-          React.createElement('select', {}, options),
+          React.createElement('select', {
+            'onChange': function (e) {
+              console.log(e.target.value);
+              $scope.reactLibraryName = e.target.value;
+            }
+          }, options),
           document.getElementById('root')
         );
 
