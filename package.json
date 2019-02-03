@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/afrontend/dlserver#readme",
   "dependencies": {
-    "dongnelibrary": "^0.1.14",
+    "babel": "^6.23.0",
+    "dongnelibrary": "^0.1.15",
     "express": "^4.15.4"
   }
 }
