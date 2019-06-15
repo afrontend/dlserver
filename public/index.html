@@ -14,37 +14,35 @@
   <title>이 책을 빌릴 수 있을까?</title>
 </head>
 <body ng-controller="LibraryController">
-  <div class="container">
+  <div class="section">
 
     <div class="block">
       <section class="hero is-info">
         <div class="hero-body">
           <div class="container">
-            <h1 class="title center">&nbsp;이 책을 빌릴 수 있을까?</h1>
-            <h2 class="subtitle">&nbsp;어느 도서관에서 빌릴 수 있는지 알려드려요.</h2>
+            <h1 class="title center">이 책을 빌릴 수 있을까요?</h1>
+            <h2 class="subtitle">책 이름을 입력하세요. 도서관을 선택할 수도 있어요.</h2>
           </div>
         </div>
       </section>
     </div>
 
+    <div class="columns">
+      <div class="column">
+        <div class="field has-addons">
+          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을..."> </p>
+          <p class="control"> <div ng-click="search()" class="button is-info">검색</div> </p>
+          <!-- <p class="control"> <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">삭제</div> </p> -->
+        </div>
+      </div>
+    </div>
 
-    <div class="block">
-      <div class="field has-addons">
-        <p class="control">
-          <span class="select">
-              <!--label for value in array-->
-              <span id="root"></span>
-          </span>
-        </p>
-        <p class="control">
-          <input ng-model="searchText" type="text" class="input" placeholder="책 이름을...">
-        </p>
-        <p class="control">
-          <div ng-click="search()" class="button is-info">Search</div>
-        </p>
-        <p class="control">
-          <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">Empty</div>
-        </p>
+    <div class="columns">
+      <div class="column">
+        <span class="select">
+          <!--label for value in array-->
+          <span id="root"></span>
+        </span>
       </div>
     </div>
 
@@ -53,23 +51,23 @@
         <thead>
           <tr>
             <th>여기서</th>
-            <th>이 책을 </th>
-            <th>빌릴 수 있나요?</th>
+            <th>이 책을 빌릴 수 있나요?</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="book in books" class="is-info">
+          <tr ng-repeat="book in books" class="">
             <td ng-bind="book.libraryName">판교도서관</td>
-            <td ng-bind="book.title">자바스크립트 책</td>
-            <td>
-              <div ng-show="book.exist === true" class="button is-info">그럼요</div>
-              <div ng-hide="book.exist === true" class="button is-warning">아니요</div>
+            <td>{{book.title}}
+              <span ng-show="book.exist === true" class="tag is-info">그럼요</span>
+              <span ng-hide="book.exist === true" class="tag is-danger">아니요</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div><!-- /. container -->
+
+  </div><!-- /. section -->
+
   <script src="app.js"></script>
   <script src="reactApp.js"></script>
 </body>
