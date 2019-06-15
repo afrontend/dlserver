@@ -50,13 +50,11 @@
       <table class="table is-narrow is-striped">
         <thead>
           <tr>
-            <th>여기서</th>
             <th>이 책을 빌릴 수 있나요?</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="book in books" class="">
-            <td ng-bind="book.libraryName">판교도서관</td>
             <td>{{book.title}}
               <span ng-show="book.exist === true" class="tag is-info">그럼요</span>
               <span ng-hide="book.exist === true" class="tag is-danger">아니요</span>
