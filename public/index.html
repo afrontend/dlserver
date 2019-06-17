@@ -30,8 +30,8 @@
     <div class="columns">
       <div class="column">
         <div class="field has-addons">
-          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을..."> </p>
-          <p class="control"> <div ng-click="search()" class="button is-info">검색</div> </p>
+          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을 입력하세요."> </p>
+          <p class="control"> <div ng-click="search()" class="button is-info" ng-class="{'is-loading': isLoading === true }">검색</div> </p>
           <!-- <p class="control"> <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">삭제</div> </p> -->
         </div>
       </div>

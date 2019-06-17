@@ -59,6 +59,7 @@
     $scope.library = {};
     $scope.books = [];
     $scope.libraryName = {};
+    $scope.isLoading = false;
 
     $scope.libraryNames = [
       {id: '1', name: '판교'},
@@ -72,6 +73,7 @@
       $scope.books = [];
       $log.log("search " + $scope.libraryName.name);
       if($scope.searchText && $scope.searchText.length > 0) {
+        $scope.isLoading = true;
         LibraryService.getLibrary({
           title: $scope.searchText,
           libraryName: $scope.libraryName.name
@@ -80,6 +82,7 @@
             if(error.msg) {
               $log.log(error.msg);
             }
+            $scope.isLoading = false;
           } else {
             if(list[0].booklist) {
               $scope.books = list[0].booklist;
@@ -87,6 +90,7 @@
               $scope.books = [];
             }
             $log.log(angular.fromJson(list));
+            $scope.isLoading = false;
           }
         });
       } else {
