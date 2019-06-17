@@ -55,7 +55,7 @@
         </thead>
         <tbody>
           <tr ng-repeat="book in books" class="">
-            <td>{{book.title}}
+            <td ng-cloak><span ng-bind="book.title"></span>
               <span ng-show="book.exist === true" class="tag is-info">그럼요</span>
               <span ng-hide="book.exist === true" class="tag is-danger">아니요</span>
             </td>
