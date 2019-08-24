@@ -67,32 +67,63 @@
       {id: '3', name: '성남'}
     ];
 
+    function updateBookList(title, libraryName, isOkCallback) {
+      LibraryService.getLibrary({
+        title,
+        libraryName
+      }, function (error, list) {
+        if (isOkCallback) {
+          isOkCallback();
+        }
+        if(error) {
+          if(error.msg) {
+            $log.log(error.msg);
+          }
+        } else {
+          if(list && list[0] && list[0].booklist) {
+            $scope.books = $scope.books.concat(list[0].booklist);
+            $scope.books.sort(function(a, b) {
+              var nameA = a.title.toUpperCase(); // ignore upper and lowercase
+              var nameB = b.title.toUpperCase(); // ignore upper and lowercase
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+
+              // names must be equal
+              return 0;
+            });
+
+          }
+          $log.log(angular.fromJson(list));
+          console.log(angular.fromJson(list));
+        }
+      });
+    }
+
     $scope.search = function () {
-      $scope.libraryName = {};
-      $scope.libraryName.name = $scope.reactLibraryName ? $scope.reactLibraryName : '';
+      $scope.libraryName.name = $scope.reactLibraryName ? $scope.reactLibraryName : $scope.libraryName.name;
       $scope.books = [];
       $log.log("search " + $scope.libraryName.name);
       if($scope.searchText && $scope.searchText.length > 0) {
         $scope.isLoading = true;
-        LibraryService.getLibrary({
-          title: $scope.searchText,
-          libraryName: $scope.libraryName.name
-        }, function (error, list) {
-          if(error) {
-            if(error.msg) {
-              $log.log(error.msg);
-            }
+        if ($scope.libraryName.name === '도서관 모두') {
+          let count = $scope.libraryNames.length;
+          _.map($scope.libraryNames, function (library) {
+            updateBookList($scope.searchText, library.name, function () {
+              count--;
+              if (!count) {
+                $scope.isLoading = false;
+              }
+            });
+          })
+        } else {
+          updateBookList($scope.searchText, $scope.libraryName.name, function () {
             $scope.isLoading = false;
-          } else {
-            if(list[0].booklist) {
-              $scope.books = list[0].booklist;
-            } else {
-              $scope.books = [];
-            }
-            $log.log(angular.fromJson(list));
-            $scope.isLoading = false;
-          }
-        });
+          });
+        }
       } else {
         $log.log("검색할 책 이름을 입력해주세요.");
       }
@@ -114,6 +145,11 @@
           };
         });
 
+        $scope.libraryNames.unshift({
+            id: 100,
+            name: '도서관 모두'
+        });
+
         var options = _.map($scope.libraryNames, function (lib) {
           return React.createElement('option', {
             'label': lib.name,
@@ -131,9 +167,7 @@
           document.getElementById('root')
         );
 
-        if(list.length > 0) {
-          $scope.libraryName = $scope.libraryNames[0];
-        }
+        $scope.libraryName = $scope.libraryNames[0];
 
         $timeout(function () {
           $scope.$apply();
