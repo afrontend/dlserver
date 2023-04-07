@@ -29,20 +29,20 @@
 
     <div class="columns">
       <div class="column">
-        <div class="field has-addons">
-          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을 입력하세요."> </p>
-          <p class="control"> <div ng-click="search()" class="button is-info" ng-class="{'is-loading': isLoading === true }">검색</div> </p>
-          <!-- <p class="control"> <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">삭제</div> </p> -->
-        </div>
+        <span class="select">
+          <!--label for value in array-->
+          <span id="root"></span>
+        </span>
       </div>
     </div>
 
     <div class="columns">
       <div class="column">
-        <span class="select">
-          <!--label for value in array-->
-          <span id="root"></span>
-        </span>
+        <div class="field has-addons">
+          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을 입력하세요."> </p>
+          <p class="control"> <div ng-click="search()" class="button is-info" ng-class="{'is-loading': isLoading === true }">검색</div> </p>
+          <!-- <p class="control"> <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">삭제</div> </p> -->
+        </div>
       </div>
     </div>
 
@@ -55,9 +55,11 @@
         </thead>
         <tbody>
           <tr ng-repeat="book in books" class="">
-            <td ng-cloak><span ng-bind="book.title + ', ' + book.libraryName"></span>
-              <span ng-show="book.exist === true" class="tag is-info">네</span>
-              <span ng-hide="book.exist === true" class="tag is-danger">아니요</span>
+            <td ng-cloak>
+              <span ng-show="book.exist === true" class="tag is-info">✓</span>
+              <span ng-show="book.exist === true" ng-bind="book.title + ', ' + book.libraryName"></span>
+              <span ng-hide="book.exist === true" class="tag is-danger">✖</span>
+              <span ng-hide="book.exist === true" style="color: gray" ng-bind="book.title + ', ' + book.libraryName"></span>
             </td>
           </tr>
         </tbody>
