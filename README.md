@@ -14,23 +14,21 @@
 
 ## 로컬 서버에서 확인
 
-- [도서관 목록 읽기](https://localhost:3000/)
+- [App](https://localhost:3000/)
 - [도서관 목록 읽기 (JSON)](https://localhost:3000/libraryList)
 - [책 검색](https://localhost:3000/javascript/판교)
 - [책 검색 (JSON)](https://localhost:3000/?title=javascript&libraryName=판교)
-- [웹 서비스로 사용](https://localhost:3000/app)
 
 ## 서버에서 확인
 
 무료 서버라 10초 정도 걸릴 수 있다.
 
-- [도서관 목록 읽기](https://dlserver.herokuapp.com/)
-- [도서관 목록 읽기 (JSON)](https://dlserver.herokuapp.com/libraryList)
-- [책 검색](https://dlserver.herokuapp.com/javascript/판교)
-- [책 검색 (JSON)](https://dlserver.herokuapp.com/?title=javascript&libraryName=판교)
-- [웹 서비스로 사용](https://dlserver.herokuapp.com/app)
+- [App](https://dongne.render.com/)
+- [도서관 목록 읽기 (JSON)](https://dongne.render.com/libraryList)
+- [책 검색](https://dongne.render.com/javascript/판교)
+- [책 검색 (JSON)](https://dongne.render.com/?title=javascript&libraryName=판교)
 
-[![dlserver app](https://agvim.files.wordpress.com/2019/06/dlserver.png?w=200 "dlserver app")](https://dlserver.herokuapp.com/app/)
+[![dongne app](https://agvim.files.wordpress.com/2019/06/dlserver.png?w=200 "dongne app")](https://dongne.render.com/)
 
 ## License
 MIT © [Bob Hwang](https://afrontend.github.io)
