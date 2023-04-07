@@ -30,7 +30,5 @@
 - [책 검색](https://dongne.render.com/javascript/판교)
 - [책 검색 (JSON)](https://dongne.render.com/search?title=javascript&libraryName=판교)
 
-[![dongne app](https://agvim.files.wordpress.com/2019/06/dlserver.png?w=200 "dongne app")](https://dongne.render.com/)
-
 ## License
 MIT © [Bob Hwang](https://afrontend.github.io)
