@@ -13,7 +13,7 @@
     function getLibrary(option, callback) {
       $http({
         method: 'GET',
-        url: '/',
+        url: '/search',
         timeout: 30000,
         params: {
           title: option.title,

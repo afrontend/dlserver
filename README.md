@@ -14,19 +14,21 @@
 
 ## 로컬 서버에서 확인
 
-- [App](https://localhost:3000/)
-- [도서관 목록 읽기 (JSON)](https://localhost:3000/libraryList)
-- [책 검색](https://localhost:3000/javascript/판교)
-- [책 검색 (JSON)](https://localhost:3000/?title=javascript&libraryName=판교)
+- [App](http://localhost:3000/)
+- [도서관 목록 읽기](http://localhost:3000/search)
+- [도서관 목록 읽기 (JSON)](http://localhost:3000/libraryList)
+- [책 검색](http://localhost:3000/javascript/판교)
+- [책 검색 (JSON)](http://localhost:3000/search?title=javascript&libraryName=판교)
 
 ## 서버에서 확인
 
 무료 서버라 10초 정도 걸릴 수 있다.
 
 - [App](https://dongne.render.com/)
+- [도서관 목록 읽기](https://dongne.render.com/search)
 - [도서관 목록 읽기 (JSON)](https://dongne.render.com/libraryList)
 - [책 검색](https://dongne.render.com/javascript/판교)
-- [책 검색 (JSON)](https://dongne.render.com/?title=javascript&libraryName=판교)
+- [책 검색 (JSON)](https://dongne.render.com/search?title=javascript&libraryName=판교)
 
 [![dongne app](https://agvim.files.wordpress.com/2019/06/dlserver.png?w=200 "dongne app")](https://dongne.render.com/)
 

@@ -37,6 +37,37 @@ app.get('/:title/:libraryName', function (req, res, next) {
   });
 })
 
+app.get('/search', function (req, res, next) {
+  var title = '';
+  var libraryName = '';
+
+  if (req.query.title) {
+    title = req.query.title
+  }
+
+  if (req.query.libraryName) {
+    libraryName = req.query.libraryName
+  }
+
+  if (title === '' && libraryName === '') {
+    var libs = dl.getLibraryNames();
+    res.send(libs.join("<br>"));
+  } else {
+    dl.search({
+      title: title,
+      libraryName: libraryName
+    }, null, function (err, books) {
+      if(err) {
+        res.json({
+          message: err.msg
+        });
+      } else {
+        res.json(books);
+      }
+    });
+  }
+})
+
 app.get('/libraryList', function (req, res, next) {
   var libs = dl.getLibraryNames();
   res.json(libs);
@@ -56,5 +87,5 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(process.env.PORT || 3000, function () {
-  console.log('dongne listening on port 3000!')
+  console.log('dlserver listening on port 3000!')
 })
