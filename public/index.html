@@ -20,8 +20,8 @@
       <section class="hero is-info">
         <div class="hero-body">
           <div class="container">
-            <h1 class="title center">도서관 책을 빌릴 수 있는지 알 수 있어요.</h1>
-            <h2 class="subtitle">책 이름을 입력하세요. 도서관을 선택할 수도 있어요.</h2>
+            <h1 class="title center">도서관 책을 빌릴 수 있는지 알아봐요. </h1>
+            <h2 class="subtitle">도서관도 선택할 수 있어요.</h2>
           </div>
         </div>
       </section>
@@ -56,7 +56,7 @@
         <tbody>
           <tr ng-repeat="book in books" class="">
             <td ng-cloak><span ng-bind="book.title + ', ' + book.libraryName"></span>
-              <span ng-show="book.exist === true" class="tag is-info">그럼요</span>
+              <span ng-show="book.exist === true" class="tag is-info">네</span>
               <span ng-hide="book.exist === true" class="tag is-danger">아니요</span>
             </td>
           </tr>
