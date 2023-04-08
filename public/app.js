@@ -26,7 +26,7 @@
       }, function errorCallback(response) {
         if(response.status === -1) {
           callback({
-            msg: '검색에 실패했습니다.'
+            msg: '검색에 실패했어요.'
           }, response.data);
         }
         $log.log('status: ' + response.status);
@@ -109,7 +109,7 @@
       $log.log("search " + $scope.libraryName.name);
       if($scope.searchText && $scope.searchText.length > 0) {
         $scope.isLoading = true;
-        if ($scope.libraryName.name === '도서관 모두') {
+        if ($scope.libraryName.name === '도서관을 선택할까요?') {
           let count = $scope.libraryNames.length;
           _.map($scope.libraryNames, function (library) {
             updateBookList($scope.searchText, library.name, function () {
@@ -147,7 +147,7 @@
 
         $scope.libraryNames.unshift({
             id: 100,
-            name: '도서관 모두'
+            name: '도서관을 선택할까요?'
         });
 
         var options = _.map($scope.libraryNames, function (lib) {
