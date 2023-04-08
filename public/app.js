@@ -83,15 +83,14 @@
           if(list && list[0] && list[0].booklist) {
             $scope.books = $scope.books.concat(list[0].booklist);
             $scope.books.sort(function(a, b) {
-              var nameA = a.title.toUpperCase(); // ignore upper and lowercase
-              var nameB = b.title.toUpperCase(); // ignore upper and lowercase
+              var nameA = a.title.toUpperCase();
+              var nameB = b.title.toUpperCase();
               if (nameA < nameB) {
                 return -1;
               }
               if (nameA > nameB) {
                 return 1;
               }
-
               // names must be equal
               return 0;
             });
@@ -145,12 +144,26 @@
           };
         });
 
-        $scope.libraryNames.unshift({
+        var options = $scope.libraryNames.sort(function(a, b) {
+          console.log(a)
+          var nameA = a.name.toUpperCase();
+          var nameB = b.name.toUpperCase();
+          if (nameA < nameB) {
+            return -1;
+          }
+          if (nameA > nameB) {
+            return 1;
+          }
+          // names must be equal
+          return 0;
+        });
+
+        options.unshift({
             id: 100,
             name: '도서관을 선택할까요?'
         });
 
-        var options = _.map($scope.libraryNames, function (lib) {
+        options = options.map(function (lib) {
           return React.createElement('option', {
             'label': lib.name,
             'value': lib.value
