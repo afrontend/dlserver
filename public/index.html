@@ -20,20 +20,10 @@
       <section class="hero is-info">
         <div class="hero-body">
           <div class="container">
-            <h1 class="title center">도서관 책을 빌릴 수 있는지 알아봐요. </h1>
-            <h2 class="subtitle">도서관도 선택할 수 있어요.</h2>
+            <h1 class="title center">책이 도서관에 있는지 확인해요.</h1>
           </div>
         </div>
       </section>
-    </div>
-
-    <div class="columns">
-      <div class="column">
-        <span class="select">
-          <!--label for value in array-->
-          <span id="root"></span>
-        </span>
-      </div>
     </div>
 
     <div class="columns">
@@ -46,14 +36,26 @@
       </div>
     </div>
 
+    <div class="columns">
+      <div class="column">
+        <span class="select">
+          <!--label for value in array-->
+          <span id="root"></span>
+        </span>
+      </div>
+    </div>
+
     <div class="block">
       <table class="table is-narrow is-striped">
         <thead>
           <tr>
-            <th>이 책을 빌릴 수 있나요?</th>
+            <th>다음 책들이 도서관에 있어요.</th>
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td ng-show="isLoading === true" >찾고 있어요.</tr>
+          </tr>
           <tr ng-repeat="book in books" class="">
             <td ng-cloak>
               <span ng-show="book.exist === true" class="tag is-info">✓</span>
