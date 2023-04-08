@@ -11,7 +11,7 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
 
-  <title>이 책을 빌릴 수 있을까?</title>
+  <title>도서관 책 찾기</title>
 </head>
 <body ng-controller="LibraryController">
   <div class="section">
@@ -20,7 +20,7 @@
       <section class="hero is-info">
         <div class="hero-body">
           <div class="container">
-            <h1 class="title center">책이 도서관에 있는지 확인해요.</h1>
+            <h1 class="title center">도서관에 찾는 책이 있는지 확인해요.</h1>
           </div>
         </div>
       </section>
@@ -49,13 +49,11 @@
       <table class="table is-narrow is-striped">
         <thead>
           <tr>
-            <th>다음 책들이 도서관에 있어요.</th>
+            <th ng-hide="isLoading === true" >다음 책들이 도서관에 있어요.</th>
+            <th ng-show="isLoading === true" >찾고 있어요.</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td ng-show="isLoading === true" >찾고 있어요.</tr>
-          </tr>
           <tr ng-repeat="book in books" class="">
             <td ng-cloak>
               <span ng-show="book.exist === true" class="tag is-info">✓</span>

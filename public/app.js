@@ -108,7 +108,7 @@
       $log.log("search " + $scope.libraryName.name);
       if($scope.searchText && $scope.searchText.length > 0) {
         $scope.isLoading = true;
-        if ($scope.libraryName.name === '도서관을 선택할까요?') {
+        if ($scope.libraryName.name === '도서관을 선택하세요.') {
           let count = $scope.libraryNames.length;
           _.map($scope.libraryNames, function (library) {
             updateBookList($scope.searchText, library.name, function () {
@@ -160,7 +160,7 @@
 
         options.unshift({
             id: 100,
-            name: '도서관을 선택할까요?'
+            name: '도서관을 선택하세요.'
         });
 
         options = options.map(function (lib) {
