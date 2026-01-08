@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "mcp": "node mcp-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/afrontend/dlserver#readme",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
     "babel": "^6.23.0",
     "dongnelibrary": "^0.2.3",
     "express": "^4.15.4"
