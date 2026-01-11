@@ -1,24 +1,26 @@
 #!/usr/bin/env node
 
-const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const { Server } = require("@modelcontextprotocol/sdk/server/index.js");
+const {
+  StdioServerTransport,
+} = require("@modelcontextprotocol/sdk/server/stdio.js");
 const {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-} = require('@modelcontextprotocol/sdk/types.js');
-const dl = require('dongnelibrary');
+} = require("@modelcontextprotocol/sdk/types.js");
+const dl = require("dongnelibrary");
 
 // Create MCP server
 const server = new Server(
   {
-    name: 'dlserver',
-    version: '0.0.3',
+    name: "dlserver",
+    version: "0.0.3",
   },
   {
     capabilities: {
       tools: {},
     },
-  }
+  },
 );
 
 // List available tools
@@ -26,28 +28,31 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: 'search_books',
-        description: 'Search for books in Korean libraries (동네도서관). Returns availability status for books across libraries in the Seoul area (판교, 동탄, 성남, etc.). Use this to check if a book is available for rent.',
+        name: "search_books",
+        description:
+          "Search for books in Korean libraries (동네도서관). Returns availability status for books across libraries in the Seoul area (판교, 동탄, 성남, etc.). Use this to check if a book is available for rent.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {
             title: {
-              type: 'string',
-              description: 'Book title to search for (Korean or English)',
+              type: "string",
+              description: "Book title to search for (Korean or English)",
             },
             libraryName: {
-              type: 'string',
-              description: 'Library name (e.g., "판교", "동탄", "성남"). Leave empty to search all libraries.',
+              type: "string",
+              description:
+                'Library name (e.g., "판교", "동탄", "성남"). Leave empty to search all libraries.',
             },
           },
-          required: ['title'],
+          required: ["title"],
         },
       },
       {
-        name: 'list_libraries',
-        description: 'Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported.',
+        name: "list_libraries",
+        description:
+          "Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {},
         },
       },
@@ -60,23 +65,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    if (name === 'list_libraries') {
+    if (name === "list_libraries") {
       const libs = dl.getLibraryNames();
       return {
         content: [
           {
-            type: 'text',
-            text: `Available libraries:\n${libs.join('\n')}`,
+            type: "text",
+            text: `Available libraries:\n${libs.join("\n")}`,
           },
         ],
       };
     }
 
-    if (name === 'search_books') {
-      const { title, libraryName = '' } = args;
+    if (name === "search_books") {
+      const { title, libraryName = "" } = args;
 
       if (!title) {
-        throw new Error('Title is required');
+        throw new Error("Title is required");
       }
 
       // Wrap callback-based dl.search in a Promise
@@ -89,11 +94,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           null,
           (err, books) => {
             if (err) {
-              reject(new Error(err.msg || 'Search failed'));
+              reject(new Error(err.msg || "Search failed"));
             } else {
               resolve(books);
             }
-          }
+          },
         );
       });
 
@@ -102,27 +107,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (libraryName) {
         result += ` in ${libraryName}`;
       }
-      result += ':\n\n';
+      result += ":\n\n";
 
       if (books && books.length > 0) {
         books.forEach((libraryResult) => {
           if (libraryResult.booklist && libraryResult.booklist.length > 0) {
             result += `Library: ${libraryResult.libraryName}\n`;
             libraryResult.booklist.forEach((book) => {
-              const mark = book.exist ? '✓' : '✖';
+              const mark = book.exist ? "✓" : "✖";
               result += `  ${mark} ${book.title}\n`;
             });
-            result += '\n';
+            result += "\n";
           }
         });
       } else {
-        result += 'No books found.\n';
+        result += "No books found.\n";
       }
 
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: result,
           },
         ],
@@ -134,7 +139,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     return {
       content: [
         {
-          type: 'text',
+          type: "text",
           text: `Error: ${error.message}`,
         },
       ],
@@ -147,10 +152,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('DongneLibrary MCP Server running on stdio');
+  console.error("DongneLibrary MCP Server running on stdio");
 }
 
 main().catch((error) => {
-  console.error('Server error:', error);
+  console.error("Server error:", error);
   process.exit(1);
+});
+
+// Keep the process running
+process.stdin.resume();
+
+// Handle termination gracefully
+process.on("SIGINT", () => {
+  console.error("Shutting down gracefully...");
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  console.error("Shutting down gracefully...");
+  process.exit(0);
 });

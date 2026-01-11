@@ -48,10 +48,12 @@ Replace `/absolute/path/to/dlserver/` with the actual path to your dlserver dire
 Search for books in Korean libraries.
 
 **Parameters:**
+
 - `title` (required): Book title to search for (Korean or English)
 - `libraryName` (optional): Library name (e.g., "판교", "동탄", "성남"). Leave empty to search all libraries.
 
 **Example:**
+
 ```
 Search for "해리포터" in all libraries
 Search for "해리포터" in "판교" library

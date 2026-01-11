@@ -1,6 +1,6 @@
 # DongneLibrary Web API
 
-도서관 책을 빌릴 수 있는지 알려주는 Web API 서비스, [블로그](https://agvim.wordpress.com/2017/09/20/web-api-check-if-a-library-book-was-rented/)에서 간단하게 정리했다.
+도서관 책을 빌릴 수 있는지 알려주는 Web API 서비스
 
 ## Install
 
@@ -31,4 +31,5 @@
 - [책 검색 (JSON)](https://dongne.onrender.com/search?title=javascript&libraryName=판교)
 
 ## License
+
 MIT © [Bob Hwang](https://afrontend.github.io)
