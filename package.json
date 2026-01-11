@@ -4,7 +4,8 @@
   "description": "Web API for dongnelibrary",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node mcp-server-SSE.js",
+    "webapp": "node app.js",
     "mcp": "node mcp-server.js",
     "mcpsse": "node mcp-server-SSE.js",
     "test": "echo \"Error: no test specified\" && exit 1"
