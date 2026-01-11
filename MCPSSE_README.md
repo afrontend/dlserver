@@ -63,6 +63,7 @@ The server maintains active sessions using a session-based architecture:
 Search for books across Korean libraries.
 
 **Input Schema:**
+
 ```json
 {
   "title": "string (required)",
@@ -71,6 +72,7 @@ Search for books across Korean libraries.
 ```
 
 **Example Request:**
+
 ```json
 {
   "name": "search_books",
@@ -82,6 +84,7 @@ Search for books across Korean libraries.
 ```
 
 **Response Format:**
+
 ```
 Search results for "해리포터" in 판교:
 
@@ -95,6 +98,7 @@ Library: 판교도서관
 - ✖ indicates the book is not currently available
 
 **Implementation Details:**
+
 - Uses callback-based `dl.search()` wrapped in a Promise (lines 108-123)
 - Supports filtering by library name or searching all libraries
 - Returns formatted text with availability indicators
@@ -104,11 +108,13 @@ Library: 판교도서관
 Get a list of all available Korean library names.
 
 **Input Schema:**
+
 ```json
 {}
 ```
 
 **Example Response:**
+
 ```
 Available libraries:
 판교도서관
@@ -118,6 +124,7 @@ Available libraries:
 ```
 
 **Implementation:**
+
 - Calls `dl.getLibraryNames()` directly (line 89)
 - Returns newline-separated list of library names
 
@@ -142,52 +149,6 @@ Server starts on port 3000 (default) or the port specified in `PORT` environment
 
 - `PORT` - Server port (default: 3000)
 
-## Deployment to Render.com
-
-### Prerequisites
-
-1. GitHub repository with the code
-2. Render.com account
-
-### Deployment Steps
-
-1. **Update package.json** (already done):
-   ```json
-   {
-     "scripts": {
-       "start": "node mcp-server-SSE.js"
-     }
-   }
-   ```
-
-2. **Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Deploy MCP server"
-   git push
-   ```
-
-3. **Create Web Service on Render**:
-   - Go to Render Dashboard
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Configure:
-     - **Name**: dlserver-mcp
-     - **Environment**: Node
-     - **Build Command**: `npm install`
-     - **Start Command**: `npm start`
-   - Click "Create Web Service"
-
-4. **Access Your Server**:
-   - Render will provide a URL like: `https://dlserver-mcp.onrender.com`
-   - MCP endpoint: `https://dlserver-mcp.onrender.com/mcp`
-
-### Important Notes
-
-- Render automatically sets the `PORT` environment variable
-- The server binds to `0.0.0.0` (line 254) for Render compatibility
-- Free tier may sleep after inactivity; first request may be slow
-
 ## API Endpoints
 
 ### POST /mcp
@@ -195,12 +156,14 @@ Server starts on port 3000 (default) or the port specified in `PORT` environment
 Main MCP endpoint for initializing sessions and making tool calls.
 
 **Headers:**
+
 - `Content-Type: application/json`
 - `mcp-session-id` (optional, required after initialization)
 
 **Request Types:**
 
 1. **Initialize Request** (first request):
+
    ```json
    {
      "jsonrpc": "2.0",
@@ -218,6 +181,7 @@ Main MCP endpoint for initializing sessions and making tool calls.
    ```
 
 2. **Tool List Request**:
+
    ```json
    {
      "jsonrpc": "2.0",
@@ -246,9 +210,11 @@ Main MCP endpoint for initializing sessions and making tool calls.
 SSE endpoint for receiving server-sent events.
 
 **Headers:**
+
 - `mcp-session-id` (required)
 
 **Response:**
+
 - Content-Type: `text/event-stream`
 - Streams server events to the client
 
@@ -257,9 +223,11 @@ SSE endpoint for receiving server-sent events.
 Closes an active session.
 
 **Headers:**
+
 - `mcp-session-id` (required)
 
 **Response:**
+
 - Status 200 on successful closure
 
 ## Technical Details
@@ -276,6 +244,7 @@ The server uses `StreamableHTTPServerTransport` which provides:
 ### Error Handling
 
 **Tool Execution Errors** (lines 158-168):
+
 ```json
 {
   "content": [
@@ -289,6 +258,7 @@ The server uses `StreamableHTTPServerTransport` which provides:
 ```
 
 **Session Errors** (lines 204-208):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -301,6 +271,7 @@ The server uses `StreamableHTTPServerTransport` which provides:
 ```
 
 **Server Errors** (lines 214-218):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -417,11 +388,12 @@ To use this server with Claude Desktop or other MCP clients, add to your config:
 ```
 
 For deployed version:
+
 ```json
 {
   "mcpServers": {
     "dlserver": {
-      "url": "https://your-app.onrender.com/mcp"
+      "url": "https://dongnelibrary-mcp-server.onrender.com/mcp"
     }
   }
 }
