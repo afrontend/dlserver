@@ -159,17 +159,3 @@ main().catch((error) => {
   console.error("Server error:", error);
   process.exit(1);
 });
-
-// Keep the process running
-process.stdin.resume();
-
-// Handle termination gracefully
-process.on("SIGINT", () => {
-  console.error("Shutting down gracefully...");
-  process.exit(0);
-});
-
-process.on("SIGTERM", () => {
-  console.error("Shutting down gracefully...");
-  process.exit(0);
-});
