@@ -2,6 +2,28 @@
 
 도서관 책을 빌릴 수 있는지 알려주는 Web API 서비스
 
+A Korean library book availability checker that provides both a web interface and REST API to search for books across multiple libraries in the Seoul metropolitan area.
+
+## Features
+
+- 🔍 Search books across multiple Korean libraries (판교, 동탄, 성남, etc.)
+- 📚 Real-time availability checking
+- 🌐 Web UI and REST API endpoints
+- 🎨 Modern interface using Bulma CSS framework
+- ⚛️ Hybrid AngularJS + React frontend architecture
+
+## Technology Stack
+
+**Backend:**
+- Node.js (>=8.0.0)
+- Express.js
+- dongnelibrary npm package
+
+**Frontend:**
+- AngularJS 1.6.9
+- React 16
+- Bulma CSS
+
 ## Install
 
     git clone https://github.com/afrontend/dlserver.git
@@ -11,6 +33,44 @@
 ## Run
 
     npm start
+
+Server will start on port 3000 (or use PORT environment variable to customize)
+
+## API Endpoints
+
+### 1. Web Interface
+```
+GET /
+```
+Main web application interface for searching books
+
+### 2. Search Books (HTML)
+```
+GET /:title/:libraryName
+```
+Returns formatted HTML with book availability markers (✓/✖)
+
+**Example:** `http://localhost:3000/javascript/판교`
+
+### 3. Search Books (JSON)
+```
+GET /search?title=<title>&libraryName=<libraryName>
+```
+Returns JSON array of book objects with availability data
+
+**Example:** `http://localhost:3000/search?title=javascript&libraryName=판교`
+
+### 4. Get Library List (HTML)
+```
+GET /search
+```
+Returns HTML list of all available libraries
+
+### 5. Get Library List (JSON)
+```
+GET /libraryList
+```
+Returns JSON array of all library names
 
 ## 로컬 서버에서 확인
 
@@ -29,6 +89,55 @@
 - [도서관 목록 읽기 (JSON)](https://dongne.onrender.com/libraryList)
 - [책 검색](https://dongne.onrender.com/javascript/판교)
 - [책 검색 (JSON)](https://dongne.onrender.com/search?title=javascript&libraryName=판교)
+
+## Usage Examples
+
+### Using the Web Interface
+
+1. Open http://localhost:3000/ in your browser
+2. Select a library from the dropdown (or select "도서관을 선택하세요." to search all libraries)
+3. Enter a book title
+4. Click search to see availability across selected library/libraries
+
+### Using the API
+
+**Get all libraries:**
+```bash
+curl http://localhost:3000/libraryList
+```
+
+**Search for a book:**
+```bash
+curl "http://localhost:3000/search?title=javascript&libraryName=판교"
+```
+
+**Response format:**
+```json
+[
+  {
+    "title": "Book Title",
+    "available": true,
+    "location": "Library Name",
+    ...
+  }
+]
+```
+
+## Architecture
+
+- **Backend (app.js):** Express.js server with three main endpoints for book search and library list retrieval
+- **Frontend (public/):** Hybrid application using AngularJS 1.6.9 for main logic and React 16 for the library dropdown component
+- **Data Source:** Uses the `dongnelibrary` npm package for library API integration
+- **Styling:** Bulma CSS framework for modern, responsive UI
+
+## MCP Server Support
+
+This project includes MCP (Model Context Protocol) server implementations:
+
+- **mcp-server-STDIO.js:** Standard input/output based MCP server
+- **mcp-server-SSE.js:** Server-sent events based MCP server
+
+See MCPSTDIO_README.md for more details on MCP server configuration.
 
 ## License
 
