@@ -25,8 +25,8 @@ const transports = {};
 function createServer() {
   const server = new Server(
     {
-      name: "dlserver",
-      version: "0.0.3",
+      name: "dongneLibrary",
+      version: "1.0.0",
     },
     {
       capabilities: {
