@@ -1,5 +1,7 @@
 # MCP Server SSE Implementation
 
+![Root Directory Image](./public/logo.jpg)
+
 ## Overview
 
 `mcp-server-SSE.js` is a Model Context Protocol (MCP) server that provides access to Korean library book search functionality via the `dongnelibrary` npm package. This implementation uses the SSE (Server-Sent Events) transport method with the StreamableHTTP transport from the MCP SDK.
