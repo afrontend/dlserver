@@ -9,7 +9,8 @@ A Korean library book availability checker that provides both a web interface an
 - 🔍 Search books across multiple Korean libraries (판교, 동탄, 성남, etc.)
 - 📚 Real-time availability checking
 - 🌐 Web UI and REST API endpoints
-- 🎨 Modern interface using Bulma CSS framework
+- 🎨 Modern interface using Tailwind CSS framework
+- 🔎 Incremental library search filter
 - ⚛️ Hybrid AngularJS + React frontend architecture
 
 ## Technology Stack
@@ -22,7 +23,7 @@ A Korean library book availability checker that provides both a web interface an
 **Frontend:**
 - AngularJS 1.6.9
 - React 16
-- Bulma CSS
+- Tailwind CSS
 
 ## Install
 
@@ -32,9 +33,13 @@ A Korean library book availability checker that provides both a web interface an
 
 ## Run
 
-    npm start
+    npm run webapp
 
 Server will start on port 3000 (or use PORT environment variable to customize)
+
+To run the MCP server instead:
+
+    npm start
 
 ## API Endpoints
 
@@ -95,9 +100,10 @@ Returns JSON array of all library names
 ### Using the Web Interface
 
 1. Open http://localhost:3000/ in your browser
-2. Select a library from the dropdown (or select "도서관을 선택하세요." to search all libraries)
-3. Enter a book title
-4. Click search to see availability across selected library/libraries
+2. Use the library search filter to find a specific library by typing part of its name
+3. Select a library from the dropdown (or select "도서관을 선택하세요." to search all libraries)
+4. Enter a book title
+5. Click search to see availability across selected library/libraries
 
 ### Using the API
 
@@ -128,7 +134,7 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 - **Backend (app.js):** Express.js server with three main endpoints for book search and library list retrieval
 - **Frontend (public/):** Hybrid application using AngularJS 1.6.9 for main logic and React 16 for the library dropdown component
 - **Data Source:** Uses the `dongnelibrary` npm package for library API integration
-- **Styling:** Bulma CSS framework for modern, responsive UI
+- **Styling:** Tailwind CSS framework for modern, responsive UI
 
 ## MCP Server Support
 
