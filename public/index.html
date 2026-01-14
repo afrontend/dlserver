@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
   <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
@@ -14,52 +14,52 @@
   <title>도서관 책 찾기</title>
 </head>
 <body ng-controller="LibraryController">
-  <div class="section">
+  <div class="p-8">
 
-    <div class="block">
-      <section class="hero is-info">
-        <div class="hero-body">
-          <div class="container">
-            <h1 class="title center">도서관에 찾는 책이 있는지 확인해요.</h1>
+    <div class="mb-6">
+      <section class="bg-blue-500 text-white rounded-lg">
+        <div class="py-12 px-6">
+          <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-center">도서관에 찾는 책이 있는지 확인해요.</h1>
           </div>
         </div>
       </section>
     </div>
 
-    <div class="columns">
-      <div class="column">
-        <div class="field has-addons">
-          <p class="control"> <input ng-model="searchText" type="text" class="input" placeholder="책 이름을 입력하세요."> </p>
-          <p class="control"> <div ng-click="search()" class="button is-info" ng-class="{'is-loading': isLoading === true }">검색</div> </p>
-          <!-- <p class="control"> <div ng-show="searchText !== ''" ng-click="empty()" class="button is-danger">삭제</div> </p> -->
+    <div class="flex flex-wrap mb-4">
+      <div class="w-full">
+        <div class="flex">
+          <p class="flex-grow"> <input ng-model="searchText" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="책 이름을 입력하세요."> </p>
+          <p> <div ng-click="search()" class="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600 cursor-pointer" ng-class="{'opacity-50 cursor-wait': isLoading === true }">검색</div> </p>
+          <!-- <p> <div ng-show="searchText !== ''" ng-click="empty()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">삭제</div> </p> -->
         </div>
       </div>
     </div>
 
-    <div class="columns">
-      <div class="column">
-        <span class="select">
+    <div class="flex flex-wrap mb-4">
+      <div class="w-full">
+        <span class="inline-block">
           <!--label for value in array-->
           <span id="root"></span>
         </span>
       </div>
     </div>
 
-    <div class="block">
-      <table class="table is-narrow is-striped">
+    <div class="mb-6">
+      <table class="w-full border-collapse">
         <thead>
-          <tr>
-            <th ng-hide="isLoading === true" >다음 책들이 도서관에 있어요.</th>
-            <th ng-show="isLoading === true" >찾고 있어요.</th>
+          <tr class="bg-gray-100">
+            <th ng-hide="isLoading === true" class="text-left p-2 border-b border-gray-200">다음 책들이 도서관에 있어요.</th>
+            <th ng-show="isLoading === true" class="text-left p-2 border-b border-gray-200">찾고 있어요.</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="book in books" class="">
-            <td ng-cloak>
-              <span ng-show="book.exist === true" class="tag is-info">✓</span>
+          <tr ng-repeat="book in books" class="even:bg-gray-50">
+            <td ng-cloak class="p-2 border-b border-gray-200">
+              <span ng-show="book.exist === true" class="inline-block px-2 py-1 text-xs bg-blue-500 text-white rounded">✓</span>
               <span ng-show="book.exist === true" ng-bind="book.title + ', ' + book.libraryName"></span>
-              <span ng-hide="book.exist === true" class="tag is-danger">✖</span>
-              <span ng-hide="book.exist === true" style="color: gray" ng-bind="book.title + ', ' + book.libraryName"></span>
+              <span ng-hide="book.exist === true" class="inline-block px-2 py-1 text-xs bg-red-500 text-white rounded">✖</span>
+              <span ng-hide="book.exist === true" class="text-gray-500" ng-bind="book.title + ', ' + book.libraryName"></span>
             </td>
           </tr>
         </tbody>

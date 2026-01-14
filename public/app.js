@@ -158,27 +158,58 @@
           return 0;
         });
 
-        options.unshift({
-            id: 100,
-            name: '도서관을 선택하세요.'
-        });
+        // Store original options for filtering (without default option)
+        var allOptions = options;
 
-        options = options.map(function (lib) {
-          return React.createElement('option', {
-            'label': lib.name,
-            'value': lib.value
-          }, lib.name);
-        })
+        function renderLibrarySelector(filterText) {
+          var filteredOptions = allOptions;
+          if (filterText && filterText.trim() !== '') {
+            filteredOptions = allOptions.filter(function(lib) {
+              return lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+            });
+          }
 
-        ReactDOM.render(
-          React.createElement('select', {
-            'onChange': function (e) {
-              console.log(e.target.value);
-              $scope.reactLibraryName = e.target.value;
-            }
-          }, options),
-          document.getElementById('root')
-        );
+          // Add default option at the beginning
+          var defaultOption = React.createElement('option', {
+            'label': '도서관을 선택하세요.',
+            'value': '도서관을 선택하세요.'
+          }, '도서관을 선택하세요.');
+
+          var selectOptions = [defaultOption].concat(filteredOptions.map(function (lib) {
+            return React.createElement('option', {
+              'key': lib.id,
+              'label': lib.name,
+              'value': lib.name
+            }, lib.name);
+          }));
+
+          ReactDOM.render(
+            React.createElement('div', { 'className': 'flex flex-col gap-2' },
+              React.createElement('input', {
+                'type': 'text',
+                'className': 'border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': '도서관 이름 검색...',
+                'defaultValue': filterText || '',
+                'onChange': function (e) {
+                  renderLibrarySelector(e.target.value);
+                }
+              }),
+              React.createElement('select', {
+                'className': 'border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'onChange': function (e) {
+                  console.log(e.target.value);
+                  $scope.reactLibraryName = e.target.value;
+                }
+              }, selectOptions),
+              React.createElement('span', {
+                'className': 'text-sm text-gray-500'
+              }, filteredOptions.length + '개 도서관')
+            ),
+            document.getElementById('root')
+          );
+        }
+
+        renderLibrarySelector('');
 
         $scope.libraryName = $scope.libraryNames[0];
 
