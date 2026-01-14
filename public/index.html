@@ -56,9 +56,9 @@
         <tbody>
           <tr ng-repeat="book in books" class="even:bg-gray-50">
             <td ng-cloak class="p-2 border-b border-gray-200">
-              <span ng-show="book.exist === true" class="inline-block px-2 py-1 text-xs bg-blue-500 text-white rounded">✓</span>
+              <span ng-show="book.exist === true">✅</span>
               <span ng-show="book.exist === true" ng-bind="book.title + ', ' + book.libraryName"></span>
-              <span ng-hide="book.exist === true" class="inline-block px-2 py-1 text-xs bg-red-500 text-white rounded">✖</span>
+              <span ng-hide="book.exist === true">❌</span>
               <span ng-hide="book.exist === true" class="text-gray-500" ng-bind="book.title + ', ' + book.libraryName"></span>
             </td>
           </tr>
