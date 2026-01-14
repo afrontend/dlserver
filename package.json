@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node mcp-server-SSE.js",
     "webapp": "node app.js",
-    "mcp": "node mcp-server.js",
+    "mcpstdio": "node mcp-server-STDIO.js",
     "mcpsse": "node mcp-server-SSE.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
