@@ -14,56 +14,48 @@
   <title>도서관 책 찾기</title>
 </head>
 <body ng-controller="LibraryController">
-  <div class="p-8">
+  <div class="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto">
 
-    <div class="mb-6">
+    <div class="mb-4 sm:mb-6">
       <section class="bg-blue-500 text-white rounded-lg">
-        <div class="py-12 px-6">
+        <div class="py-6 px-4 sm:py-10 sm:px-6 md:py-12">
           <div class="max-w-4xl mx-auto">
-            <h1 class="text-3xl font-bold text-center">도서관에 찾는 책이 있는지 확인해요.</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-center">도서관에 찾는 책이 있는지 확인해요.</h1>
           </div>
         </div>
       </section>
     </div>
 
-    <div class="flex flex-wrap mb-4">
-      <div class="w-full">
-        <div class="flex">
-          <p class="flex-grow"> <input ng-model="searchText" ng-keypress="$event.keyCode === 13 && search()" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="책 이름을 입력하세요."> </p>
-          <p> <div ng-click="search()" class="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600 cursor-pointer" ng-class="{'opacity-50 cursor-wait': isLoading === true }">검색</div> </p>
-          <!-- <p> <div ng-show="searchText !== ''" ng-click="empty()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">삭제</div> </p> -->
-        </div>
+    <div class="mb-4">
+      <div class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+        <input ng-model="searchText" ng-keypress="$event.keyCode === 13 && search()" type="text" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 rounded sm:rounded-l sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" placeholder="책 이름을 입력하세요.">
+        <div ng-click="search()" class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded sm:rounded-r sm:rounded-l-none hover:bg-blue-600 cursor-pointer text-center font-medium" ng-class="{'opacity-50 cursor-wait': isLoading === true }">검색</div>
       </div>
     </div>
 
-    <div class="flex flex-wrap mb-4">
-      <div class="w-full">
-        <span class="inline-block">
-          <!--label for value in array-->
-          <span id="root"></span>
-        </span>
-      </div>
+    <div class="mb-4">
+      <div id="root"></div>
     </div>
 
     <div class="mb-6">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-100">
-            <th ng-hide="isLoading === true" class="text-left p-2 border-b border-gray-200">다음 책들이 도서관에 있어요.</th>
-            <th ng-show="isLoading === true" class="text-left p-2 border-b border-gray-200">찾고 있어요.</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="book in books" class="even:bg-gray-50">
-            <td ng-cloak class="p-2 border-b border-gray-200">
-              <span ng-show="book.exist === true">✅</span>
-              <span ng-show="book.exist === true" ng-bind="book.title + ', ' + book.libraryName"></span>
-              <span ng-hide="book.exist === true">❌</span>
-              <span ng-hide="book.exist === true" class="text-gray-500" ng-bind="book.title + ', ' + book.libraryName"></span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-100 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200">
+          <h2 ng-hide="isLoading === true" class="font-medium text-sm sm:text-base text-gray-700">다음 책들이 도서관에 있어요.</h2>
+          <h2 ng-show="isLoading === true" class="font-medium text-sm sm:text-base text-gray-700">찾고 있어요.</h2>
+        </div>
+        <ul class="divide-y divide-gray-200">
+          <li ng-repeat="book in books" ng-cloak class="px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50">
+            <div ng-show="book.exist === true" class="flex items-start gap-2">
+              <span class="flex-shrink-0">✅</span>
+              <span class="text-sm sm:text-base break-words" ng-bind="book.title + ', ' + book.libraryName"></span>
+            </div>
+            <div ng-hide="book.exist === true" class="flex items-start gap-2">
+              <span class="flex-shrink-0">❌</span>
+              <span class="text-sm sm:text-base text-gray-500 break-words" ng-bind="book.title + ', ' + book.libraryName"></span>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
 
   </div><!-- /. section -->

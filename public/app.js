@@ -184,10 +184,10 @@
           }));
 
           ReactDOM.render(
-            React.createElement('div', { 'className': 'flex flex-col gap-2' },
+            React.createElement('div', { 'className': 'flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full' },
               React.createElement('input', {
                 'type': 'text',
-                'className': 'border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'className': 'w-full sm:w-48 border border-gray-300 rounded px-3 py-3 sm:py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'placeholder': '도서관 이름 검색...',
                 'defaultValue': filterText || '',
                 'onChange': function (e) {
@@ -195,14 +195,14 @@
                 }
               }),
               React.createElement('select', {
-                'className': 'border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'className': 'w-full sm:w-auto border border-gray-300 rounded px-3 py-3 sm:py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")] bg-[length:1.5rem_1.5rem] bg-[right_0.5rem_center] bg-no-repeat pr-10',
                 'onChange': function (e) {
                   console.log(e.target.value);
                   $scope.reactLibraryName = e.target.value;
                 }
               }, selectOptions),
               React.createElement('span', {
-                'className': 'text-sm text-gray-500'
+                'className': 'text-xs sm:text-sm text-gray-500'
               }, filteredOptions.length + '개 도서관')
             ),
             document.getElementById('root')

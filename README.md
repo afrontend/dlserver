@@ -9,7 +9,8 @@ A Korean library book availability checker that provides both a web interface an
 - 🔍 Search books across multiple Korean libraries (판교, 동탄, 성남, etc.)
 - 📚 Real-time availability checking
 - 🌐 Web UI and REST API endpoints
-- 🎨 Modern interface using Tailwind CSS framework
+- 🎨 Modern responsive interface using Tailwind CSS framework
+- 📱 Mobile-friendly design with touch-optimized controls
 - 🔎 Incremental library search filter
 - ⚛️ Hybrid AngularJS + React frontend architecture
 
