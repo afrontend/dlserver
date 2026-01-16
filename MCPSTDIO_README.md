@@ -33,7 +33,7 @@ Add this to your Claude Desktop configuration file:
   "mcpServers": {
     "dlserver": {
       "command": "node",
-      "args": ["/absolute/path/to/dlserver/mcp-server.js"]
+      "args": ["/absolute/path/to/dlserver/mcp-server-STDIO.js"]
     }
   }
 }
