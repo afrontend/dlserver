@@ -61,6 +61,7 @@ Key behavior:
 - Selecting "도서관을 선택하세요." searches all libraries in parallel
 - Results are sorted alphabetically by title
 - Books shown with availability indicators (✓ available, ✖ not available)
+- Each book includes a link to its detail page when available
 
 ## Important Notes
 
