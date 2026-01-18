@@ -22,7 +22,7 @@ Note: No test suite is currently configured (test script exits with error).
 
 ## Architecture
 
-### Backend (app.js)
+### Backend (server.js)
 
 The Express.js server provides three main endpoints:
 
