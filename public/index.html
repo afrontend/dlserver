@@ -71,6 +71,7 @@
               class="font-medium text-sm sm:text-base text-gray-700"
             >
               지금 도서관에서 빌릴 수 있는 책이에요.
+              <span ng-show="books.length > 0" class="text-gray-500">({{books.length}}권 중 <span class="text-blue-500">{{(books | filter:{exist:true}).length}}권 대출가능</span>)</span>
             </h2>
             <h2
               ng-show="isLoading === true"
