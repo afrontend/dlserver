@@ -88,17 +88,21 @@
             >
               <div ng-show="book.exist === true" class="flex items-start gap-2">
                 <span class="flex-shrink-0">✅</span>
-                <span
-                  class="text-sm sm:text-base break-words"
-                  ng-bind="book.title + ', ' + book.libraryName"
-                ></span>
+                <span class="text-sm sm:text-base break-words">
+                  {{book.title}}, {{book.libraryName}}
+                  <a ng-if="book.bookUrl" ng-href="{{book.bookUrl}}" target="_blank" rel="noopener noreferrer" class="ml-1 text-blue-500 hover:text-blue-700">
+                    <i class="fa fa-external-link"></i>
+                  </a>
+                </span>
               </div>
               <div ng-hide="book.exist === true" class="flex items-start gap-2">
                 <span class="flex-shrink-0">❌</span>
-                <span
-                  class="text-sm sm:text-base text-gray-500 break-words"
-                  ng-bind="book.title + ', ' + book.libraryName"
-                ></span>
+                <span class="text-sm sm:text-base text-gray-500 break-words">
+                  {{book.title}}, {{book.libraryName}}
+                  <a ng-if="book.bookUrl" ng-href="{{book.bookUrl}}" target="_blank" rel="noopener noreferrer" class="ml-1 text-gray-400 hover:text-gray-600">
+                    <i class="fa fa-external-link"></i>
+                  </a>
+                </span>
               </div>
             </li>
           </ul>
