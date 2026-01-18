@@ -8,6 +8,7 @@ A Korean library book availability checker that provides both a web interface an
 
 - 🔍 Search books across multiple Korean libraries (판교, 동탄, 성남, etc.)
 - 📚 Real-time availability checking
+- 🔗 Direct links to book detail pages
 - 🌐 Web UI and REST API endpoints
 - 🎨 Modern responsive interface using Tailwind CSS framework
 - 📱 Mobile-friendly design with touch-optimized controls
@@ -147,7 +148,7 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 
 ## Architecture
 
-- **Backend (app.js):** Express.js server with three main endpoints for book search and library list retrieval
+- **Backend (server.js):** Express.js server with three main endpoints for book search and library list retrieval
 - **Frontend (public/):** Hybrid application using AngularJS 1.6.9 for main logic and React 16 for the library dropdown component
 - **Data Source:** Uses the `dongnelibrary` npm package for library API integration
 - **Styling:** Tailwind CSS framework for modern, responsive UI
