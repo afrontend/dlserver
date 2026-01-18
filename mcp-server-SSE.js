@@ -135,7 +135,8 @@ function setupServerHandlers(server) {
               result += `Library: ${libraryResult.libraryName}\n`;
               libraryResult.booklist.forEach((book) => {
                 const mark = book.exist ? "✓" : "✖";
-                result += `  ${mark} ${book.title}\n`;
+                result += `  ${mark} ${book.title}`;
+                result += book.bookUrl ? ` (URL: ${book.bookUrl})\n` : "";
               });
               result += "\n";
             }
