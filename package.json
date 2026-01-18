@@ -1,6 +1,6 @@
 {
   "name": "dlserver",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Web API for dongnelibrary",
   "main": "server.js",
   "scripts": {
