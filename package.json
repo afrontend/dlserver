@@ -29,7 +29,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "babel": "^6.23.0",
-    "dongnelibrary": "^0.2.11",
+    "dongnelibrary": "^0.2.12",
     "express": "^4.15.4"
   }
 }
