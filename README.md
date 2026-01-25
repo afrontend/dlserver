@@ -13,20 +13,20 @@ A Korean library book availability checker that provides both a web interface an
 - 🎨 Modern responsive interface using Tailwind CSS framework
 - 📱 Mobile-friendly design with touch-optimized controls
 - 🔎 Incremental library search filter
-- ⚛️ Hybrid AngularJS + React frontend architecture
+- ⚛️ React 19 frontend with Vite
 
 ## Technology Stack
 
 **Backend:**
 
-- Node.js (>=8.0.0)
+- Node.js (>=22.22.0)
 - Express.js
 - dongnelibrary npm package
 
 **Frontend:**
 
-- AngularJS 1.6.9
-- React 16
+- React 19
+- Vite 7
 - Tailwind CSS
 
 ## Install
@@ -40,6 +40,15 @@ A Korean library book availability checker that provides both a web interface an
     npm run webapp
 
 Server will start on port 3000 (or use PORT environment variable to customize)
+
+**Development with hot reload:**
+
+    npm run webapp    # Terminal 1: Start Express server
+    npm run dev       # Terminal 2: Start Vite dev server with hot reload
+
+**Build for production:**
+
+    npm run build     # Outputs to dist/
 
 To run the MCP server instead:
 
@@ -149,7 +158,7 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 ## Architecture
 
 - **Backend (server.js):** Express.js server with three main endpoints for book search and library list retrieval
-- **Frontend (public/):** Hybrid application using AngularJS 1.6.9 for main logic and React 16 for the library dropdown component
+- **Frontend (src/):** React 19 application built with Vite, featuring search bar, library selector, and book list components
 - **Data Source:** Uses the `dongnelibrary` npm package for library API integration
 - **Styling:** Tailwind CSS framework for modern, responsive UI
 
