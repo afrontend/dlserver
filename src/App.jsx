@@ -40,16 +40,16 @@ const BookItem = ({ book }) => {
   const isAvailable = book.exist === true;
   const icon = isAvailable ? "\u2705" : "\u274C";
   const textClass = isAvailable
-    ? "text-sm sm:text-base break-words"
-    : "text-sm sm:text-base text-gray-500 break-words";
+    ? "text-base break-words"
+    : "text-base text-gray-500 break-words";
   const linkClass = isAvailable
-    ? "ml-1 text-blue-500 hover:text-blue-700"
-    : "ml-1 text-gray-400 hover:text-gray-600";
+    ? "ml-2 text-blue-500 hover:text-blue-700 active:text-blue-800 p-1"
+    : "ml-2 text-gray-400 hover:text-gray-600 active:text-gray-700 p-1";
 
   return (
-    <li className="px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50">
-      <div className="flex items-start gap-2">
-        <span className="flex-shrink-0">{icon}</span>
+    <li className="px-4 py-3 sm:py-3 hover:bg-gray-50 active:bg-gray-100 min-h-[48px] flex items-center">
+      <div className="flex items-start gap-3 w-full">
+        <span className="flex-shrink-0 text-lg">{icon}</span>
         <span className={textClass}>
           {book.title}, {book.libraryName}
           {book.bookUrl && (
@@ -74,32 +74,38 @@ const BookList = ({ books, isLoading }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="bg-gray-100 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200">
+      <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
         {isLoading ? (
-          <h2 className="font-medium text-sm sm:text-base text-gray-700">
+          <h2 className="font-medium text-base text-gray-700 flex items-center gap-2">
+            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             찾고 있어요...
           </h2>
         ) : (
-          <h2 className="font-medium text-sm sm:text-base text-gray-700">
-            지금 도서관에서 빌릴 수 있는 책이에요.{" "}
+          <h2 className="font-medium text-base text-gray-700">
+            지금 도서관에서 빌릴 수 있는 책이에요.
             {books.length > 0 && (
-              <span className="text-gray-500">
+              <span className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0">
                 ({books.length}권 중{" "}
-                <span className="text-blue-500">{availableCount}권 대출가능</span>
-                )
+                <span className="text-blue-600 font-semibold">{availableCount}권 대출가능</span>)
               </span>
             )}
           </h2>
         )}
       </div>
-      <ul className="divide-y divide-gray-200">
-        {books.map((book, index) => (
-          <BookItem
-            key={`${book.title}-${book.libraryName}-${index}`}
-            book={book}
-          />
-        ))}
-      </ul>
+      {books.length === 0 && !isLoading ? (
+        <div className="px-4 py-8 text-center text-gray-500">
+          검색 결과가 없습니다.
+        </div>
+      ) : (
+        <ul className="divide-y divide-gray-200">
+          {books.map((book, index) => (
+            <BookItem
+              key={`${book.title}-${book.libraryName}-${index}`}
+              book={book}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
@@ -119,16 +125,16 @@ const LibrarySelector = ({
     : libraryNames;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
       <input
         type="text"
-        className="w-full sm:w-48 border border-gray-300 rounded px-3 py-3 sm:py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full sm:w-48 border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px]"
         placeholder="도서관 이름 검색..."
         value={filterText}
         onChange={(e) => onFilterChange(e.target.value)}
       />
       <select
-        className="w-full sm:w-auto border border-gray-300 rounded px-3 py-3 sm:py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)] bg-[length:1.5rem_1.5rem] bg-[right_0.5rem_center] bg-no-repeat pr-10"
+        className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)] bg-[length:1.5rem_1.5rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
         onChange={(e) => onLibraryChange(e.target.value)}
       >
         <option value="도서관을 선택하세요.">도서관을 선택하세요.</option>
@@ -138,7 +144,7 @@ const LibrarySelector = ({
           </option>
         ))}
       </select>
-      <span className="text-xs sm:text-sm text-gray-500">
+      <span className="text-sm text-gray-500 text-center sm:text-left">
         {filteredLibraries.length}개 도서관
       </span>
     </div>
@@ -154,23 +160,25 @@ const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }) => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
       <input
         type="text"
         value={searchText}
         onChange={(e) => onSearchTextChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="flex-grow px-4 py-3 sm:py-2 border border-gray-300 rounded sm:rounded-l sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+        className="flex-grow px-4 py-3 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
         placeholder="책 이름을 입력하세요."
       />
-      <div
+      <button
+        type="button"
         onClick={() => !isLoading && onSearch()}
-        className={`px-4 py-3 sm:py-2 bg-blue-500 text-white rounded sm:rounded-r sm:rounded-l-none hover:bg-blue-600 cursor-pointer text-center font-medium${
+        disabled={isLoading}
+        className={`px-6 py-3 bg-blue-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-blue-600 active:bg-blue-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors${
           isLoading ? " opacity-50 cursor-wait" : ""
         }`}
       >
-        검색
-      </div>
+        {isLoading ? "검색중..." : "검색"}
+      </button>
     </div>
   );
 };
@@ -178,10 +186,10 @@ const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }) => {
 // Header Component
 const Header = () => (
   <div className="mb-4 sm:mb-6">
-    <section className="bg-blue-500 text-white rounded-lg">
-      <div className="py-6 px-4 sm:py-10 sm:px-6 md:py-12">
+    <section className="bg-blue-500 text-white rounded-lg shadow-sm">
+      <div className="py-5 px-4 sm:py-8 sm:px-6 md:py-10">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center leading-tight">
             책을 빌릴 수 있는지 확인해요
           </h1>
         </div>
@@ -251,26 +259,25 @@ const App = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto">
-      <Header />
-      <div className="mb-4">
-        <SearchBar
-          searchText={searchText}
-          onSearchTextChange={setSearchText}
-          onSearch={handleSearch}
-          isLoading={isLoading}
-        />
-      </div>
-      <div className="mb-4">
-        <LibrarySelector
-          libraryNames={libraryNames}
-          onLibraryChange={setLibraryName}
-          filterText={filterText}
-          onFilterChange={setFilterText}
-        />
-      </div>
-      <div className="mb-6">
-        <BookList books={books} isLoading={isLoading} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Safe area padding for notched phones */}
+      <div className="p-4 sm:p-6 md:p-8 pb-8 max-w-4xl mx-auto safe-area-inset">
+        <Header />
+        <div className="space-y-4">
+          <SearchBar
+            searchText={searchText}
+            onSearchTextChange={setSearchText}
+            onSearch={handleSearch}
+            isLoading={isLoading}
+          />
+          <LibrarySelector
+            libraryNames={libraryNames}
+            onLibraryChange={setLibraryName}
+            filterText={filterText}
+            onFilterChange={setFilterText}
+          />
+          <BookList books={books} isLoading={isLoading} />
+        </div>
       </div>
     </div>
   );
