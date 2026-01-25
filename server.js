@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const dl = require("dongnelibrary");
 
-app.use("/", express.static(__dirname + "/public"));
+app.use("/", express.static(__dirname + "/dist"));
 
 // Promisified wrapper for dl.search
 const searchBooks = (title, libraryName) => {
