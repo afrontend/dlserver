@@ -75,6 +75,13 @@ Both MCP servers expose two tools:
 
 The SSE server uses `StreamableHTTPServerTransport` for session-based HTTP communication. The STDIO server uses `StdioServerTransport` for local process communication.
 
+## Deployed URLs
+
+- **Web App:** https://dongne.onrender.com/
+- **MCP Server:** https://dongnelibrary-mcp-server.onrender.com
+
+Note: Free tier hosting, initial request may take ~10 seconds to wake up.
+
 ## Important Notes
 
 - This is a Korean language application - library names and UI text are in Korean
@@ -82,3 +89,4 @@ The SSE server uses `StreamableHTTPServerTransport` for session-based HTTP commu
 - Vite dev server proxies `/search` and `/libraryList` to localhost:3000
 - Production frontend is built to `/dist` and served by the Express server
 - Node.js version requirement: >=22.22.0
+- See `MCPSTDIO_README.md` for MCP server configuration details
