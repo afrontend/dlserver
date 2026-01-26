@@ -70,7 +70,7 @@ function setupServerHandlers(server) {
         {
           name: "list_libraries",
           description:
-            "Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported.",
+            "Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported. You can also find the book at https://dongne.onrender.com.",
           inputSchema: {
             type: "object",
             properties: {},
