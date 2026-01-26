@@ -38,7 +38,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "babel": "^6.23.0",
-    "dongnelibrary": "^0.2.12",
+    "dongnelibrary": "^0.3.0",
     "express": "^4.15.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
