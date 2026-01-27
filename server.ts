@@ -1,11 +1,21 @@
-const express = require("express");
+import express, { Request, Response, NextFunction } from "express";
+import * as dl from "dongnelibrary";
+import type { LibraryResult, Book } from "dongnelibrary";
+
 const app = express();
-const dl = require("dongnelibrary");
 
 app.use("/", express.static(__dirname + "/dist"));
 
+interface SearchParams {
+  title: string;
+  libraryName: string;
+}
+
 // Promisified wrapper for dl.search
-const searchBooks = (title, libraryName) => {
+const searchBooks = (
+  title: string,
+  libraryName: string,
+): Promise<LibraryResult[]> => {
   return new Promise((resolve, reject) => {
     dl.search({ title, libraryName }, null, (err, books) => {
       if (err) {
@@ -18,32 +28,35 @@ const searchBooks = (title, libraryName) => {
 };
 
 // Extract search params from request params or query
-const extractSearchParams = (params) => ({
-  title: params.title || "",
-  libraryName: params.libraryName || "",
+const extractSearchParams = (
+  params: Record<string, unknown>,
+): SearchParams => ({
+  title: (params.title as string) || "",
+  libraryName: (params.libraryName as string) || "",
 });
 
-const makeBookDescription = (book) => {
+const makeBookDescription = (book: Book): string => {
   const mark = book.exist ? "✓ " : "✖ ";
   return " " + mark + " " + book.title + "<br>";
 };
 
-app.get("/:title/:libraryName", async (req, res) => {
+app.get("/:title/:libraryName", async (req: Request, res: Response) => {
   const { title, libraryName } = extractSearchParams(req.params);
 
   try {
     const books = await searchBooks(title, libraryName);
     res.send(
-      books[0].booklist.reduce((memo, book) => {
+      books[0].booklist.reduce((memo: string, book: Book) => {
         return memo + makeBookDescription(book);
       }, ""),
     );
   } catch (err) {
-    res.json({ message: err.msg });
+    const error = err as { msg?: string };
+    res.json({ message: error.msg });
   }
 });
 
-app.get("/search", async (req, res) => {
+app.get("/search", async (req: Request, res: Response) => {
   const { title, libraryName } = extractSearchParams(req.query);
 
   if (title === "" && libraryName === "") {
@@ -54,23 +67,28 @@ app.get("/search", async (req, res) => {
       const books = await searchBooks(title, libraryName);
       res.json(books);
     } catch (err) {
-      res.json({ message: err.msg });
+      const error = err as { msg?: string };
+      res.json({ message: error.msg });
     }
   }
 });
 
-app.get("/libraryList", (req, res) => {
+app.get("/libraryList", (_req: Request, res: Response) => {
   const libs = dl.getLibraryNames();
   res.json(libs);
 });
 
-app.use((req, res, next) => {
-  const err = new Error("Not Found");
+interface HttpError extends Error {
+  status?: number;
+}
+
+app.use((_req: Request, _res: Response, next: NextFunction) => {
+  const err: HttpError = new Error("Not Found");
   err.status = 404;
   next(err);
 });
 
-app.use((err, req, res, next) => {
+app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
   res.status(err.status || 500);
   res.json({ message: "Server Error" });
 });

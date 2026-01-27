@@ -1,16 +1,15 @@
 #!/usr/bin/env node
-const { Server } = require("@modelcontextprotocol/sdk/server/index.js");
-const {
-  StreamableHTTPServerTransport,
-} = require("@modelcontextprotocol/sdk/server/streamableHttp.js");
-const {
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   isInitializeRequest,
-} = require("@modelcontextprotocol/sdk/types.js");
-const express = require("express");
-const { randomUUID } = require("crypto");
-const dl = require("dongnelibrary");
+} from "@modelcontextprotocol/sdk/types.js";
+import express, { Request, Response } from "express";
+import { randomUUID } from "crypto";
+import * as dl from "dongnelibrary";
+import type { LibraryResult, Book } from "dongnelibrary";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,10 +18,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Store active transports per session
-const transports = {};
+const transports: Record<string, StreamableHTTPServerTransport> = {};
 
 // Function to create and configure a new MCP server instance
-function createServer() {
+function createServer(): Server {
   const server = new Server(
     {
       name: "dongneLibrary",
@@ -42,7 +41,7 @@ function createServer() {
 }
 
 // Setup server request handlers
-function setupServerHandlers(server) {
+function setupServerHandlers(server: Server): void {
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
@@ -52,7 +51,7 @@ function setupServerHandlers(server) {
           description:
             "Search for books in Korean libraries (동네도서관). Returns availability status for books across libraries in the Seoul area (판교, 동탄, 성남, etc.). Use this to check if a book is available for rent.",
           inputSchema: {
-            type: "object",
+            type: "object" as const,
             properties: {
               title: {
                 type: "string",
@@ -72,7 +71,7 @@ function setupServerHandlers(server) {
           description:
             "Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported. You can also find the book at https://dongne.onrender.com.",
           inputSchema: {
-            type: "object",
+            type: "object" as const,
             properties: {},
           },
         },
@@ -90,7 +89,7 @@ function setupServerHandlers(server) {
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: `Available libraries:\n${libs.join("\n")}`,
             },
           ],
@@ -98,14 +97,14 @@ function setupServerHandlers(server) {
       }
 
       if (name === "search_books") {
-        const { title, libraryName = "" } = args;
+        const { title, libraryName = "" } = args as { title?: string; libraryName?: string };
 
         if (!title) {
           throw new Error("Title is required");
         }
 
         // Wrap callback-based dl.search in a Promise
-        const books = await new Promise((resolve, reject) => {
+        const books = await new Promise<LibraryResult[]>((resolve, reject) => {
           dl.search(
             {
               title: title,
@@ -130,13 +129,13 @@ function setupServerHandlers(server) {
         result += ":\n\n";
 
         if (books && books.length > 0) {
-          books.forEach((libraryResult) => {
+          books.forEach((libraryResult: LibraryResult) => {
             if (libraryResult.booklist && libraryResult.booklist.length > 0) {
               result += `Library: ${libraryResult.libraryName}\n`;
-              libraryResult.booklist.forEach((book) => {
+              libraryResult.booklist.forEach((book: Book) => {
                 const mark = book.exist ? "✓" : "✖";
                 result += `  ${mark} ${book.title}`;
-                result += book.bookUrl ? ` (URL: ${book.bookUrl})\n` : "";
+                result += book.bookUrl ? ` (URL: ${book.bookUrl})\n` : "\n";
               });
               result += "\n";
             }
@@ -148,7 +147,7 @@ function setupServerHandlers(server) {
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: result,
             },
           ],
@@ -160,8 +159,8 @@ function setupServerHandlers(server) {
       return {
         content: [
           {
-            type: "text",
-            text: `Error: ${error.message}`,
+            type: "text" as const,
+            text: `Error: ${(error as Error).message}`,
           },
         ],
         isError: true,
@@ -171,10 +170,10 @@ function setupServerHandlers(server) {
 }
 
 // Unified MCP endpoint using StreamableHTTP transport
-app.post("/mcp", async (req, res) => {
+app.post("/mcp", async (req: Request, res: Response) => {
   try {
-    const sessionId = req.headers["mcp-session-id"];
-    let transport;
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    let transport: StreamableHTTPServerTransport;
 
     if (sessionId && transports[sessionId]) {
       // Reuse existing session
@@ -183,11 +182,11 @@ app.post("/mcp", async (req, res) => {
       // New session initialization
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
-        onsessioninitialized: (id) => {
+        onsessioninitialized: (id: string) => {
           transports[id] = transport;
           console.log("Session initialized:", id);
         },
-        onsessionclosed: (id) => {
+        onsessionclosed: (id: string) => {
           delete transports[id];
           console.log("Session closed:", id);
         },
@@ -202,11 +201,12 @@ app.post("/mcp", async (req, res) => {
       const server = createServer();
       await server.connect(transport);
     } else {
-      return res.status(400).json({
+      res.status(400).json({
         jsonrpc: "2.0",
         error: { code: -32000, message: "Invalid session" },
         id: null,
       });
+      return;
     }
 
     await transport.handleRequest(req, res, req.body);
@@ -214,19 +214,20 @@ app.post("/mcp", async (req, res) => {
     console.error("Error in /mcp endpoint:", error);
     res.status(500).json({
       jsonrpc: "2.0",
-      error: { code: -32603, message: error.message },
+      error: { code: -32603, message: (error as Error).message },
       id: null,
     });
   }
 });
 
-app.get("/mcp", async (req, res) => {
+app.get("/mcp", async (req: Request, res: Response) => {
   try {
-    const sessionId = req.headers["mcp-session-id"];
-    const transport = transports[sessionId];
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    const transport = sessionId ? transports[sessionId] : undefined;
 
     if (!transport) {
-      return res.status(400).send("Invalid session");
+      res.status(400).send("Invalid session");
+      return;
     }
 
     await transport.handleRequest(req, res);
@@ -236,13 +237,14 @@ app.get("/mcp", async (req, res) => {
   }
 });
 
-app.delete("/mcp", async (req, res) => {
+app.delete("/mcp", async (req: Request, res: Response) => {
   try {
-    const sessionId = req.headers["mcp-session-id"];
-    const transport = transports[sessionId];
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    const transport = sessionId ? transports[sessionId] : undefined;
 
     if (!transport) {
-      return res.status(400).send("Invalid session");
+      res.status(400).send("Invalid session");
+      return;
     }
 
     await transport.handleRequest(req, res);
@@ -252,6 +254,6 @@ app.delete("/mcp", async (req, res) => {
   }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`DongneLibrary MCP Server running on port ${PORT}`);
 });

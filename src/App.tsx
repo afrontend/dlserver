@@ -1,7 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+
+// Types
+interface Book {
+  title: string;
+  exist: boolean;
+  bookUrl?: string;
+  libraryName?: string;
+}
+
+interface Library {
+  id: number;
+  name: string;
+}
+
+interface LibrarySearchResult {
+  booklist: Book[];
+}
 
 // Utility function for alphabetical sorting by title
-const sortByTitle = (items) =>
+const sortByTitle = (items: Book[]): Book[] =>
   [...items].sort((a, b) => {
     const nameA = a.title.toUpperCase();
     const nameB = b.title.toUpperCase();
@@ -11,7 +28,7 @@ const sortByTitle = (items) =>
   });
 
 // Utility function for alphabetical sorting by name
-const sortByName = (items) =>
+const sortByName = (items: Library[]): Library[] =>
   [...items].sort((a, b) => {
     const nameA = a.name.toUpperCase();
     const nameB = b.name.toUpperCase();
@@ -22,21 +39,25 @@ const sortByName = (items) =>
 
 // API Layer
 const LibraryAPI = {
-  getLibrary: ({ title, libraryName }) => {
+  getLibrary: ({ title, libraryName }: { title: string; libraryName: string }): Promise<LibrarySearchResult[]> => {
     const url = `/search?title=${encodeURIComponent(title)}&libraryName=${encodeURIComponent(libraryName)}`;
-    return fetch(url, { timeout: 30000 }).then((response) => {
+    return fetch(url).then((response) => {
       if (!response.ok) {
         throw new Error("검색에 실패했어요.");
       }
       return response.json();
     });
   },
-  getLibraryNames: () =>
+  getLibraryNames: (): Promise<string[]> =>
     fetch("/libraryList").then((response) => response.json()),
 };
 
 // BookItem Component
-const BookItem = ({ book }) => {
+interface BookItemProps {
+  book: Book;
+}
+
+const BookItem = ({ book }: BookItemProps) => {
   const isAvailable = book.exist === true;
   const icon = isAvailable ? "\u2705" : "\u274C";
   const textClass = isAvailable
@@ -69,7 +90,12 @@ const BookItem = ({ book }) => {
 };
 
 // BookList Component
-const BookList = ({ books, isLoading }) => {
+interface BookListProps {
+  books: Book[];
+  isLoading: boolean;
+}
+
+const BookList = ({ books, isLoading }: BookListProps) => {
   const availableCount = books.filter((book) => book.exist === true).length;
 
   return (
@@ -111,12 +137,19 @@ const BookList = ({ books, isLoading }) => {
 };
 
 // LibrarySelector Component
+interface LibrarySelectorProps {
+  libraryNames: Library[];
+  onLibraryChange: (libraryName: string) => void;
+  filterText: string;
+  onFilterChange: (text: string) => void;
+}
+
 const LibrarySelector = ({
   libraryNames,
   onLibraryChange,
   filterText,
   onFilterChange,
-}) => {
+}: LibrarySelectorProps) => {
   const filteredLibraries = filterText?.trim()
     ? libraryNames.filter(
         (lib) =>
@@ -131,11 +164,11 @@ const LibrarySelector = ({
         className="w-full sm:w-48 border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px]"
         placeholder="도서관 이름 검색..."
         value={filterText}
-        onChange={(e) => onFilterChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => onFilterChange(e.target.value)}
       />
       <select
         className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)] bg-[length:1.5rem_1.5rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
-        onChange={(e) => onLibraryChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => onLibraryChange(e.target.value)}
       >
         <option value="도서관을 선택하세요.">도서관을 선택하세요.</option>
         {filteredLibraries.map((lib) => (
@@ -152,8 +185,15 @@ const LibrarySelector = ({
 };
 
 // SearchBar Component
-const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }) => {
-  const handleKeyDown = (e) => {
+interface SearchBarProps {
+  searchText: string;
+  onSearchTextChange: (text: string) => void;
+  onSearch: () => void;
+  isLoading: boolean;
+}
+
+const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }: SearchBarProps) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onSearch();
     }
@@ -164,7 +204,7 @@ const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }) => {
       <input
         type="text"
         value={searchText}
-        onChange={(e) => onSearchTextChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchTextChange(e.target.value)}
         onKeyDown={handleKeyDown}
         className="flex-grow px-4 py-3 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
         placeholder="책 이름을 입력하세요."
@@ -201,10 +241,10 @@ const Header = () => (
 // Main App Component
 const App = () => {
   const [searchText, setSearchText] = useState("");
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [libraryName, setLibraryName] = useState("도서관을 선택하세요.");
-  const [libraryNames, setLibraryNames] = useState([]);
+  const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
 
   // Fetch library names on mount
@@ -219,7 +259,7 @@ const App = () => {
       });
   }, []);
 
-  const updateBookList = (title, libName) =>
+  const updateBookList = (title: string, libName: string): Promise<Book[]> =>
     LibraryAPI.getLibrary({ title, libraryName: libName })
       .then((list) => list?.[0]?.booklist ?? [])
       .catch((error) => {
