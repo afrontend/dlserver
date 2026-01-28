@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as dl from "dongnelibrary";
-import type { LibraryResult, Book } from "dongnelibrary";
+import type { SearchResult, Book } from "dongnelibrary";
 
 const app = express();
 
@@ -15,7 +15,7 @@ interface SearchParams {
 const searchBooks = (
   title: string,
   libraryName: string,
-): Promise<LibraryResult[]> => {
+): Promise<SearchResult[]> => {
   return new Promise((resolve, reject) => {
     dl.search({ title, libraryName }, undefined, (err, books) => {
       if (err) {
