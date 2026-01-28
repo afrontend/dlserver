@@ -17,11 +17,11 @@ const searchBooks = (
   libraryName: string,
 ): Promise<LibraryResult[]> => {
   return new Promise((resolve, reject) => {
-    dl.search({ title, libraryName }, null, (err, books) => {
+    dl.search({ title, libraryName }, undefined, (err, books) => {
       if (err) {
         reject(err);
       } else {
-        resolve(books);
+        resolve(books ?? []);
       }
     });
   });
@@ -59,17 +59,12 @@ app.get("/:title/:libraryName", async (req: Request, res: Response) => {
 app.get("/search", async (req: Request, res: Response) => {
   const { title, libraryName } = extractSearchParams(req.query);
 
-  if (title === "" && libraryName === "") {
-    const libs = dl.getLibraryNames();
-    res.send(libs.join("<br>"));
-  } else {
-    try {
-      const books = await searchBooks(title, libraryName);
-      res.json(books);
-    } catch (err) {
-      const error = err as { msg?: string };
-      res.json({ message: error.msg });
-    }
+  try {
+    const books = await searchBooks(title, libraryName);
+    res.json(books);
+  } catch (err) {
+    const error = err as { msg?: string };
+    res.json({ message: error.msg });
   }
 });
 
