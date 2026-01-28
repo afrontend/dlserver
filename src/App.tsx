@@ -40,8 +40,8 @@ const sortByName = (items: Library[]): Library[] =>
 // API Layer
 const LibraryAPI = {
   getLibrary: ({ title, libraryName }: { title: string; libraryName: string }): Promise<LibrarySearchResult[]> => {
-    const url = `/search?title=${encodeURIComponent(title)}&libraryName=${encodeURIComponent(libraryName)}`;
-    return fetch(url).then((response) => {
+    const params = new URLSearchParams({ title, libraryName });
+    return fetch(`/search?${params}`).then((response) => {
       if (!response.ok) {
         throw new Error("검색에 실패했어요.");
       }
