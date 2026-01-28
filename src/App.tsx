@@ -37,9 +37,17 @@ const sortByName = (items: Library[]): Library[] =>
     return 0;
   });
 
+type LibrarySearchParams = {
+  title: string;
+  libraryName: string;
+};
+
 // API Layer
 const LibraryAPI = {
-  getLibrary: ({ title, libraryName }: { title: string; libraryName: string }): Promise<LibrarySearchResult[]> => {
+  getLibrary: async ({
+    title,
+    libraryName,
+  }: LibrarySearchParams): Promise<LibrarySearchResult[]> => {
     const params = new URLSearchParams({ title, libraryName });
     return fetch(`/search?${params}`).then((response) => {
       if (!response.ok) {
@@ -112,7 +120,10 @@ const BookList = ({ books, isLoading }: BookListProps) => {
             {books.length > 0 && (
               <span className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0">
                 ({books.length}권 중{" "}
-                <span className="text-blue-600 font-semibold">{availableCount}권 대출가능</span>)
+                <span className="text-blue-600 font-semibold">
+                  {availableCount}권 대출가능
+                </span>
+                )
               </span>
             )}
           </h2>
@@ -153,7 +164,7 @@ const LibrarySelector = ({
   const filteredLibraries = filterText?.trim()
     ? libraryNames.filter(
         (lib) =>
-          lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+          lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1,
       )
     : libraryNames;
 
@@ -164,11 +175,15 @@ const LibrarySelector = ({
         className="w-full sm:w-48 border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px]"
         placeholder="도서관 이름 검색..."
         value={filterText}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => onFilterChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          onFilterChange(e.target.value)
+        }
       />
       <select
         className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)] bg-[length:1.5rem_1.5rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => onLibraryChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+          onLibraryChange(e.target.value)
+        }
       >
         <option value="도서관을 선택하세요.">도서관을 선택하세요.</option>
         {filteredLibraries.map((lib) => (
@@ -192,7 +207,12 @@ interface SearchBarProps {
   isLoading: boolean;
 }
 
-const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }: SearchBarProps) => {
+const SearchBar = ({
+  searchText,
+  onSearchTextChange,
+  onSearch,
+  isLoading,
+}: SearchBarProps) => {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onSearch();
@@ -204,7 +224,9 @@ const SearchBar = ({ searchText, onSearchTextChange, onSearch, isLoading }: Sear
       <input
         type="text"
         value={searchText}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchTextChange(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          onSearchTextChange(e.target.value)
+        }
         onKeyDown={handleKeyDown}
         className="flex-grow px-4 py-3 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
         placeholder="책 이름을 입력하세요."
@@ -279,7 +301,7 @@ const App = () => {
     if (libraryName === "도서관을 선택하세요.") {
       // Search all libraries in parallel
       Promise.all(
-        libraryNames.map((library) => updateBookList(searchText, library.name))
+        libraryNames.map((library) => updateBookList(searchText, library.name)),
       )
         .then((results) => {
           const allBooks = results.flat();
