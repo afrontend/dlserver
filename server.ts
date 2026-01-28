@@ -19,6 +19,7 @@ const searchBooks = (
   return new Promise((resolve, reject) => {
     dl.search({ title, libraryName }, undefined, (err, books) => {
       if (err) {
+        console.error(err);
         reject(err);
       } else {
         resolve(books ?? []);
