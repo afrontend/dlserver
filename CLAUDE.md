@@ -13,6 +13,7 @@ npm install               # Install dependencies
 npm run webapp            # Start web server on port 3000 (or PORT env var)
 npm run dev               # Start Vite dev server with hot reload (proxies API to :3000)
 npm run build             # Build frontend for production (outputs to dist/)
+npm run typecheck         # Run TypeScript type checking
 npm run mcpsse            # Start MCP server (SSE/HTTP transport)
 npm run mcpstdio          # Start MCP server (STDIO transport)
 npm start                 # Alias for mcpsse
@@ -28,33 +29,34 @@ Note: No test suite is currently configured.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  server.js - Express Web API (port 3000)                    │
+│  server.ts - Express Web API (port 3000)                    │
 │    /search, /libraryList, /:title/:libraryName              │
 │    Serves built frontend from /dist                         │
 ├─────────────────────────────────────────────────────────────┤
-│  mcp-server-SSE.js - MCP HTTP Server (port 3000)            │
+│  mcp-server-SSE.ts - MCP HTTP Server (port 3000)            │
 │    POST/GET/DELETE /mcp - StreamableHTTP transport          │
 │    Session-based with UUID management                       │
 ├─────────────────────────────────────────────────────────────┤
-│  mcp-server-STDIO.js - MCP STDIO Server                     │
+│  mcp-server-STDIO.ts - MCP STDIO Server                     │
 │    Standard input/output transport for local MCP clients    │
 ├─────────────────────────────────────────────────────────────┤
-│  src/ - React Frontend (Vite)                               │
-│    App.jsx - Main component with search, library selector   │
+│  src/ - React Frontend (Vite + TypeScript)                  │
+│    App.tsx - Main component with search, library selector   │
 │    Tailwind CSS for styling                                 │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
                     dongnelibrary npm package
                     (Korean library API integration)
+                    types/dongnelibrary.d.ts (type definitions)
 ```
 
-### Backend (server.js)
+### Backend (server.ts)
 
 Express.js server with three main endpoints:
 
 1. **GET /:title/:libraryName** - Path-based search returning HTML with ✓/✖ availability markers
-2. **GET /search** - Query-based search returning JSON (or library list HTML if no params)
+2. **GET /search** - Query-based search returning JSON
 3. **GET /libraryList** - Returns JSON array of all library names
 
 The `dongnelibrary` package uses callbacks; all search operations wrap `dl.search()` in Promises with async/await.
@@ -62,7 +64,7 @@ The `dongnelibrary` package uses callbacks; all search operations wrap `dl.searc
 ### Frontend (src/)
 
 React 19 application built with Vite:
-- **App.jsx** - Main component containing `LibraryAPI` service, `BookList`, `LibrarySelector`, `SearchBar`, and `Header` components
+- **App.tsx** - Single-file component containing `LibraryAPI` service, `BookList`, `LibrarySelector`, `SearchBar`, and `Header` components
 - Selecting "도서관을 선택하세요." searches all libraries in parallel using `Promise.all`
 - Results are sorted alphabetically by title
 - Books display with availability indicators (✅ available, ❌ not available)
