@@ -221,16 +221,28 @@ const SearchBar = ({
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
-      <input
-        type="text"
-        value={searchText}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          onSearchTextChange(e.target.value)
-        }
-        onKeyDown={handleKeyDown}
-        className="flex-grow px-4 py-3 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
-        placeholder="책 이름을 입력하세요."
-      />
+      <div className="relative flex-grow">
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onSearchTextChange(e.target.value)
+          }
+          onKeyDown={handleKeyDown}
+          className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
+          placeholder="책 이름을 입력하세요."
+        />
+        {searchText && (
+          <button
+            type="button"
+            onClick={() => onSearchTextChange("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+            aria-label="Clear search"
+          >
+            <i className="fa fa-times" />
+          </button>
+        )}
+      </div>
       <button
         type="button"
         onClick={() => !isLoading && onSearch()}

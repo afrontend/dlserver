@@ -4,7 +4,7 @@ import type { SearchResult, Book } from "dongnelibrary";
 
 const app = express();
 
-app.use("/", express.static(__dirname + "/dist"));
+app.use("/", express.static(import.meta.dirname + "/dist"));
 
 interface SearchParams {
   title: string;
