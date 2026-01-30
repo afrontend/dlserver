@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, ChangeEvent, KeyboardEvent } from "react";
+import { useState, useEffect, useCallback, useRef, ChangeEvent, KeyboardEvent } from "react";
 
 // URL parameter helpers
 const getUrlParams = () => {
@@ -60,6 +60,7 @@ const sortByName = (items: Library[]): Library[] =>
 type LibrarySearchParams = {
   title: string;
   libraryName: string;
+  signal?: AbortSignal;
 };
 
 // API Layer
@@ -67,9 +68,10 @@ const LibraryAPI = {
   getLibrary: async ({
     title,
     libraryName,
+    signal,
   }: LibrarySearchParams): Promise<LibrarySearchResult[]> => {
     const params = new URLSearchParams({ title, libraryName });
-    return fetch(`/search?${params}`).then((response) => {
+    return fetch(`/search?${params}`, { signal }).then((response) => {
       if (!response.ok) {
         throw new Error("검색에 실패했어요.");
       }
@@ -227,6 +229,7 @@ interface SearchBarProps {
   searchText: string;
   onSearchTextChange: (text: string) => void;
   onSearch: () => void;
+  onCancel: () => void;
   isLoading: boolean;
 }
 
@@ -234,6 +237,7 @@ const SearchBar = ({
   searchText,
   onSearchTextChange,
   onSearch,
+  onCancel,
   isLoading,
 }: SearchBarProps) => {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -266,16 +270,23 @@ const SearchBar = ({
           </button>
         )}
       </div>
-      <button
-        type="button"
-        onClick={() => !isLoading && onSearch()}
-        disabled={isLoading}
-        className={`px-6 py-3 bg-blue-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-blue-600 active:bg-blue-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors${
-          isLoading ? " opacity-50 cursor-wait" : ""
-        }`}
-      >
-        {isLoading ? "검색중..." : "검색"}
-      </button>
+      {isLoading ? (
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-3 bg-red-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-red-600 active:bg-red-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors"
+        >
+          취소
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={onSearch}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-blue-600 active:bg-blue-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors"
+        >
+          검색
+        </button>
+      )}
     </div>
   );
 };
@@ -304,12 +315,38 @@ const App = () => {
   const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
 
+  // AbortController ref for cancelling ongoing searches
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const cancelSearch = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Abort search on page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
   const updateBookList = useCallback(
-    (title: string, libName: string): Promise<Book[]> =>
-      LibraryAPI.getLibrary({ title, libraryName: libName })
+    (title: string, libName: string, signal?: AbortSignal): Promise<Book[]> =>
+      LibraryAPI.getLibrary({ title, libraryName: libName, signal })
         .then((list) => list?.[0]?.booklist ?? [])
         .catch((error) => {
-          console.error("Search failed:", error);
+          // Don't log abort errors
+          if (error.name !== "AbortError") {
+            console.error("Search failed:", error);
+          }
           return [];
         }),
     [],
@@ -319,26 +356,46 @@ const App = () => {
     (title: string, libName: string, libraries: Library[]) => {
       if (!title?.length) return;
 
+      // Abort any ongoing search
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create new AbortController for this search
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const { signal } = controller;
+
       setBooks([]);
       setIsLoading(true);
 
       if (libName === "도서관을 선택하세요.") {
         Promise.all(
-          libraries.map((library) => updateBookList(title, library.name)),
+          libraries.map((library) => updateBookList(title, library.name, signal)),
         )
           .then((results) => {
+            if (signal.aborted) return;
             const allBooks = results.flat();
             setBooks(sortByTitle(allBooks));
             setIsLoading(false);
           })
-          .catch(() => setIsLoading(false));
+          .catch((error) => {
+            if (error.name !== "AbortError") {
+              setIsLoading(false);
+            }
+          });
       } else {
-        updateBookList(title, libName)
+        updateBookList(title, libName, signal)
           .then((bookList) => {
+            if (signal.aborted) return;
             setBooks(sortByTitle(bookList));
             setIsLoading(false);
           })
-          .catch(() => setIsLoading(false));
+          .catch((error) => {
+            if (error.name !== "AbortError") {
+              setIsLoading(false);
+            }
+          });
       }
     },
     [updateBookList],
@@ -400,6 +457,7 @@ const App = () => {
             searchText={searchText}
             onSearchTextChange={setSearchText}
             onSearch={handleSearch}
+            onCancel={cancelSearch}
             isLoading={isLoading}
           />
           <LibrarySelector

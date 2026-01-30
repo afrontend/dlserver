@@ -58,12 +58,25 @@ app.get("/:title/:libraryName", async (req: Request, res: Response) => {
 });
 
 app.get("/search", async (req: Request, res: Response) => {
+  let cancelled = false;
+
+  // Listen for client disconnect/abort
+  req.on("close", () => {
+    cancelled = true;
+  });
+
   const { title, libraryName } = extractSearchParams(req.query);
 
   try {
     const books = await searchBooks(title, libraryName);
+
+    // Skip response if client already disconnected
+    if (cancelled || res.writableEnded) return;
+
     res.json(books);
   } catch (err) {
+    if (cancelled || res.writableEnded) return;
+
     const error = err as { msg?: string };
     res.json({ message: error.msg });
   }
