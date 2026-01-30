@@ -1,4 +1,24 @@
-import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+import { useState, useEffect, useCallback, ChangeEvent, KeyboardEvent } from "react";
+
+// URL parameter helpers
+const getUrlParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    title: params.get("title") || "",
+    library: params.get("library") || "도서관을 선택하세요.",
+  };
+};
+
+const updateUrl = (title: string, library: string) => {
+  const params = new URLSearchParams();
+  if (title) params.set("title", title);
+  if (library !== "도서관을 선택하세요.") params.set("library", library);
+
+  const newUrl = params.toString()
+    ? `${window.location.pathname}?${params}`
+    : window.location.pathname;
+  window.history.pushState({ title, library }, "", newUrl);
+};
 
 // Types
 interface Book {
@@ -150,6 +170,7 @@ const BookList = ({ books, isLoading }: BookListProps) => {
 // LibrarySelector Component
 interface LibrarySelectorProps {
   libraryNames: Library[];
+  selectedLibrary: string;
   onLibraryChange: (libraryName: string) => void;
   filterText: string;
   onFilterChange: (text: string) => void;
@@ -157,6 +178,7 @@ interface LibrarySelectorProps {
 
 const LibrarySelector = ({
   libraryNames,
+  selectedLibrary,
   onLibraryChange,
   filterText,
   onFilterChange,
@@ -181,6 +203,7 @@ const LibrarySelector = ({
       />
       <select
         className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)] bg-[length:1.5rem_1.5rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
+        value={selectedLibrary}
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
           onLibraryChange(e.target.value)
         }
@@ -274,32 +297,88 @@ const Header = () => (
 
 // Main App Component
 const App = () => {
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(() => getUrlParams().title);
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [libraryName, setLibraryName] = useState("도서관을 선택하세요.");
+  const [libraryName, setLibraryName] = useState(() => getUrlParams().library);
   const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
 
-  // Fetch library names on mount
+  const updateBookList = useCallback(
+    (title: string, libName: string): Promise<Book[]> =>
+      LibraryAPI.getLibrary({ title, libraryName: libName })
+        .then((list) => list?.[0]?.booklist ?? [])
+        .catch((error) => {
+          console.error("Search failed:", error);
+          return [];
+        }),
+    [],
+  );
+
+  const performSearch = useCallback(
+    (title: string, libName: string, libraries: Library[]) => {
+      if (!title?.length) return;
+
+      setBooks([]);
+      setIsLoading(true);
+
+      if (libName === "도서관을 선택하세요.") {
+        Promise.all(
+          libraries.map((library) => updateBookList(title, library.name)),
+        )
+          .then((results) => {
+            const allBooks = results.flat();
+            setBooks(sortByTitle(allBooks));
+            setIsLoading(false);
+          })
+          .catch(() => setIsLoading(false));
+      } else {
+        updateBookList(title, libName)
+          .then((bookList) => {
+            setBooks(sortByTitle(bookList));
+            setIsLoading(false);
+          })
+          .catch(() => setIsLoading(false));
+      }
+    },
+    [updateBookList],
+  );
+
+  // Fetch library names on mount and auto-search if URL has params
   useEffect(() => {
     LibraryAPI.getLibraryNames()
       .then((list) => {
         const libraries = list.map((name, index) => ({ id: index, name }));
-        setLibraryNames(sortByName(libraries));
+        const sortedLibraries = sortByName(libraries);
+        setLibraryNames(sortedLibraries);
+
+        // Auto-search if URL has title param
+        const { title, library } = getUrlParams();
+        if (title) {
+          performSearch(title, library, sortedLibraries);
+        }
       })
       .catch((error) => {
         console.error("Failed to load library names:", error);
       });
-  }, []);
+  }, [performSearch]);
 
-  const updateBookList = (title: string, libName: string): Promise<Book[]> =>
-    LibraryAPI.getLibrary({ title, libraryName: libName })
-      .then((list) => list?.[0]?.booklist ?? [])
-      .catch((error) => {
-        console.error("Search failed:", error);
-        return [];
-      });
+  // Handle browser back/forward
+  useEffect(() => {
+    const handlePopState = () => {
+      const { title, library } = getUrlParams();
+      setSearchText(title);
+      setLibraryName(library);
+      if (title && libraryNames.length > 0) {
+        performSearch(title, library, libraryNames);
+      } else {
+        setBooks([]);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [libraryNames, performSearch]);
 
   const handleSearch = () => {
     if (!searchText?.length) {
@@ -307,29 +386,8 @@ const App = () => {
       return;
     }
 
-    setBooks([]);
-    setIsLoading(true);
-
-    if (libraryName === "도서관을 선택하세요.") {
-      // Search all libraries in parallel
-      Promise.all(
-        libraryNames.map((library) => updateBookList(searchText, library.name)),
-      )
-        .then((results) => {
-          const allBooks = results.flat();
-          setBooks(sortByTitle(allBooks));
-          setIsLoading(false);
-        })
-        .catch(() => setIsLoading(false));
-    } else {
-      // Search single library
-      updateBookList(searchText, libraryName)
-        .then((bookList) => {
-          setBooks(sortByTitle(bookList));
-          setIsLoading(false);
-        })
-        .catch(() => setIsLoading(false));
-    }
+    updateUrl(searchText, libraryName);
+    performSearch(searchText, libraryName, libraryNames);
   };
 
   return (
@@ -346,6 +404,7 @@ const App = () => {
           />
           <LibrarySelector
             libraryNames={libraryNames}
+            selectedLibrary={libraryName}
             onLibraryChange={setLibraryName}
             filterText={filterText}
             onFilterChange={setFilterText}
