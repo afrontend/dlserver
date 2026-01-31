@@ -15,7 +15,9 @@
   },
   "include": [
     "vite.config.ts",
+    "vitest.config.node.ts",
     "server.ts",
+    "server.test.ts",
     "mcp-server-SSE.ts",
     "mcp-server-STDIO.ts",
     "types"

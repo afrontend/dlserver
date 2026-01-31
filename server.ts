@@ -101,7 +101,14 @@ app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
   res.json({ message: "Server Error" });
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`dlserver listening on port ${port}!`);
-});
+// Export app for testing
+export { app };
+
+// Only start the server if this file is run directly
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`dlserver listening on port ${port}!`);
+  });
+}
