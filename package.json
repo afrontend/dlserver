@@ -41,7 +41,7 @@
   "homepage": "https://github.com/afrontend/dlserver#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "dongnelibrary": "^0.3.1",
+    "dongnelibrary": "^0.3.2",
     "express": "^4.15.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"

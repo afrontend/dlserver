@@ -11,13 +11,14 @@ interface SearchParams {
   libraryName: string;
 }
 
-// Promisified wrapper for dl.search
+// Promisified wrapper for dl.search with AbortSignal support
 const searchBooks = (
   title: string,
   libraryName: string,
+  signal?: AbortSignal,
 ): Promise<SearchResult[]> => {
   return new Promise((resolve, reject) => {
-    dl.search({ title, libraryName }, undefined, (err, books) => {
+    dl.search({ title, libraryName, signal }, undefined, (err, books) => {
       if (err) {
         console.error(err);
         reject(err);
@@ -58,24 +59,22 @@ app.get("/:title/:libraryName", async (req: Request, res: Response) => {
 });
 
 app.get("/search", async (req: Request, res: Response) => {
-  let cancelled = false;
+  const controller = new AbortController();
 
-  // Listen for client disconnect/abort
+  // Abort the search when client disconnects
   req.on("close", () => {
-    cancelled = true;
+    controller.abort();
   });
 
   const { title, libraryName } = extractSearchParams(req.query);
 
   try {
-    const books = await searchBooks(title, libraryName);
+    const books = await searchBooks(title, libraryName, controller.signal);
 
-    // Skip response if client already disconnected
-    if (cancelled || res.writableEnded) return;
-
+    if (res.writableEnded) return;
     res.json(books);
   } catch (err) {
-    if (cancelled || res.writableEnded) return;
+    if (res.writableEnded) return;
 
     const error = err as { msg?: string };
     res.json({ message: error.msg });

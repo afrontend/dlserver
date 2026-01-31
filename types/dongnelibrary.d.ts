@@ -14,6 +14,7 @@ declare module "dongnelibrary" {
   export interface SearchOptions {
     title: string;
     libraryName?: string;
+    signal?: AbortSignal;
   }
 
   export interface SearchError {
