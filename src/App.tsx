@@ -278,6 +278,7 @@ const App = () => {
             onLibraryChange={setLibraryName}
             filterText={filterText}
             onFilterChange={setFilterText}
+            isLoading={isLoading}
           />
           <SearchProgressBar progress={searchProgress} />
           <BookList books={aggregatedBooks} isLoading={isLoading} />
