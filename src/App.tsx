@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 import { BookList } from "./components/BookList";
 import { LibrarySelector } from "./components/LibrarySelector";
 import { SearchBar } from "./components/SearchBar";
 import { Header } from "./components/Header";
+import { SearchProgressBar } from "./components/SearchProgress";
 import { LibraryAPI } from "./api/library";
 import { sortByTitle, sortByName } from "./utils/sorting";
 import { getUrlParams, updateUrl } from "./utils/url";
-import type { Book, Library } from "./types";
+import type { Book, Library, LibrarySearchState, SearchProgress } from "./types";
 
 // Main App Component
 const App = () => {
@@ -18,8 +19,43 @@ const App = () => {
   const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
 
+  // Per-library search states for "search all" mode
+  const [librarySearchStates, setLibrarySearchStates] = useState<Map<string, LibrarySearchState>>(
+    new Map(),
+  );
+  const [isSearchingAll, setIsSearchingAll] = useState(false);
+
   // AbortController ref for cancelling ongoing searches
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Compute search progress from library search states
+  const searchProgress: SearchProgress = useMemo(() => {
+    const states = Array.from(librarySearchStates.values());
+    const completedLibraries = states.filter(
+      (s) => s.status === "done" || s.status === "error",
+    ).length;
+    const searchingLibraries = states
+      .filter((s) => s.status === "searching")
+      .map((s) => s.libraryName);
+
+    return {
+      totalLibraries: states.length,
+      completedLibraries,
+      searchingLibraries,
+      isSearchingAll,
+    };
+  }, [librarySearchStates, isSearchingAll]);
+
+  // Compute aggregated books from all library search states
+  const aggregatedBooks: Book[] = useMemo(() => {
+    if (!isSearchingAll) return books;
+
+    const allBooks = Array.from(librarySearchStates.values())
+      .filter((s) => s.status === "done")
+      .flatMap((s) => s.books);
+
+    return sortByTitle(allBooks);
+  }, [librarySearchStates, isSearchingAll, books]);
 
   const cancelSearch = useCallback(() => {
     if (abortControllerRef.current) {
@@ -27,6 +63,7 @@ const App = () => {
       abortControllerRef.current = null;
     }
     setIsLoading(false);
+    setIsSearchingAll(false);
   }, []);
 
   // Abort search on page unload
@@ -73,21 +110,83 @@ const App = () => {
       setIsLoading(true);
 
       if (libName === "도서관을 선택하세요.") {
-        Promise.all(
-          libraries.map((library) => updateBookList(title, library.name, signal)),
-        )
-          .then((results) => {
-            if (signal.aborted) return;
-            const allBooks = results.flat();
-            setBooks(sortByTitle(allBooks));
-            setIsLoading(false);
-          })
-          .catch((error) => {
-            if (error.name !== "AbortError") {
-              setIsLoading(false);
-            }
+        // Search all libraries with progressive updates
+        setIsSearchingAll(true);
+
+        // Initialize all library states as "pending"
+        const initialStates = new Map<string, LibrarySearchState>();
+        libraries.forEach((library) => {
+          initialStates.set(library.name, {
+            libraryName: library.name,
+            status: "pending",
+            books: [],
           });
+        });
+        setLibrarySearchStates(initialStates);
+
+        // Track completion count
+        let completedCount = 0;
+        const totalCount = libraries.length;
+
+        // Start searching each library independently
+        libraries.forEach((library) => {
+          // Mark as searching
+          setLibrarySearchStates((prev) => {
+            const next = new Map(prev);
+            next.set(library.name, {
+              libraryName: library.name,
+              status: "searching",
+              books: [],
+            });
+            return next;
+          });
+
+          // Perform the search
+          updateBookList(title, library.name, signal)
+            .then((bookList) => {
+              if (signal.aborted) return;
+
+              // Mark as done with results
+              setLibrarySearchStates((prev) => {
+                const next = new Map(prev);
+                next.set(library.name, {
+                  libraryName: library.name,
+                  status: "done",
+                  books: bookList,
+                });
+                return next;
+              });
+
+              completedCount++;
+              if (completedCount === totalCount) {
+                setIsLoading(false);
+              }
+            })
+            .catch(() => {
+              if (signal.aborted) return;
+
+              // Mark as error
+              setLibrarySearchStates((prev) => {
+                const next = new Map(prev);
+                next.set(library.name, {
+                  libraryName: library.name,
+                  status: "error",
+                  books: [],
+                });
+                return next;
+              });
+
+              completedCount++;
+              if (completedCount === totalCount) {
+                setIsLoading(false);
+              }
+            });
+        });
       } else {
+        // Single library search
+        setIsSearchingAll(false);
+        setLibrarySearchStates(new Map());
+
         updateBookList(title, libName, signal)
           .then((bookList) => {
             if (signal.aborted) return;
@@ -170,7 +269,8 @@ const App = () => {
             filterText={filterText}
             onFilterChange={setFilterText}
           />
-          <BookList books={books} isLoading={isLoading} />
+          <SearchProgressBar progress={searchProgress} />
+          <BookList books={aggregatedBooks} isLoading={isLoading} />
         </div>
       </div>
     </div>

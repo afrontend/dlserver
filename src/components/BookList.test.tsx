@@ -53,12 +53,13 @@ describe("BookList", () => {
     expect(screen.queryByTestId("book-count")).not.toBeInTheDocument();
   });
 
-  it("hides book items while loading", () => {
+  it("shows progressive loading state with partial results", () => {
     const books: Book[] = [{ title: "책 1", exist: true, libraryName: "판교" }];
 
     render(<BookList books={books} isLoading={true} />);
 
-    // Loading state should still show the list (partial results)
-    expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+    // Progressive loading shows book count with "검색 중..." and the book items
+    expect(screen.getByTestId("book-count")).toHaveTextContent("현재 1권");
+    expect(screen.getByTestId("book-items")).toBeInTheDocument();
   });
 });

@@ -19,3 +19,18 @@ export type LibrarySearchParams = {
   libraryName: string;
   signal?: AbortSignal;
 };
+
+export type LibrarySearchStatus = "pending" | "searching" | "done" | "error";
+
+export interface LibrarySearchState {
+  libraryName: string;
+  status: LibrarySearchStatus;
+  books: Book[];
+}
+
+export interface SearchProgress {
+  totalLibraries: number;
+  completedLibraries: number;
+  searchingLibraries: string[];
+  isSearchingAll: boolean;
+}

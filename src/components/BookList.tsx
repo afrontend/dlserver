@@ -18,13 +18,31 @@ export const BookList = ({ books, isLoading }: BookListProps) => {
         className="bg-gray-100 px-4 py-3 border-b border-gray-200"
         data-testid="book-list-header"
       >
-        {isLoading ? (
+        {isLoading && books.length === 0 ? (
           <h2
             className="font-medium text-base text-gray-700 flex items-center gap-2"
             data-testid="loading-indicator"
           >
             <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             찾고 있어요...
+          </h2>
+        ) : isLoading && books.length > 0 ? (
+          <h2 className="font-medium text-base text-gray-700 flex items-center gap-2">
+            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            검색 중...
+            <span
+              className="text-sm text-gray-500"
+              data-testid="book-count"
+            >
+              (현재 {books.length}권,{" "}
+              <span
+                className="text-blue-600 font-semibold"
+                data-testid="available-count"
+              >
+                {availableCount}권 대출가능
+              </span>
+              )
+            </span>
           </h2>
         ) : (
           <h2 className="font-medium text-base text-gray-700">
@@ -53,6 +71,13 @@ export const BookList = ({ books, isLoading }: BookListProps) => {
           data-testid="empty-message"
         >
           검색 결과가 없습니다.
+        </div>
+      ) : books.length === 0 && isLoading ? (
+        <div
+          className="px-4 py-8 text-center text-gray-400"
+          data-testid="loading-message"
+        >
+          도서관에서 책을 찾고 있어요...
         </div>
       ) : (
         <ul className="divide-y divide-gray-200" data-testid="book-items">
