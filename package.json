@@ -1,23 +1,30 @@
 {
   "name": "dlserver",
   "version": "0.0.7",
+  "type": "module",
   "description": "Web API for dongnelibrary",
-  "main": "server.js",
   "scripts": {
-    "start": "node mcp-server-SSE.js",
-    "webapp": "node server.js",
-    "webapp:pm2": "pm2 start server.js --name dlserver",
-    "webapp:pm2:watch": "pm2 start server.js --name dlserver --watch --ignore-watch=\"node_modules dist\"",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "webapp": "tsx server.ts",
+    "webapp:pm2": "pm2 start server.ts --interpreter tsx --name dlserver",
+    "webapp:pm2:watch": "pm2 start server.ts --interpreter tsx --name dlserver --watch --ignore-watch=\"node_modules dist\"",
     "webapp:stop": "pm2 stop dlserver",
     "webapp:restart": "pm2 restart dlserver",
     "webapp:logs": "pm2 logs dlserver",
     "webapp:status": "pm2 status",
-    "mcpstdio": "node mcp-server-STDIO.js",
-    "mcpsse": "node mcp-server-SSE.js",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx mcp-server-SSE.ts",
+    "mcpsse": "tsx mcp-server-SSE.ts",
+    "mcpstdio": "tsx mcp-server-STDIO.ts",
+    "typecheck": "tsc --noEmit",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "test": "vitest run --config vitest.config.node.ts && vitest run --config vite.config.ts",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:server": "vitest run --config vitest.config.node.ts",
+    "test:client": "vitest run --config vite.config.ts",
+    "test:package": "tsx --test package.test.ts"
   },
   "engines": {
     "node": "22.22.0"
@@ -27,7 +34,9 @@
     "url": "git+https://github.com/afrontend/dlserver.git"
   },
   "keywords": [
-    "dongnelibrary"
+    "dongnelibrary",
+    "korean-library",
+    "mcp-server"
   ],
   "author": "afrontend",
   "license": "MIT",
@@ -37,15 +46,27 @@
   "homepage": "https://github.com/afrontend/dlserver#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "babel": "^6.23.0",
-    "dongnelibrary": "^0.3.0",
+    "dongnelibrary": "^0.3.2",
     "express": "^4.15.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.10",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "@types/supertest": "^6.0.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "jsdom": "^27.4.0",
     "pm2": "^6.0.14",
-    "vite": "^7.3.1"
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
   }
 }
