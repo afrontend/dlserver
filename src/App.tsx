@@ -62,9 +62,19 @@ const App = () => {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
+
+    // Preserve already-found results by merging into books
+    if (isSearchingAll) {
+      const foundBooks = Array.from(librarySearchStates.values())
+        .filter((s) => s.status === "done")
+        .flatMap((s) => s.books);
+      setBooks(sortByTitle(foundBooks));
+    }
+
     setIsLoading(false);
     setIsSearchingAll(false);
-  }, []);
+    setLibrarySearchStates(new Map());
+  }, [isSearchingAll, librarySearchStates]);
 
   // Abort search on page unload
   useEffect(() => {
