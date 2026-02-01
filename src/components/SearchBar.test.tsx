@@ -1,78 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChangeEvent, KeyboardEvent } from "react";
-
-// SearchBar component extracted from App.tsx
-interface SearchBarProps {
-  searchText: string;
-  onSearchTextChange: (text: string) => void;
-  onSearch: () => void;
-  onCancel: () => void;
-  isLoading: boolean;
-}
-
-const SearchBar = ({
-  searchText,
-  onSearchTextChange,
-  onSearch,
-  onCancel,
-  isLoading,
-}: SearchBarProps) => {
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      onSearch();
-    }
-  };
-
-  return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
-      <div className="relative flex-grow">
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onSearchTextChange(e.target.value)
-          }
-          onKeyDown={handleKeyDown}
-          className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
-          placeholder="책 이름을 입력하세요."
-          data-testid="search-input"
-        />
-        {searchText && (
-          <button
-            type="button"
-            onClick={() => onSearchTextChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-            aria-label="Clear search"
-            data-testid="clear-button"
-          >
-            <i className="fa fa-times" />
-          </button>
-        )}
-      </div>
-      {isLoading ? (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-3 bg-red-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-red-600 active:bg-red-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors"
-          data-testid="cancel-button"
-        >
-          취소
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={onSearch}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-blue-600 active:bg-blue-700 text-center font-medium min-h-[48px] min-w-[80px] transition-colors"
-          data-testid="search-button"
-        >
-          검색
-        </button>
-      )}
-    </div>
-  );
-};
+import { SearchBar } from "./SearchBar";
 
 describe("SearchBar", () => {
   const defaultProps = {
@@ -107,7 +36,7 @@ describe("SearchBar", () => {
   it("calls onSearchTextChange when typing", async () => {
     const onSearchTextChange = vi.fn();
     render(
-      <SearchBar {...defaultProps} onSearchTextChange={onSearchTextChange} />
+      <SearchBar {...defaultProps} onSearchTextChange={onSearchTextChange} />,
     );
 
     const input = screen.getByTestId("search-input");
@@ -163,7 +92,7 @@ describe("SearchBar", () => {
         {...defaultProps}
         searchText="테스트"
         onSearchTextChange={onSearchTextChange}
-      />
+      />,
     );
 
     await userEvent.click(screen.getByTestId("clear-button"));
