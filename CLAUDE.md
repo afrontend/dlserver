@@ -21,7 +21,16 @@ npm start                 # Alias for mcpsse
 
 **Development workflow:** Run `npm run webapp` in one terminal, then `npm run dev` in another for frontend development with hot reload.
 
-Note: No test suite is currently configured.
+## Testing
+
+```bash
+npm test                  # Run all tests (server + client)
+npm run test:server       # Run server tests only (vitest.config.node.ts)
+npm run test:client       # Run client tests only (vite.config.ts)
+npm run test:watch        # Run tests in watch mode
+```
+
+Tests use Vitest with React Testing Library for component tests.
 
 ## Architecture
 
@@ -64,10 +73,17 @@ The `dongnelibrary` package uses callbacks; all search operations wrap `dl.searc
 ### Frontend (src/)
 
 React 19 application built with Vite:
-- **App.tsx** - Single-file component containing `LibraryAPI` service, `BookList`, `LibrarySelector`, `SearchBar`, and `Header` components
-- Selecting "도서관을 선택하세요." searches all libraries in parallel using `Promise.all`
-- Results are sorted alphabetically by title
+- **App.tsx** - Main component orchestrating search state and library selection
+- **components/** - Reusable UI components (BookList, BookItem, SearchBar, LibrarySelector, Header, SearchProgress)
+- **api/library.ts** - API client for backend communication
+- **types/index.ts** - TypeScript interfaces (Book, Library, SearchProgress, etc.)
+- **utils/** - Helper functions for sorting and URL handling
+
+Key behaviors:
+- Selecting "도서관을 선택하세요." searches all libraries in parallel with progressive results display
+- Results sorted alphabetically by title
 - Books display with availability indicators (✅ available, ❌ not available)
+- Toggle to filter and show only available books
 
 ### MCP Servers
 

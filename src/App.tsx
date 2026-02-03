@@ -18,6 +18,7 @@ const App = () => {
   const [libraryName, setLibraryName] = useState(() => getUrlParams().library);
   const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
+  const [hideRented, setHideRented] = useState(false);
 
   // Per-library search states for "search all" mode
   const [librarySearchStates, setLibrarySearchStates] = useState<Map<string, LibrarySearchState>>(
@@ -56,6 +57,14 @@ const App = () => {
 
     return sortByTitle(allBooks);
   }, [librarySearchStates, isSearchingAll, books]);
+
+  // Filter books based on hideRented toggle
+  const displayedBooks: Book[] = useMemo(() => {
+    if (hideRented) {
+      return aggregatedBooks.filter((book) => book.exist === true);
+    }
+    return aggregatedBooks;
+  }, [aggregatedBooks, hideRented]);
 
   const cancelSearch = useCallback(() => {
     if (abortControllerRef.current) {
@@ -281,7 +290,13 @@ const App = () => {
             isLoading={isLoading}
           />
           <SearchProgressBar progress={searchProgress} />
-          <BookList books={aggregatedBooks} isLoading={isLoading} />
+          <BookList
+            books={displayedBooks}
+            totalBooks={aggregatedBooks.length}
+            isLoading={isLoading}
+            hideRented={hideRented}
+            onHideRentedChange={setHideRented}
+          />
         </div>
       </div>
     </div>

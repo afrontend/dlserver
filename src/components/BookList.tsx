@@ -3,11 +3,21 @@ import { BookItem } from "./BookItem";
 
 interface BookListProps {
   books: Book[];
+  totalBooks: number;
   isLoading: boolean;
+  hideRented: boolean;
+  onHideRentedChange: (value: boolean) => void;
 }
 
-export const BookList = ({ books, isLoading }: BookListProps) => {
+export const BookList = ({
+  books,
+  totalBooks,
+  isLoading,
+  hideRented,
+  onHideRentedChange,
+}: BookListProps) => {
   const availableCount = books.filter((book) => book.exist === true).length;
+  const hiddenCount = totalBooks - books.length;
 
   return (
     <div
@@ -45,24 +55,46 @@ export const BookList = ({ books, isLoading }: BookListProps) => {
             </span>
           </h2>
         ) : (
-          <h2 className="font-medium text-base text-gray-700">
-            지금 도서관에서 빌릴 수 있는 책이에요.
-            {books.length > 0 && (
-              <span
-                className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0"
-                data-testid="book-count"
-              >
-                ({books.length}권 중{" "}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="font-medium text-base text-gray-700">
+              지금 도서관에서 빌릴 수 있는 책이에요.
+              {totalBooks > 0 && (
                 <span
-                  className="text-blue-600 font-semibold"
-                  data-testid="available-count"
+                  className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0"
+                  data-testid="book-count"
                 >
-                  {availableCount}권 대출가능
+                  ({totalBooks}권 중{" "}
+                  <span
+                    className="text-blue-600 font-semibold"
+                    data-testid="available-count"
+                  >
+                    {availableCount}권 대출가능
+                  </span>
+                  {hiddenCount > 0 && (
+                    <span className="text-gray-400"> · {hiddenCount}권 숨김</span>
+                  )}
+                  )
                 </span>
-                )
-              </span>
+              )}
+            </h2>
+            {totalBooks > 0 && (
+              <label
+                className="flex items-center gap-2 cursor-pointer shrink-0"
+                data-testid="hide-rented-toggle"
+              >
+                <input
+                  type="checkbox"
+                  checked={hideRented}
+                  onChange={(e) => onHideRentedChange(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-300 peer-checked:bg-blue-500 rounded-full relative transition-colors">
+                  <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm peer-checked:translate-x-4 transition-transform" />
+                </div>
+                <span className="text-sm text-gray-600">대출가능만</span>
+              </label>
             )}
-          </h2>
+          </div>
         )}
       </div>
       {books.length === 0 && !isLoading ? (
