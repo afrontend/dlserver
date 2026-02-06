@@ -5,6 +5,7 @@ import { LibrarySelector } from "./components/LibrarySelector";
 import { SearchBar } from "./components/SearchBar";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
+import { LibraryTagFilter } from "./components/LibraryTagFilter";
 import { LibraryAPI } from "./api/library";
 import { sortByTitle, sortByName } from "./utils/sorting";
 import { getUrlParams, updateUrl } from "./utils/url";
@@ -19,6 +20,7 @@ const App = () => {
   const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
   const [hideRented, setHideRented] = useState(false);
+  const [selectedLibraryTags, setSelectedLibraryTags] = useState<Set<string>>(new Set());
 
   // Per-library search states for "search all" mode
   const [librarySearchStates, setLibrarySearchStates] = useState<Map<string, LibrarySearchState>>(
@@ -58,13 +60,24 @@ const App = () => {
     return sortByTitle(allBooks);
   }, [librarySearchStates, isSearchingAll, books]);
 
-  // Filter books based on hideRented toggle
+  // Filter books based on selected library tags and hideRented toggle
   const displayedBooks: Book[] = useMemo(() => {
-    if (hideRented) {
-      return aggregatedBooks.filter((book) => book.exist === true);
+    let filtered = aggregatedBooks;
+
+    // Filter by selected library tags (empty set means show all)
+    if (selectedLibraryTags.size > 0) {
+      filtered = filtered.filter(
+        (book) => book.libraryName && selectedLibraryTags.has(book.libraryName),
+      );
     }
-    return aggregatedBooks;
-  }, [aggregatedBooks, hideRented]);
+
+    // Filter by hideRented toggle
+    if (hideRented) {
+      filtered = filtered.filter((book) => book.exist === true);
+    }
+
+    return filtered;
+  }, [aggregatedBooks, selectedLibraryTags, hideRented]);
 
   const cancelSearch = useCallback(() => {
     if (abortControllerRef.current) {
@@ -127,6 +140,7 @@ const App = () => {
 
       setBooks([]);
       setIsLoading(true);
+      setSelectedLibraryTags(new Set());
 
       if (libName === "도서관을 선택하세요.") {
         // Search all libraries with progressive updates
@@ -290,6 +304,12 @@ const App = () => {
             isLoading={isLoading}
           />
           <SearchProgressBar progress={searchProgress} />
+          <LibraryTagFilter
+            books={aggregatedBooks}
+            selectedLibraries={selectedLibraryTags}
+            onSelectionChange={setSelectedLibraryTags}
+            disabled={isLoading}
+          />
           <BookList
             books={displayedBooks}
             totalBooks={aggregatedBooks.length}
