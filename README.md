@@ -13,6 +13,7 @@ A Korean library book availability checker that provides both a web interface an
 - 🎨 Modern responsive interface using Tailwind CSS framework
 - 📱 Mobile-friendly design with touch-optimized controls
 - 🔎 Incremental library search filter
+- 📜 Search history with localStorage persistence
 - ⚛️ React 19 frontend with Vite
 
 ## Technology Stack
@@ -114,7 +115,7 @@ Returns JSON array of all library names
 1. Open http://localhost:3000/ in your browser
 2. Use the library search filter to find a specific library by typing part of its name
 3. Select a library from the dropdown (or select "도서관을 선택하세요." to search all libraries)
-4. Enter a book title
+4. Enter a book title (recent searches appear in a dropdown when focusing the input)
 5. Click search to see availability across selected library/libraries
 
 ### Using the API

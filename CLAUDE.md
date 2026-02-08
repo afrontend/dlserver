@@ -74,7 +74,8 @@ The `dongnelibrary` package uses callbacks; all search operations wrap `dl.searc
 
 React 19 application built with Vite:
 - **App.tsx** - Main component orchestrating search state and library selection
-- **components/** - Reusable UI components (BookList, BookItem, SearchBar, LibrarySelector, Header, SearchProgress)
+- **components/** - Reusable UI components (BookList, BookItem, SearchBar, LibrarySelector, Header, SearchProgress, SearchHistoryDropdown)
+- **hooks/** - Custom React hooks (useSearchHistory for localStorage-backed search history)
 - **api/library.ts** - API client for backend communication
 - **types/index.ts** - TypeScript interfaces (Book, Library, SearchProgress, etc.)
 - **utils/** - Helper functions for sorting and URL handling
@@ -84,6 +85,7 @@ Key behaviors:
 - Results sorted alphabetically by title
 - Books display with availability indicators (✅ available, ❌ not available)
 - Toggle to filter and show only available books
+- Search history dropdown shows recent searches (up to 10 items, persisted to localStorage)
 
 ### MCP Servers
 
