@@ -9,6 +9,7 @@ import { LibraryTagFilter } from "./components/LibraryTagFilter";
 import { LibraryAPI } from "./api/library";
 import { sortByTitle, sortByName } from "./utils/sorting";
 import { getUrlParams, updateUrl } from "./utils/url";
+import { useSearchHistory } from "./hooks/useSearchHistory";
 import type { Book, Library, LibrarySearchState, SearchProgress } from "./types";
 
 // Main App Component
@@ -21,6 +22,7 @@ const App = () => {
   const [filterText, setFilterText] = useState("");
   const [hideRented, setHideRented] = useState(false);
   const [selectedLibraryTags, setSelectedLibraryTags] = useState<Set<string>>(new Set());
+  const { history, addToHistory, clearHistory } = useSearchHistory();
 
   // Per-library search states for "search all" mode
   const [librarySearchStates, setLibrarySearchStates] = useState<Map<string, LibrarySearchState>>(
@@ -278,6 +280,7 @@ const App = () => {
       return;
     }
 
+    addToHistory(searchText);
     updateUrl(searchText, libraryName);
     performSearch(searchText, libraryName, libraryNames);
   };
@@ -294,6 +297,9 @@ const App = () => {
             onSearch={handleSearch}
             onCancel={cancelSearch}
             isLoading={isLoading}
+            searchHistory={history}
+            onHistorySelect={setSearchText}
+            onHistoryClear={clearHistory}
           />
           <LibrarySelector
             libraryNames={libraryNames}

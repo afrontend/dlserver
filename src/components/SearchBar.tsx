@@ -1,4 +1,6 @@
+import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, KeyboardEvent } from "react";
+import { SearchHistoryDropdown } from "./SearchHistoryDropdown";
 
 interface SearchBarProps {
   searchText: string;
@@ -6,6 +8,9 @@ interface SearchBarProps {
   onSearch: () => void;
   onCancel: () => void;
   isLoading: boolean;
+  searchHistory?: string[];
+  onHistorySelect?: (query: string) => void;
+  onHistoryClear?: () => void;
 }
 
 export const SearchBar = ({
@@ -14,16 +19,59 @@ export const SearchBar = ({
   onSearch,
   onCancel,
   isLoading,
+  searchHistory,
+  onHistorySelect,
+  onHistoryClear,
 }: SearchBarProps) => {
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const blurTimeoutRef = useRef<number | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      setIsHistoryOpen(false);
       onSearch();
+    } else if (e.key === "Escape") {
+      setIsHistoryOpen(false);
     }
+  };
+
+  const handleFocus = () => {
+    if (searchHistory && searchHistory.length > 0) {
+      setIsHistoryOpen(true);
+    }
+  };
+
+  const handleBlur = () => {
+    // Delay closing to allow click on dropdown items
+    blurTimeoutRef.current = window.setTimeout(() => {
+      setIsHistoryOpen(false);
+    }, 150);
+  };
+
+  const handleHistorySelect = (query: string) => {
+    onSearchTextChange(query);
+    setIsHistoryOpen(false);
+    onHistorySelect?.(query);
+  };
+
+  const handleHistoryClear = () => {
+    setIsHistoryOpen(false);
+    onHistoryClear?.();
   };
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
-      <div className="relative flex-grow">
+      <div className="relative flex-grow" ref={containerRef}>
         <input
           type="text"
           value={searchText}
@@ -31,6 +79,8 @@ export const SearchBar = ({
             onSearchTextChange(e.target.value)
           }
           onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
           placeholder="책 이름을 입력하세요."
           data-testid="search-input"
@@ -45,6 +95,13 @@ export const SearchBar = ({
           >
             <i className="fa fa-times" />
           </button>
+        )}
+        {isHistoryOpen && searchHistory && searchHistory.length > 0 && (
+          <SearchHistoryDropdown
+            history={searchHistory}
+            onSelect={handleHistorySelect}
+            onClear={handleHistoryClear}
+          />
         )}
       </div>
       {isLoading ? (

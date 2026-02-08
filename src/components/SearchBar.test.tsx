@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchBar } from "./SearchBar";
 
@@ -10,6 +10,9 @@ describe("SearchBar", () => {
     onSearch: vi.fn(),
     onCancel: vi.fn(),
     isLoading: false,
+    searchHistory: [] as string[],
+    onHistorySelect: vi.fn(),
+    onHistoryClear: vi.fn(),
   };
 
   it("renders search input with placeholder", () => {
@@ -98,5 +101,123 @@ describe("SearchBar", () => {
     await userEvent.click(screen.getByTestId("clear-button"));
 
     expect(onSearchTextChange).toHaveBeenCalledWith("");
+  });
+
+  describe("search history", () => {
+    it("shows dropdown on focus when history exists", () => {
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+
+      expect(screen.getByTestId("search-history-dropdown")).toBeInTheDocument();
+    });
+
+    it("does not show dropdown on focus when history is empty", () => {
+      render(<SearchBar {...defaultProps} searchHistory={[]} />);
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+
+      expect(screen.queryByTestId("search-history-dropdown")).not.toBeInTheDocument();
+    });
+
+    it("hides dropdown on blur", () => {
+      vi.useFakeTimers();
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+      expect(screen.getByTestId("search-history-dropdown")).toBeInTheDocument();
+
+      fireEvent.blur(input);
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+
+      expect(screen.queryByTestId("search-history-dropdown")).not.toBeInTheDocument();
+      vi.useRealTimers();
+    });
+
+    it("calls onHistorySelect and updates text when item clicked", () => {
+      const onHistorySelect = vi.fn();
+      const onSearchTextChange = vi.fn();
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+          onHistorySelect={onHistorySelect}
+          onSearchTextChange={onSearchTextChange}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+      fireEvent.click(screen.getByTestId("history-item-0"));
+
+      expect(onSearchTextChange).toHaveBeenCalledWith("query1");
+      expect(onHistorySelect).toHaveBeenCalledWith("query1");
+    });
+
+    it("hides dropdown on Escape key", () => {
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+      expect(screen.getByTestId("search-history-dropdown")).toBeInTheDocument();
+
+      fireEvent.keyDown(input, { key: "Escape", code: "Escape" });
+
+      expect(screen.queryByTestId("search-history-dropdown")).not.toBeInTheDocument();
+    });
+
+    it("hides dropdown on Enter key", () => {
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+      expect(screen.getByTestId("search-history-dropdown")).toBeInTheDocument();
+
+      fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
+
+      expect(screen.queryByTestId("search-history-dropdown")).not.toBeInTheDocument();
+    });
+
+    it("calls onHistoryClear when clear button is clicked", () => {
+      const onHistoryClear = vi.fn();
+      render(
+        <SearchBar
+          {...defaultProps}
+          searchHistory={["query1", "query2"]}
+          onHistoryClear={onHistoryClear}
+        />,
+      );
+
+      const input = screen.getByTestId("search-input");
+      fireEvent.focus(input);
+      fireEvent.click(screen.getByTestId("clear-history-button"));
+
+      expect(onHistoryClear).toHaveBeenCalledTimes(1);
+    });
   });
 });
