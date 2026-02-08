@@ -84,15 +84,9 @@ Returns JSON array of book objects with availability data
 
 **Example:** `http://localhost:3000/search?title=javascript&libraryName=판교`
 
-### 4. Get Library List (HTML)
-
-```
-GET /search
-```
-
 Returns HTML list of all available libraries
 
-### 5. Get Library List (JSON)
+### 4. Get Library List (JSON)
 
 ```
 GET /libraryList
@@ -100,22 +94,16 @@ GET /libraryList
 
 Returns JSON array of all library names
 
-## 로컬 서버에서 확인
+## 로컬 서버에서 확인 (http://localhost:3000/)
 
-- [App](http://localhost:3000/)
-- [도서관 목록 읽기](http://localhost:3000/search)
 - [도서관 목록 읽기 (JSON)](http://localhost:3000/libraryList)
-- [책 검색](http://localhost:3000/javascript/판교)
+- [책 검색 (HTML)](http://localhost:3000/javascript/판교)
 - [책 검색 (JSON)](http://localhost:3000/search?title=javascript&libraryName=판교)
 
-## 서버에서 확인
+## 서버에서 확인 (https://dongne.onrender.com/)
 
-무료 서버라 10초 정도 걸릴 수 있다.
-
-- [App](https://dongne.onrender.com/)
-- [도서관 목록 읽기](https://dongne.onrender.com/search)
 - [도서관 목록 읽기 (JSON)](https://dongne.onrender.com/libraryList)
-- [책 검색](https://dongne.onrender.com/javascript/판교)
+- [책 검색 (HTML)](https://dongne.onrender.com/javascript/판교)
 - [책 검색 (JSON)](https://dongne.onrender.com/search?title=javascript&libraryName=판교)
 
 ## Usage Examples
