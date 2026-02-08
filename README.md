@@ -37,6 +37,7 @@ A Korean library book availability checker that provides both a web interface an
 
 ## Run
 
+    npm run build
     npm run webapp
 
 Server will start on port 3000 (or use PORT environment variable to customize)
