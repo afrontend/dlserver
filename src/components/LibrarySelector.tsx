@@ -27,21 +27,34 @@ export const LibrarySelector = ({
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
-      <input
-        type="text"
-        data-testid="library-filter-input"
-        disabled={isLoading}
-        className={`w-full sm:w-48 border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] ${
-          isLoading
-            ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-            : "border-gray-300"
-        }`}
-        placeholder="도서관 이름 검색..."
-        value={filterText}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          onFilterChange(e.target.value)
-        }
-      />
+      <div className="relative w-full sm:w-48">
+        <input
+          type="text"
+          data-testid="library-filter-input"
+          disabled={isLoading}
+          className={`w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] pr-10 ${
+            isLoading
+              ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
+              : "border-gray-300"
+          }`}
+          placeholder="도서관 이름 검색..."
+          value={filterText}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onFilterChange(e.target.value)
+          }
+        />
+        {filterText && !isLoading && (
+          <button
+            type="button"
+            data-testid="library-filter-clear-button"
+            onClick={() => onFilterChange("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+            aria-label="Clear filter"
+          >
+            <i className="fa fa-times" />
+          </button>
+        )}
+      </div>
       <div className="relative flex items-center">
         <select
           data-testid="library-select"
