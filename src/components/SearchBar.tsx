@@ -93,7 +93,7 @@ export const SearchBar = ({
             aria-label="Clear search"
             data-testid="clear-button"
           >
-            <i className="fa fa-times" />
+            <i className="fa fa-trash-o" />
           </button>
         )}
         {isHistoryOpen && searchHistory && searchHistory.length > 0 && (

@@ -51,7 +51,7 @@ export const LibrarySelector = ({
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
             aria-label="Clear filter"
           >
-            <i className="fa fa-times" />
+            <i className="fa fa-trash-o" />
           </button>
         )}
       </div>
@@ -84,7 +84,7 @@ export const LibrarySelector = ({
             className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
             aria-label="Clear library selection"
           >
-            <i className="fa fa-times" />
+            <i className="fa fa-trash-o" />
           </button>
         )}
       </div>
