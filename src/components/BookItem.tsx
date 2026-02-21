@@ -2,9 +2,32 @@ import type { Book } from "../types";
 
 interface BookItemProps {
   book: Book;
+  highlight?: string;
 }
 
-export const BookItem = ({ book }: BookItemProps) => {
+function HighlightedText({ text, highlight }: { text: string; highlight?: string }) {
+  if (!highlight?.trim()) return <>{text}</>;
+
+  const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
+  const lower = highlight.toLowerCase();
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === lower ? (
+          <mark key={i} className="bg-yellow-200 text-inherit rounded px-0.5">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
+export const BookItem = ({ book, highlight }: BookItemProps) => {
   const isAvailable = book.exist === true;
   const icon = isAvailable ? "\u2705" : "\u274C";
   const textClass = isAvailable
@@ -24,7 +47,7 @@ export const BookItem = ({ book }: BookItemProps) => {
           {icon}
         </span>
         <span className={textClass}>
-          {book.title}, {book.libraryName}
+          <HighlightedText text={book.title} highlight={highlight} />, {book.libraryName}
           {book.bookUrl && (
             <a
               href={book.bookUrl}

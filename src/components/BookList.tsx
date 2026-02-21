@@ -183,6 +183,7 @@ export const BookList = ({
             <BookItem
               key={`${book.title}-${book.libraryName}-${index}`}
               book={book}
+              highlight={titleFilter}
             />
           ))}
         </ul>
