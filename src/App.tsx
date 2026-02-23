@@ -6,6 +6,7 @@ import { SearchBar } from "./components/SearchBar";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
 import { LibraryTagFilter } from "./components/LibraryTagFilter";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 import { LibraryAPI } from "./api/library";
 import { sortByTitle, sortByName } from "./utils/sorting";
 import { getUrlParams, updateUrl } from "./utils/url";
@@ -325,6 +326,7 @@ const App = () => {
           />
         </div>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };
