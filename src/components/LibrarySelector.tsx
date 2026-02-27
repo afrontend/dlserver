@@ -26,16 +26,16 @@ export const LibrarySelector = ({
     : libraryNames;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
-      <div className="relative w-full sm:w-48">
+    <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr] gap-3">
+      <div className="relative">
         <input
           type="text"
           data-testid="library-filter-input"
           disabled={isLoading}
-          className={`w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] pr-10 ${
+          className={`w-full bg-transparent border-0 px-4 py-3 text-base focus:outline-none focus:ring-0 min-h-[48px] pr-10 placeholder-gray-400 ${
             isLoading
-              ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-              : "border-gray-300"
+              ? "text-gray-500 cursor-not-allowed"
+              : ""
           }`}
           placeholder="도서관 이름 검색..."
           value={filterText}
@@ -59,10 +59,10 @@ export const LibrarySelector = ({
         <select
           data-testid="library-select"
           disabled={isLoading}
-          className={`w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none bg-[length:1.5rem_1.5rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 ${
+          className={`w-full bg-transparent border-0 px-4 py-3 text-base focus:outline-none focus:ring-0 min-h-[48px] appearance-none pr-10 ${
             isLoading
-              ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-              : "bg-white"
+              ? "text-gray-500 cursor-not-allowed"
+              : ""
           }`}
           value={selectedLibrary}
           onChange={(e: ChangeEvent<HTMLSelectElement>) =>
@@ -88,9 +88,6 @@ export const LibrarySelector = ({
           </button>
         )}
       </div>
-      <span className="text-sm text-gray-500 text-center sm:text-left">
-        {filteredLibraries.length}개 도서관
-      </span>
     </div>
   );
 };
