@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { BookList } from "./components/BookList";
 import { LibrarySelector } from "./components/LibrarySelector";
 import { SearchBar } from "./components/SearchBar";
@@ -11,6 +12,7 @@ import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
 import { useSearchState } from "./hooks/useSearchState";
 import { useSearchCoordinator } from "./hooks/useSearchCoordinator";
+import { updateUrl } from "./utils/url";
 
 const App = () => {
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -42,29 +44,48 @@ const App = () => {
     addToHistory,
   });
 
+  const handleLibraryChange = useCallback((newLibrary: string) => {
+    setLibraryName(newLibrary);
+    if (searchText?.length) {
+      resetFilters();
+      addToHistory(searchText);
+      updateUrl(searchText, newLibrary);
+      performSearch(searchText, newLibrary, libraryNames);
+    }
+  }, [searchText, libraryNames, performSearch, resetFilters, addToHistory, setLibraryName]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-4 sm:p-6 md:p-8 pb-8 max-w-4xl mx-auto safe-area-inset">
         <Header />
         <div className="space-y-4">
-          <SearchBar
-            searchText={searchText}
-            onSearchTextChange={setSearchText}
-            onSearch={handleSearch}
-            onCancel={cancelSearch}
-            isLoading={isLoading}
-            searchHistory={history}
-            onHistorySelect={setSearchText}
-            onHistoryClear={clearHistory}
-          />
-          <LibrarySelector
-            libraryNames={libraryNames}
-            selectedLibrary={libraryName}
-            onLibraryChange={setLibraryName}
-            filterText={filterText}
-            onFilterChange={setFilterText}
-            isLoading={isLoading}
-          />
+          <div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <SearchBar
+                searchText={searchText}
+                onSearchTextChange={setSearchText}
+                onSearch={handleSearch}
+                onCancel={cancelSearch}
+                isLoading={isLoading}
+                searchHistory={history}
+                onHistorySelect={setSearchText}
+                onHistoryClear={clearHistory}
+              />
+              <div className="border-t border-gray-100">
+                <LibrarySelector
+                  libraryNames={libraryNames}
+                  selectedLibrary={libraryName}
+                  onLibraryChange={handleLibraryChange}
+                  filterText={filterText}
+                  onFilterChange={setFilterText}
+                  isLoading={isLoading}
+                />
+              </div>
+            </div>
+            <div className="text-right text-sm text-gray-400 mt-1 mr-1">
+              {libraryNames.filter(lib => !filterText?.trim() || lib.name.toLowerCase().includes(filterText.toLowerCase())).length}개 도서관
+            </div>
+          </div>
           <SearchProgressBar progress={searchProgress} />
           <LibraryTagFilter
             books={aggregatedBooks}

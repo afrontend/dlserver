@@ -128,15 +128,19 @@ describe("LibrarySelector", () => {
     expect(onLibraryChange).toHaveBeenCalledWith("도서관을 선택하세요.");
   });
 
-  it("shows correct library count", () => {
+  it("shows correct number of library options", () => {
     render(<LibrarySelector {...defaultProps} />);
 
-    expect(screen.getByText("3개 도서관")).toBeInTheDocument();
+    const select = screen.getByTestId("library-select");
+    // 3 libraries + 1 default option
+    expect(select.querySelectorAll("option")).toHaveLength(4);
   });
 
   it("filters libraries based on filter text", () => {
     render(<LibrarySelector {...defaultProps} filterText="판교" />);
 
-    expect(screen.getByText("1개 도서관")).toBeInTheDocument();
+    const select = screen.getByTestId("library-select");
+    // 1 filtered library + 1 default option
+    expect(select.querySelectorAll("option")).toHaveLength(2);
   });
 });
