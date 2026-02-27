@@ -12,7 +12,6 @@ import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
 import { useSearchState } from "./hooks/useSearchState";
 import { useSearchCoordinator } from "./hooks/useSearchCoordinator";
-import { updateUrl } from "./utils/url";
 
 const App = () => {
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -46,13 +45,7 @@ const App = () => {
 
   const handleLibraryChange = useCallback((newLibrary: string) => {
     setLibraryName(newLibrary);
-    if (searchText?.length) {
-      resetFilters();
-      addToHistory(searchText);
-      updateUrl(searchText, newLibrary);
-      performSearch(searchText, newLibrary, libraryNames);
-    }
-  }, [searchText, libraryNames, performSearch, resetFilters, addToHistory, setLibraryName]);
+  }, [setLibraryName]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,6 +73,24 @@ const App = () => {
                   onFilterChange={setFilterText}
                   isLoading={isLoading}
                 />
+              </div>
+              <div className="border-t border-gray-100 px-4 py-3 flex justify-center">
+                <button
+                  onClick={handleSearch}
+                  disabled={isLoading || !searchText?.trim()}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-colors ${
+                    isLoading || !searchText?.trim()
+                      ? "bg-blue-300 opacity-50 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
+                  }`}
+                >
+                  {isLoading ? (
+                    <i className="fa fa-spinner fa-spin" />
+                  ) : (
+                    <i className="fa fa-search" />
+                  )}
+                  검색하기
+                </button>
               </div>
             </div>
             <div className="text-right text-sm text-gray-400 mt-1 mr-1">
