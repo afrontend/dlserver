@@ -22,18 +22,23 @@ describe("SearchBar", () => {
     expect(input).toHaveAttribute("placeholder", "책 이름을 입력하세요.");
   });
 
-  it("renders search button when not loading", () => {
+  it("renders search icon button when not loading", () => {
     render(<SearchBar {...defaultProps} />);
 
-    expect(screen.getByTestId("search-button")).toHaveTextContent("검색");
+    const searchButton = screen.getByTestId("search-button");
+    expect(searchButton).toBeInTheDocument();
+    expect(searchButton.querySelector(".fa-search")).toBeTruthy();
     expect(screen.queryByTestId("cancel-button")).not.toBeInTheDocument();
   });
 
-  it("renders cancel button when loading", () => {
+  it("renders cancel spinner icon when loading", () => {
     render(<SearchBar {...defaultProps} isLoading={true} />);
 
-    expect(screen.getByTestId("cancel-button")).toHaveTextContent("취소");
-    expect(screen.queryByTestId("search-button")).not.toBeInTheDocument();
+    const cancelButton = screen.getByTestId("cancel-button");
+    expect(cancelButton).toBeInTheDocument();
+    expect(cancelButton.querySelector(".fa-spinner")).toBeTruthy();
+    // Search icon is still present when loading
+    expect(screen.getByTestId("search-button")).toBeInTheDocument();
   });
 
   it("calls onSearchTextChange when typing", async () => {
