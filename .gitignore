@@ -2,3 +2,6 @@ node_modules/
 npm-debug.log
 .playwright-mcp/
 dist/
+docs
+AGENTS.md
+CLAUDE.md
