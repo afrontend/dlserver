@@ -69,7 +69,7 @@ export const LibrarySelector = ({
             onLibraryChange(e.target.value)
           }
         >
-          <option value="도서관을 선택하세요.">도서관을 선택하세요.</option>
+          <option value="도서관을 선택하세요.">도서관을 선택하세요. ({filteredLibraries.length}개)</option>
           {filteredLibraries.map((lib) => (
             <option key={lib.id} value={lib.name}>
               {lib.name}

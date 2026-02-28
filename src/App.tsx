@@ -93,9 +93,6 @@ const App = () => {
                 </button>
               </div>
             </div>
-            <div className="text-right text-sm text-gray-400 mt-1 mr-1">
-              {libraryNames.filter(lib => !filterText?.trim() || lib.name.toLowerCase().includes(filterText.toLowerCase())).length}개 도서관
-            </div>
           </div>
           <SearchProgressBar progress={searchProgress} />
           <LibraryTagFilter
