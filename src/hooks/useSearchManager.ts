@@ -4,12 +4,20 @@ import type { Library } from "../types";
 
 export const useSearchManager = (params: {
   libraryNames: Library[];
+  filteredLibraries: Library[];
   performSearch: (title: string, libName: string, libraries: Library[]) => void;
   clearResults: () => void;
   resetFilters: () => void;
   addToHistory: (query: string) => void;
 }) => {
-  const { libraryNames, performSearch, clearResults, resetFilters, addToHistory } = params;
+  const {
+    libraryNames,
+    filteredLibraries,
+    performSearch,
+    clearResults,
+    resetFilters,
+    addToHistory,
+  } = params;
 
   const [searchText, setSearchText] = useState(() => getUrlParams().title);
   const [libraryName, setLibraryName] = useState(() => getUrlParams().library);
@@ -52,8 +60,21 @@ export const useSearchManager = (params: {
     resetFilters();
     addToHistory(searchText);
     updateUrl(searchText, libraryName);
-    performSearch(searchText, libraryName, libraryNames);
-  }, [searchText, libraryName, libraryNames, performSearch, resetFilters, addToHistory]);
+    performSearch(searchText, libraryName, filteredLibraries);
+  }, [
+    searchText,
+    libraryName,
+    filteredLibraries,
+    performSearch,
+    resetFilters,
+    addToHistory,
+  ]);
 
-  return { searchText, setSearchText, libraryName, setLibraryName, handleSearch };
+  return {
+    searchText,
+    setSearchText,
+    libraryName,
+    setLibraryName,
+    handleSearch,
+  };
 };

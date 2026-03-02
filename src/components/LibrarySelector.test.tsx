@@ -4,12 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { LibrarySelector } from "./LibrarySelector";
 
 describe("LibrarySelector", () => {
+  const allLibraries = [
+    { id: 1, name: "판교" },
+    { id: 2, name: "동탄" },
+    { id: 3, name: "성남" },
+  ];
+
   const defaultProps = {
-    libraryNames: [
-      { id: 1, name: "판교" },
-      { id: 2, name: "동탄" },
-      { id: 3, name: "성남" },
-    ],
+    filteredLibraries: allLibraries,
     selectedLibrary: "도서관을 선택하세요.",
     onLibraryChange: vi.fn(),
     filterText: "",
@@ -53,9 +55,7 @@ describe("LibrarySelector", () => {
   });
 
   it("shows clear button when library is selected and not loading", () => {
-    render(
-      <LibrarySelector {...defaultProps} selectedLibrary="판교" />
-    );
+    render(<LibrarySelector {...defaultProps} selectedLibrary="판교" />);
 
     expect(screen.getByTestId("library-clear-button")).toBeInTheDocument();
   });
@@ -64,7 +64,7 @@ describe("LibrarySelector", () => {
     render(<LibrarySelector {...defaultProps} />);
 
     expect(
-      screen.queryByTestId("library-clear-button")
+      screen.queryByTestId("library-clear-button"),
     ).not.toBeInTheDocument();
   });
 
@@ -74,11 +74,11 @@ describe("LibrarySelector", () => {
         {...defaultProps}
         selectedLibrary="판교"
         isLoading={true}
-      />
+      />,
     );
 
     expect(
-      screen.queryByTestId("library-clear-button")
+      screen.queryByTestId("library-clear-button"),
     ).not.toBeInTheDocument();
   });
 
@@ -87,7 +87,7 @@ describe("LibrarySelector", () => {
     const user = userEvent.setup();
 
     render(
-      <LibrarySelector {...defaultProps} onFilterChange={onFilterChange} />
+      <LibrarySelector {...defaultProps} onFilterChange={onFilterChange} />,
     );
 
     const filterInput = screen.getByTestId("library-filter-input");
@@ -101,7 +101,7 @@ describe("LibrarySelector", () => {
     const user = userEvent.setup();
 
     render(
-      <LibrarySelector {...defaultProps} onLibraryChange={onLibraryChange} />
+      <LibrarySelector {...defaultProps} onLibraryChange={onLibraryChange} />,
     );
 
     const select = screen.getByTestId("library-select");
@@ -119,7 +119,7 @@ describe("LibrarySelector", () => {
         {...defaultProps}
         selectedLibrary="판교"
         onLibraryChange={onLibraryChange}
-      />
+      />,
     );
 
     const clearButton = screen.getByTestId("library-clear-button");
@@ -136,8 +136,14 @@ describe("LibrarySelector", () => {
     expect(select.querySelectorAll("option")).toHaveLength(4);
   });
 
-  it("filters libraries based on filter text", () => {
-    render(<LibrarySelector {...defaultProps} filterText="판교" />);
+  it("shows only filtered libraries when filteredLibraries is provided", () => {
+    render(
+      <LibrarySelector
+        {...defaultProps}
+        filterText="판교"
+        filteredLibraries={[{ id: 1, name: "판교" }]}
+      />,
+    );
 
     const select = screen.getByTestId("library-select");
     // 1 filtered library + 1 default option

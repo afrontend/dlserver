@@ -14,9 +14,16 @@ import { useSearchManager } from "./hooks/useSearchManager";
 const App = () => {
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
-  const { isLoading, searchProgress, aggregatedBooks, performSearch, cancelSearch, clearResults } =
-    useBookSearch();
-  const { libraryNames, filterText, setFilterText } = useLibraries();
+  const {
+    isLoading,
+    searchProgress,
+    aggregatedBooks,
+    performSearch,
+    cancelSearch,
+    clearResults,
+  } = useBookSearch();
+  const { libraryNames, filteredLibraries, filterText, setFilterText } =
+    useLibraries();
   const {
     displayedBooks,
     hideRented,
@@ -26,8 +33,15 @@ const App = () => {
     resetFilters,
   } = useBookFilters(aggregatedBooks);
 
-  const { searchText, setSearchText, libraryName, setLibraryName, handleSearch } = useSearchManager({
+  const {
+    searchText,
+    setSearchText,
+    libraryName,
+    setLibraryName,
+    handleSearch,
+  } = useSearchManager({
     libraryNames,
+    filteredLibraries,
     performSearch,
     clearResults,
     resetFilters,
@@ -53,7 +67,7 @@ const App = () => {
               />
               <div className="border-t border-gray-100">
                 <LibrarySelector
-                  libraryNames={libraryNames}
+                  filteredLibraries={filteredLibraries}
                   selectedLibrary={libraryName}
                   onLibraryChange={setLibraryName}
                   filterText={filterText}

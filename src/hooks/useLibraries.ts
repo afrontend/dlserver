@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { LibraryAPI } from "../api/library";
 import { sortByName } from "../utils/sorting";
 import type { Library } from "../types";
@@ -19,5 +19,12 @@ export const useLibraries = () => {
       });
   }, []);
 
-  return { libraryNames, filterText, setFilterText };
+  const filteredLibraries = useMemo(() => {
+    if (!filterText?.trim()) return libraryNames;
+    return libraryNames.filter(
+      (lib) => lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1,
+    );
+  }, [libraryNames, filterText]);
+
+  return { libraryNames, filteredLibraries, filterText, setFilterText };
 };
