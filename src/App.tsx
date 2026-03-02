@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { BookList } from "./components/BookList";
 import { LibrarySelector } from "./components/LibrarySelector";
 import { SearchBar } from "./components/SearchBar";
@@ -10,8 +9,7 @@ import { useSearchHistory } from "./hooks/useSearchHistory";
 import { useBookSearch } from "./hooks/useBookSearch";
 import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
-import { useSearchState } from "./hooks/useSearchState";
-import { useSearchCoordinator } from "./hooks/useSearchCoordinator";
+import { useSearchManager } from "./hooks/useSearchManager";
 
 const App = () => {
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -28,24 +26,13 @@ const App = () => {
     resetFilters,
   } = useBookFilters(aggregatedBooks);
 
-  const { searchText, setSearchText, libraryName, setLibraryName } = useSearchState(
+  const { searchText, setSearchText, libraryName, setLibraryName, handleSearch } = useSearchManager({
     libraryNames,
     performSearch,
     clearResults,
-  );
-
-  const { handleSearch } = useSearchCoordinator({
-    searchText,
-    libraryName,
-    libraryNames,
-    performSearch,
     resetFilters,
     addToHistory,
   });
-
-  const handleLibraryChange = useCallback((newLibrary: string) => {
-    setLibraryName(newLibrary);
-  }, [setLibraryName]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,7 +55,7 @@ const App = () => {
                 <LibrarySelector
                   libraryNames={libraryNames}
                   selectedLibrary={libraryName}
-                  onLibraryChange={handleLibraryChange}
+                  onLibraryChange={setLibraryName}
                   filterText={filterText}
                   onFilterChange={setFilterText}
                   isLoading={isLoading}

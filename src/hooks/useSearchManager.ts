@@ -1,20 +1,38 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getUrlParams, updateUrl } from "../utils/url";
 import type { Library } from "../types";
 
-export const useSearchCoordinator = (params: {
-  searchText: string;
-  libraryName: string;
+export const useSearchManager = (params: {
   libraryNames: Library[];
   performSearch: (title: string, libName: string, libraries: Library[]) => void;
+  clearResults: () => void;
   resetFilters: () => void;
   addToHistory: (query: string) => void;
 }) => {
-  const { searchText, libraryName, libraryNames, performSearch, resetFilters, addToHistory } =
-    params;
+  const { libraryNames, performSearch, clearResults, resetFilters, addToHistory } = params;
 
+  const [searchText, setSearchText] = useState(() => getUrlParams().title);
+  const [libraryName, setLibraryName] = useState(() => getUrlParams().library);
   const initialSearchFiredRef = useRef(false);
 
+  // popstate handler (back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      const { title, library } = getUrlParams();
+      setSearchText(title);
+      setLibraryName(library);
+      if (title && libraryNames.length > 0) {
+        performSearch(title, library, libraryNames);
+      } else {
+        clearResults();
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [libraryNames, performSearch, clearResults]);
+
+  // initial URL search
   useEffect(() => {
     if (libraryNames.length > 0 && !initialSearchFiredRef.current) {
       const { title, library } = getUrlParams();
@@ -37,5 +55,5 @@ export const useSearchCoordinator = (params: {
     performSearch(searchText, libraryName, libraryNames);
   }, [searchText, libraryName, libraryNames, performSearch, resetFilters, addToHistory]);
 
-  return { handleSearch };
+  return { searchText, setSearchText, libraryName, setLibraryName, handleSearch };
 };
