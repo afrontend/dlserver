@@ -1,6 +1,16 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as dl from "dongnelibrary";
 import type { SearchResult, Book } from "dongnelibrary";
+import * as gg from "dongnelibrary/dist/localLibraryModule/gg";
+import * as gunpo from "dongnelibrary/dist/localLibraryModule/gunpo";
+import * as hscity from "dongnelibrary/dist/localLibraryModule/hscity";
+import * as osan from "dongnelibrary/dist/localLibraryModule/osan";
+import * as snlib from "dongnelibrary/dist/localLibraryModule/snlib";
+import * as suwon from "dongnelibrary/dist/localLibraryModule/suwon";
+import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
+import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
+
+const LIBRARY_MODULES = [gg, gunpo, hscity, osan, snlib, suwon, yjlib, yongin];
 
 const app = express();
 
@@ -84,6 +94,14 @@ app.get("/search", async (req: Request, res: Response) => {
 app.get("/libraryList", (_req: Request, res: Response) => {
   const libs = dl.getLibraryNames();
   res.json(libs);
+});
+
+app.get("/moduleList", (_req: Request, res: Response) => {
+  const modules = LIBRARY_MODULES.map((mod) => ({
+    name: mod.moduleName,
+    libraries: mod.getLibraryNames(),
+  }));
+  res.json(modules);
 });
 
 interface HttpError extends Error {

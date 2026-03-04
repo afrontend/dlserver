@@ -24,6 +24,10 @@ vi.mock("dongnelibrary", () => ({
     }
   ),
   getLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
+  getAllModuleNames: vi.fn(() => ["성남시도서관", "수원시도서관"]),
+  isModuleName: vi.fn((name: string) =>
+    ["성남시도서관", "수원시도서관"].includes(name)
+  ),
 }));
 
 describe("Server API", () => {
@@ -37,6 +41,24 @@ describe("Server API", () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(["판교", "동탄", "성남"]);
+    });
+  });
+
+  describe("GET /moduleList", () => {
+    it("returns array of objects with name and libraries", async () => {
+      const res = await request(app).get("/moduleList");
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+      res.body.forEach(
+        (mod: { name: string; libraries: string[] }) => {
+          expect(mod).toHaveProperty("name");
+          expect(mod).toHaveProperty("libraries");
+          expect(typeof mod.name).toBe("string");
+          expect(Array.isArray(mod.libraries)).toBe(true);
+        }
+      );
     });
   });
 
