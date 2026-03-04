@@ -10,6 +10,11 @@ describe("LibrarySelector", () => {
     { id: 3, name: "성남" },
   ];
 
+  const sampleModules = [
+    { name: "성남시", libraries: ["판교", "성남"] },
+    { name: "화성시", libraries: ["동탄"] },
+  ];
+
   const defaultProps = {
     filteredLibraries: allLibraries,
     selectedLibrary: "도서관을 선택하세요.",
@@ -17,6 +22,9 @@ describe("LibrarySelector", () => {
     filterText: "",
     onFilterChange: vi.fn(),
     isLoading: false,
+    modules: [] as { name: string; libraries: string[] }[],
+    selectedModule: "",
+    onModuleChange: vi.fn(),
   };
 
   it("renders filter input and select when not loading", () => {
@@ -148,5 +156,70 @@ describe("LibrarySelector", () => {
     const select = screen.getByTestId("library-select");
     // 1 filtered library + 1 default option
     expect(select.querySelectorAll("option")).toHaveLength(2);
+  });
+
+  it("renders the module select dropdown", () => {
+    render(<LibrarySelector {...defaultProps} modules={sampleModules} />);
+
+    expect(screen.getByTestId("module-select")).toBeInTheDocument();
+  });
+
+  it("shows correct number of module options", () => {
+    render(<LibrarySelector {...defaultProps} modules={sampleModules} />);
+
+    const moduleSelect = screen.getByTestId("module-select");
+    // 2 modules + 1 default option
+    expect(moduleSelect.querySelectorAll("option")).toHaveLength(3);
+  });
+
+  it("calls onModuleChange when selecting a module", async () => {
+    const onModuleChange = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <LibrarySelector
+        {...defaultProps}
+        modules={sampleModules}
+        onModuleChange={onModuleChange}
+      />,
+    );
+
+    const moduleSelect = screen.getByTestId("module-select");
+    await user.selectOptions(moduleSelect, "성남시");
+
+    expect(onModuleChange).toHaveBeenCalledWith("성남시");
+  });
+
+  it("shows module clear button when a module is selected", () => {
+    render(
+      <LibrarySelector
+        {...defaultProps}
+        modules={sampleModules}
+        selectedModule="성남시"
+      />,
+    );
+
+    expect(screen.getByTestId("module-clear-button")).toBeInTheDocument();
+  });
+
+  it("hides module clear button when no module is selected", () => {
+    render(<LibrarySelector {...defaultProps} modules={sampleModules} />);
+
+    expect(
+      screen.queryByTestId("module-clear-button"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("disables filter input when a module is selected", () => {
+    render(
+      <LibrarySelector
+        {...defaultProps}
+        modules={sampleModules}
+        selectedModule="성남시"
+      />,
+    );
+
+    const filterInput = screen.getByTestId("library-filter-input");
+    expect(filterInput).toBeDisabled();
   });
 });
