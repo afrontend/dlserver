@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { BookList } from "./components/BookList";
 import { LibrarySelector } from "./components/LibrarySelector";
 import { SearchBar } from "./components/SearchBar";
@@ -22,8 +23,15 @@ const App = () => {
     cancelSearch,
     clearResults,
   } = useBookSearch();
-  const { libraryNames, filteredLibraries, filterText, setFilterText } =
-    useLibraries();
+  const {
+    libraryNames,
+    filteredLibraries,
+    filterText,
+    setFilterText,
+    modules,
+    selectedModule,
+    setSelectedModule,
+  } = useLibraries();
   const {
     displayedBooks,
     hideRented,
@@ -47,6 +55,14 @@ const App = () => {
     resetFilters,
     addToHistory,
   });
+
+  const handleModuleChange = useCallback(
+    (moduleName: string) => {
+      setSelectedModule(moduleName);
+      setLibraryName("도서관을 선택하세요.");
+    },
+    [setSelectedModule, setLibraryName],
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,6 +89,9 @@ const App = () => {
                   filterText={filterText}
                   onFilterChange={setFilterText}
                   isLoading={isLoading}
+                  modules={modules}
+                  selectedModule={selectedModule}
+                  onModuleChange={handleModuleChange}
                 />
               </div>
               <div className="border-t border-gray-100 px-4 py-3 flex justify-center">
