@@ -1,4 +1,4 @@
-import type { LibrarySearchResult, LibrarySearchParams } from "../types";
+import type { LibrarySearchResult, LibrarySearchParams, ModuleInfo } from "../types";
 
 export const LibraryAPI = {
   getLibrary: async ({
@@ -16,4 +16,6 @@ export const LibraryAPI = {
   },
   getLibraryNames: (): Promise<string[]> =>
     fetch("/libraryList").then((response) => response.json()),
+  getModuleList: (): Promise<ModuleInfo[]> =>
+    fetch("/moduleList").then((response) => response.json()),
 };

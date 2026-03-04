@@ -20,6 +20,11 @@ export type LibrarySearchParams = {
   signal?: AbortSignal;
 };
 
+export interface ModuleInfo {
+  name: string;
+  libraries: string[];
+}
+
 export type LibrarySearchStatus = "pending" | "searching" | "done" | "error";
 
 export interface LibrarySearchState {
