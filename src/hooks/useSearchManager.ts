@@ -4,7 +4,7 @@ import type { Library } from "../types";
 
 export const useSearchManager = (params: {
   libraryNames: Library[];
-  filteredLibraries: Library[];
+  baseLibraries: Library[];
   performSearch: (title: string, libName: string, libraries: Library[]) => void;
   clearResults: () => void;
   resetFilters: () => void;
@@ -12,7 +12,7 @@ export const useSearchManager = (params: {
 }) => {
   const {
     libraryNames,
-    filteredLibraries,
+    baseLibraries,
     performSearch,
     clearResults,
     resetFilters,
@@ -60,11 +60,12 @@ export const useSearchManager = (params: {
     resetFilters();
     addToHistory(searchText);
     updateUrl(searchText, libraryName);
-    performSearch(searchText, libraryName, filteredLibraries);
+
+    performSearch(searchText, libraryName, baseLibraries);
   }, [
     searchText,
     libraryName,
-    filteredLibraries,
+    baseLibraries,
     performSearch,
     resetFilters,
     addToHistory,

@@ -52,22 +52,6 @@ const makeBookDescription = (book: Book): string => {
   return " " + mark + " " + book.title + "<br>";
 };
 
-app.get("/:title/:libraryName", async (req: Request, res: Response) => {
-  const { title, libraryName } = extractSearchParams(req.params);
-
-  try {
-    const books = await searchBooks(title, libraryName);
-    res.send(
-      books[0].booklist.reduce((memo: string, book: Book) => {
-        return memo + makeBookDescription(book);
-      }, ""),
-    );
-  } catch (err) {
-    const error = err as { msg?: string };
-    res.json({ message: error.msg });
-  }
-});
-
 app.get("/search", async (req: Request, res: Response) => {
   const controller = new AbortController();
 
@@ -92,7 +76,7 @@ app.get("/search", async (req: Request, res: Response) => {
 });
 
 app.get("/libraryList", (_req: Request, res: Response) => {
-  const libs = dl.getLibraryNames();
+  const libs = dl.getAllLibraryNames();
   res.json(libs);
 });
 
@@ -102,6 +86,22 @@ app.get("/moduleList", (_req: Request, res: Response) => {
     libraries: mod.getLibraryNames(),
   }));
   res.json(modules);
+});
+
+app.get("/:title/:libraryName", async (req: Request, res: Response) => {
+  const { title, libraryName } = extractSearchParams(req.params);
+
+  try {
+    const books = await searchBooks(title, libraryName);
+    res.send(
+      books[0].booklist.reduce((memo: string, book: Book) => {
+        return memo + makeBookDescription(book);
+      }, ""),
+    );
+  } catch (err) {
+    const error = err as { msg?: string };
+    res.json({ message: error.msg });
+  }
 });
 
 interface HttpError extends Error {

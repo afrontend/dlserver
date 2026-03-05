@@ -25,6 +25,7 @@ const App = () => {
   } = useBookSearch();
   const {
     libraryNames,
+    baseLibraries,
     filteredLibraries,
     filterText,
     setFilterText,
@@ -49,7 +50,7 @@ const App = () => {
     handleSearch,
   } = useSearchManager({
     libraryNames,
-    filteredLibraries,
+    baseLibraries,
     performSearch,
     clearResults,
     resetFilters,
@@ -94,7 +95,10 @@ const App = () => {
                   onModuleChange={handleModuleChange}
                 />
               </div>
-              <div className="border-t border-gray-100 px-4 py-3 flex justify-center">
+              <div className="border-t border-gray-100 px-4 py-3 flex flex-col items-center gap-1">
+                {!isLoading && !searchText?.trim() && (
+                  <p className="text-sm text-gray-400">책 이름을 입력해주세요.</p>
+                )}
                 <button
                   onClick={handleSearch}
                   disabled={isLoading || !searchText?.trim()}

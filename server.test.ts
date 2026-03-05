@@ -24,6 +24,7 @@ vi.mock("dongnelibrary", () => ({
     }
   ),
   getLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
+  getAllLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
   getAllModuleNames: vi.fn(() => ["성남시도서관", "수원시도서관"]),
   isModuleName: vi.fn((name: string) =>
     ["성남시도서관", "수원시도서관"].includes(name)

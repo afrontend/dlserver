@@ -31,19 +31,11 @@ export const useLibraries = () => {
 
   const setSelectedModule = useCallback((moduleName: string) => {
     setSelectedModuleState(moduleName);
-    if (moduleName) {
-      setFilterText("");
-    }
+    setFilterText("");
   }, []);
 
-  const setFilterTextWithClear = useCallback((text: string) => {
-    setFilterText(text);
-    if (text) {
-      setSelectedModuleState("");
-    }
-  }, []);
-
-  const filteredLibraries = useMemo(() => {
+  // 모듈 선택 여부에 따른 기본 도서관 목록
+  const baseLibraries = useMemo(() => {
     if (selectedModule) {
       const mod = modules.find((m) => m.name === selectedModule);
       if (mod) {
@@ -54,21 +46,25 @@ export const useLibraries = () => {
         return sortByName(moduleLibraries);
       }
     }
+    return libraryNames;
+  }, [libraryNames, selectedModule, modules]);
 
+  // filterText는 도서관 드롭다운 목록에만 영향
+  const filteredLibraries = useMemo(() => {
     if (filterText?.trim()) {
-      return libraryNames.filter(
+      return baseLibraries.filter(
         (lib) => lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1,
       );
     }
-
-    return libraryNames;
-  }, [libraryNames, filterText, selectedModule, modules]);
+    return baseLibraries;
+  }, [baseLibraries, filterText]);
 
   return {
     libraryNames,
+    baseLibraries,
     filteredLibraries,
     filterText,
-    setFilterText: setFilterTextWithClear,
+    setFilterText,
     modules,
     selectedModule,
     setSelectedModule,
