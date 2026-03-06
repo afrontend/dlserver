@@ -108,12 +108,13 @@ export const StepWizard = ({
   );
 
   const getLibrarySummary = () => {
-    if (selectedLibrary === "도서관을 선택하세요.") {
-      return "전체 도서관";
-    }
     const parts = [];
     if (selectedModule) parts.push(selectedModule);
-    parts.push(selectedLibrary);
+    if (selectedLibrary === "도서관을 선택하세요.") {
+      parts.push("전체 도서관");
+    } else {
+      parts.push(selectedLibrary);
+    }
     return parts.join(" > ");
   };
 
