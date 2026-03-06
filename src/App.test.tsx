@@ -22,6 +22,20 @@ vi.mock("./utils/url", () => ({
   updateUrl: vi.fn(),
 }));
 
+// Helper: navigate through wizard steps to start a search
+async function navigateToSearch(user: ReturnType<typeof userEvent.setup>, searchText: string) {
+  // Step 1: Enter book name
+  const searchInput = screen.getByTestId("search-input");
+  await user.type(searchInput, searchText);
+  fireEvent.keyDown(searchInput, { key: "Enter" });
+
+  // Step 2: Skip library selection (search all)
+  await user.click(screen.getByTestId("step-2-skip"));
+
+  // Step 3: Click search
+  await user.click(screen.getByTestId("search-submit-button"));
+}
+
 describe("App - Cancel Search", () => {
   const libraries = [
     { id: 1, name: "판교" },
@@ -81,22 +95,13 @@ describe("App - Cancel Search", () => {
 
     // Wait for library list to load
     await waitFor(() => {
-      expect(screen.getByTestId("library-select")).toBeInTheDocument();
+      expect(mockGetLibraryNames).toHaveBeenCalled();
     });
 
-    // Select "도서관을 선택하세요." to search all libraries
-    const librarySelect = screen.getByTestId("library-select");
-    await user.selectOptions(librarySelect, "도서관을 선택하세요.");
+    // Navigate through wizard and start search
+    await navigateToSearch(user, "test");
 
-    // Enter search text
-    const searchInput = screen.getByTestId("search-input");
-    await user.type(searchInput, "test");
-
-    // Start search
-    const searchButton = screen.getByTestId("search-button");
-    await user.click(searchButton);
-
-    // Wait for loading state
+    // Wait for loading state - cancel button in step 3
     await waitFor(() => {
       expect(screen.getByTestId("cancel-button")).toBeInTheDocument();
     });
@@ -112,7 +117,6 @@ describe("App - Cancel Search", () => {
     await user.click(cancelButton);
 
     // Verify that partial results are preserved
-    // Use findAllByTestId since books are rendered in book-item elements
     await waitFor(() => {
       const bookItems = screen.getAllByTestId("book-item");
       expect(bookItems.length).toBe(2);
@@ -120,7 +124,6 @@ describe("App - Cancel Search", () => {
 
     // Verify loading is stopped
     expect(screen.queryByTestId("cancel-button")).not.toBeInTheDocument();
-    expect(screen.getByTestId("search-button")).toBeInTheDocument();
   });
 
   it("should show empty results when cancelling before any library completes", async () => {
@@ -133,19 +136,11 @@ describe("App - Cancel Search", () => {
 
     // Wait for library list to load
     await waitFor(() => {
-      expect(screen.getByTestId("library-select")).toBeInTheDocument();
+      expect(mockGetLibraryNames).toHaveBeenCalled();
     });
 
-    // Select all libraries
-    const librarySelect = screen.getByTestId("library-select");
-    await user.selectOptions(librarySelect, "도서관을 선택하세요.");
-
-    // Enter search text using fireEvent for instant value change
-    const searchInput = screen.getByTestId("search-input");
-    fireEvent.change(searchInput, { target: { value: "empty" } });
-
-    // Click search to start the search
-    await user.click(screen.getByTestId("search-button"));
+    // Navigate through wizard and start search
+    await navigateToSearch(user, "empty");
 
     // Wait for cancel button to appear (loading state)
     await waitFor(() => {
@@ -160,8 +155,7 @@ describe("App - Cancel Search", () => {
       expect(screen.getByTestId("empty-message")).toBeInTheDocument();
     });
 
-    // Verify loading is stopped - search button should be back
+    // Verify loading is stopped
     expect(screen.queryByTestId("cancel-button")).not.toBeInTheDocument();
-    expect(screen.getByTestId("search-button")).toBeInTheDocument();
   });
 });

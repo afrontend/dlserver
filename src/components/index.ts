@@ -1,5 +1,5 @@
 export { BookItem } from "./BookItem";
 export { BookList } from "./BookList";
-export { LibrarySelector } from "./LibrarySelector";
-export { SearchBar } from "./SearchBar";
+export { StepIndicator } from "./StepIndicator";
+export { StepWizard } from "./StepWizard";
 export { Header } from "./Header";

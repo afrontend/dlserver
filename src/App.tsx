@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { BookList } from "./components/BookList";
-import { LibrarySelector } from "./components/LibrarySelector";
-import { SearchBar } from "./components/SearchBar";
+import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
 import { LibraryTagFilter } from "./components/LibraryTagFilter";
@@ -70,54 +69,24 @@ const App = () => {
       <div className="p-4 sm:p-6 md:p-8 pb-8 max-w-4xl mx-auto safe-area-inset">
         <Header />
         <div className="space-y-4">
-          <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <SearchBar
-                searchText={searchText}
-                onSearchTextChange={setSearchText}
-                onSearch={handleSearch}
-                onCancel={cancelSearch}
-                isLoading={isLoading}
-                searchHistory={history}
-                onHistorySelect={setSearchText}
-                onHistoryClear={clearHistory}
-              />
-              <div className="border-t border-gray-100">
-                <LibrarySelector
-                  filteredLibraries={filteredLibraries}
-                  selectedLibrary={libraryName}
-                  onLibraryChange={setLibraryName}
-                  filterText={filterText}
-                  onFilterChange={setFilterText}
-                  isLoading={isLoading}
-                  modules={modules}
-                  selectedModule={selectedModule}
-                  onModuleChange={handleModuleChange}
-                />
-              </div>
-              <div className="border-t border-gray-100 px-4 py-3 flex flex-col items-center gap-1">
-                {!isLoading && !searchText?.trim() && (
-                  <p className="text-sm text-gray-400">책 이름을 입력해주세요.</p>
-                )}
-                <button
-                  onClick={handleSearch}
-                  disabled={isLoading || !searchText?.trim()}
-                  className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-colors ${
-                    isLoading || !searchText?.trim()
-                      ? "bg-blue-300 opacity-50 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
-                  }`}
-                >
-                  {isLoading ? (
-                    <i className="fa fa-spinner fa-spin" />
-                  ) : (
-                    <i className="fa fa-search" />
-                  )}
-                  검색하기
-                </button>
-              </div>
-            </div>
-          </div>
+          <StepWizard
+            searchText={searchText}
+            onSearchTextChange={setSearchText}
+            searchHistory={history}
+            onHistorySelect={setSearchText}
+            onHistoryClear={clearHistory}
+            filteredLibraries={filteredLibraries}
+            selectedLibrary={libraryName}
+            onLibraryChange={setLibraryName}
+            filterText={filterText}
+            onFilterChange={setFilterText}
+            modules={modules}
+            selectedModule={selectedModule}
+            onModuleChange={handleModuleChange}
+            onSearch={handleSearch}
+            onCancel={cancelSearch}
+            isLoading={isLoading}
+          />
           <SearchProgressBar progress={searchProgress} />
           <LibraryTagFilter
             books={aggregatedBooks}
