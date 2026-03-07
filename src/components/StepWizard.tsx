@@ -119,7 +119,7 @@ export const StepWizard = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
       <StepIndicator
         steps={STEPS}
         currentStep={currentStep}
@@ -193,7 +193,9 @@ export const StepWizard = ({
             onClick={() => handleEditStep(1)}
           >
             <div className="flex items-center gap-2">
-              <span className="text-blue-500"><i className="fa fa-book" /></span>
+              <span className="text-blue-500">
+                <i className="fa fa-book" />
+              </span>
               <span className="font-medium">{searchText}</span>
             </div>
             <button
@@ -212,7 +214,10 @@ export const StepWizard = ({
 
         {/* Step 2: Library selection */}
         {currentStep === 2 && !isStepCompleted(2) ? (
-          <div className="p-4 border-t border-gray-100" data-testid="step-2-content">
+          <div
+            className="p-4 border-t border-gray-100"
+            data-testid="step-2-content"
+          >
             <p className="text-sm text-gray-500 mb-2">
               도서관을 선택하세요. (선택하지 않으면 전체 검색)
             </p>
@@ -310,7 +315,9 @@ export const StepWizard = ({
             onClick={() => handleEditStep(2)}
           >
             <div className="flex items-center gap-2">
-              <span className="text-blue-500"><i className="fa fa-university" /></span>
+              <span className="text-blue-500">
+                <i className="fa fa-university" />
+              </span>
               <span className="font-medium">{getLibrarySummary()}</span>
             </div>
             <button
@@ -326,7 +333,10 @@ export const StepWizard = ({
             </button>
           </div>
         ) : currentStep < 2 ? (
-          <div className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm" data-testid="step-2-disabled">
+          <div
+            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm"
+            data-testid="step-2-disabled"
+          >
             <i className="fa fa-university mr-2" />
             도서관 선택
           </div>
@@ -334,7 +344,10 @@ export const StepWizard = ({
 
         {/* Step 3: Search */}
         {currentStep === 3 && !isStepCompleted(3) ? (
-          <div className="p-4 border-t border-gray-100" data-testid="step-3-content">
+          <div
+            className="p-4 border-t border-gray-100"
+            data-testid="step-3-content"
+          >
             <div className="bg-gray-50 rounded-lg p-3 mb-3">
               <p className="text-sm text-gray-500 mb-1">검색 요약</p>
               <p className="text-sm">
@@ -366,7 +379,10 @@ export const StepWizard = ({
             )}
           </div>
         ) : currentStep < 3 ? (
-          <div className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm" data-testid="step-3-disabled">
+          <div
+            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm"
+            data-testid="step-3-disabled"
+          >
             <i className="fa fa-search mr-2" />
             검색
           </div>

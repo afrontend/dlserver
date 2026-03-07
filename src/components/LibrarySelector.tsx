@@ -64,9 +64,9 @@ export const LibrarySelector = ({
           <input
             type="text"
             data-testid="library-filter-input"
-            disabled={isLoading}
+            disabled={isLoading || !!selectedModule}
             className={`w-full bg-transparent border-0 px-4 py-3 text-base focus:outline-none focus:ring-0 min-h-[48px] pr-10 placeholder-gray-400 ${
-              isLoading ? "text-gray-500 cursor-not-allowed" : ""
+              isLoading || selectedModule ? "text-gray-500 cursor-not-allowed" : ""
             }`}
             placeholder="도서관 이름 검색..."
             value={filterText}

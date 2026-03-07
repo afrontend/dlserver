@@ -3,7 +3,9 @@ import type { Book } from "../types";
 
 export const useBookFilters = (aggregatedBooks: Book[]) => {
   const [hideRented, setHideRented] = useState(false);
-  const [selectedLibraryTags, setSelectedLibraryTags] = useState<Set<string>>(new Set());
+  const [selectedLibraryTags, setSelectedLibraryTags] = useState<Set<string>>(
+    new Set(),
+  );
 
   const displayedBooks: Book[] = useMemo(() => {
     let filtered = aggregatedBooks;
