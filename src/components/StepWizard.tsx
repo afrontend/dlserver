@@ -62,6 +62,7 @@ export const StepWizard = ({
   }, []);
 
   const handleStep1KeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === "Enter") {
       setIsHistoryOpen(false);
       if (searchText.trim()) {
