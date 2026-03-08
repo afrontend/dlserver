@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { LibraryAPI } from "../api/library";
 import { sortByTitle } from "../utils/sorting";
 import type { Book, Library, LibrarySearchState, SearchProgress } from "../types";
+import { DEFAULT_LIBRARY } from "../constants";
 
 export const useBookSearch = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -98,7 +99,7 @@ export const useBookSearch = () => {
       setBooks([]);
       setIsLoading(true);
 
-      if (libName === "도서관을 선택하세요.") {
+      if (libName === DEFAULT_LIBRARY) {
         setIsSearchingAll(true);
 
         const initialStates = new Map<string, LibrarySearchState>();

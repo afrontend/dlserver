@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StepWizard } from "./StepWizard";
+import { DEFAULT_LIBRARY } from "../constants";
 
 const defaultProps = {
   searchText: "",
@@ -10,7 +11,7 @@ const defaultProps = {
   onHistorySelect: vi.fn(),
   onHistoryClear: vi.fn(),
   filteredLibraries: [{ id: 1, name: "판교" }],
-  selectedLibrary: "도서관을 선택하세요.",
+  selectedLibrary: DEFAULT_LIBRARY,
   onLibraryChange: vi.fn(),
   filterText: "",
   onFilterChange: vi.fn(),

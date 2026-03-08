@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LibrarySelector } from "./LibrarySelector";
+import { DEFAULT_LIBRARY } from "../constants";
 
 describe("LibrarySelector", () => {
   const allLibraries = [
@@ -17,7 +18,7 @@ describe("LibrarySelector", () => {
 
   const defaultProps = {
     filteredLibraries: allLibraries,
-    selectedLibrary: "도서관을 선택하세요.",
+    selectedLibrary: DEFAULT_LIBRARY,
     onLibraryChange: vi.fn(),
     filterText: "",
     onFilterChange: vi.fn(),
@@ -133,7 +134,7 @@ describe("LibrarySelector", () => {
     const clearButton = screen.getByTestId("library-clear-button");
     await user.click(clearButton);
 
-    expect(onLibraryChange).toHaveBeenCalledWith("도서관을 선택하세요.");
+    expect(onLibraryChange).toHaveBeenCalledWith(DEFAULT_LIBRARY);
   });
 
   it("shows correct number of library options", () => {

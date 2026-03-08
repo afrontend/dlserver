@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 import type { Library, ModuleInfo } from "../types";
+import { DEFAULT_LIBRARY } from "../constants";
 
 interface LibrarySelectorProps {
   filteredLibraries: Library[];
@@ -24,6 +25,8 @@ export const LibrarySelector = ({
   selectedModule,
   onModuleChange,
 }: LibrarySelectorProps) => {
+  const isFilterDisabled = isLoading || !!selectedModule;
+
   return (
     <div>
       <div className="relative flex items-center">
@@ -64,9 +67,9 @@ export const LibrarySelector = ({
           <input
             type="text"
             data-testid="library-filter-input"
-            disabled={isLoading || !!selectedModule}
+            disabled={isFilterDisabled}
             className={`w-full bg-transparent border-0 px-4 py-3 text-base focus:outline-none focus:ring-0 min-h-[48px] pr-10 placeholder-gray-400 ${
-              isLoading || selectedModule ? "text-gray-500 cursor-not-allowed" : ""
+              isFilterDisabled ? "text-gray-500 cursor-not-allowed" : ""
             }`}
             placeholder="도서관 이름 검색..."
             value={filterText}
@@ -98,8 +101,8 @@ export const LibrarySelector = ({
               onLibraryChange(e.target.value)
             }
           >
-            <option value="도서관을 선택하세요.">
-              도서관을 선택하세요. ({filteredLibraries.length}개)
+            <option value={DEFAULT_LIBRARY}>
+              {DEFAULT_LIBRARY} ({filteredLibraries.length}개)
             </option>
             {filteredLibraries.map((lib) => (
               <option key={lib.id} value={lib.name}>
@@ -107,11 +110,11 @@ export const LibrarySelector = ({
               </option>
             ))}
           </select>
-          {selectedLibrary !== "도서관을 선택하세요." && !isLoading && (
+          {selectedLibrary !== DEFAULT_LIBRARY && !isLoading && (
             <button
               type="button"
               data-testid="library-clear-button"
-              onClick={() => onLibraryChange("도서관을 선택하세요.")}
+              onClick={() => onLibraryChange(DEFAULT_LIBRARY)}
               className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
               aria-label="Clear library selection"
             >

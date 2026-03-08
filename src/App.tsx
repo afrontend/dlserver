@@ -10,6 +10,7 @@ import { useBookSearch } from "./hooks/useBookSearch";
 import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
 import { useSearchManager } from "./hooks/useSearchManager";
+import { DEFAULT_LIBRARY } from "./constants";
 
 const App = () => {
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -59,7 +60,7 @@ const App = () => {
   const handleModuleChange = useCallback(
     (moduleName: string) => {
       setSelectedModule(moduleName);
-      setLibraryName("도서관을 선택하세요.");
+      setLibraryName(DEFAULT_LIBRARY);
     },
     [setSelectedModule, setLibraryName],
   );

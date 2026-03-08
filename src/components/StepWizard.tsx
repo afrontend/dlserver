@@ -5,6 +5,7 @@ import { SearchHistoryDropdown } from "./SearchHistoryDropdown";
 import { useStepWizard } from "../hooks/useStepWizard";
 import { useState, useRef, useEffect } from "react";
 import type { Library, ModuleInfo } from "../types";
+import { DEFAULT_LIBRARY } from "../constants";
 
 const STEPS = [
   { number: 1, label: "책 이름" },
@@ -97,7 +98,7 @@ export const StepWizard = ({
   };
 
   const handleStep2Skip = () => {
-    onLibraryChange("도서관을 선택하세요.");
+    onLibraryChange(DEFAULT_LIBRARY);
     completeStep(2);
   };
 
@@ -111,7 +112,7 @@ export const StepWizard = ({
   const getLibrarySummary = () => {
     const parts = [];
     if (selectedModule) parts.push(selectedModule);
-    if (selectedLibrary === "도서관을 선택하세요.") {
+    if (selectedLibrary === DEFAULT_LIBRARY) {
       parts.push("전체 도서관");
     } else {
       parts.push(selectedLibrary);
@@ -284,13 +285,13 @@ export const StepWizard = ({
                   value={selectedLibrary}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) => {
                     onLibraryChange(e.target.value);
-                    if (e.target.value !== "도서관을 선택하세요.") {
+                    if (e.target.value !== DEFAULT_LIBRARY) {
                       completeStep(2);
                     }
                   }}
                 >
-                  <option value="도서관을 선택하세요.">
-                    도서관을 선택하세요. ({filteredLibraries.length}개)
+                  <option value={DEFAULT_LIBRARY}>
+                    {DEFAULT_LIBRARY} ({filteredLibraries.length}개)
                   </option>
                   {filteredLibraries.map((lib) => (
                     <option key={lib.id} value={lib.name}>
