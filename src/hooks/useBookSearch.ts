@@ -4,6 +4,8 @@ import { sortByTitle } from "../utils/sorting";
 import type { Book, Library, LibrarySearchState, SearchProgress } from "../types";
 import { DEFAULT_LIBRARY } from "../constants";
 
+const MAX_CONCURRENT_SEARCHES = 3;
+
 export const useBookSearch = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -114,56 +116,66 @@ export const useBookSearch = () => {
 
         let completedCount = 0;
         const totalCount = libraries.length;
+        const queue = [...libraries];
+        let activeCount = 0;
 
-        libraries.forEach((library) => {
-          setLibrarySearchStates((prev) => {
-            const next = new Map(prev);
-            next.set(library.name, {
-              libraryName: library.name,
-              status: "searching",
-              books: [],
-            });
-            return next;
-          });
+        const processNext = () => {
+          while (activeCount < MAX_CONCURRENT_SEARCHES && queue.length > 0) {
+            if (signal.aborted) return;
 
-          updateBookList(title, library.name, signal)
-            .then((bookList) => {
-              if (signal.aborted) return;
+            const library = queue.shift()!;
+            activeCount++;
 
-              setLibrarySearchStates((prev) => {
-                const next = new Map(prev);
-                next.set(library.name, {
-                  libraryName: library.name,
-                  status: "done",
-                  books: bookList,
-                });
-                return next;
+            setLibrarySearchStates((prev) => {
+              const next = new Map(prev);
+              next.set(library.name, {
+                libraryName: library.name,
+                status: "searching",
+                books: [],
               });
-
-              completedCount++;
-              if (completedCount === totalCount) {
-                setIsLoading(false);
-              }
-            })
-            .catch(() => {
-              if (signal.aborted) return;
-
-              setLibrarySearchStates((prev) => {
-                const next = new Map(prev);
-                next.set(library.name, {
-                  libraryName: library.name,
-                  status: "error",
-                  books: [],
-                });
-                return next;
-              });
-
-              completedCount++;
-              if (completedCount === totalCount) {
-                setIsLoading(false);
-              }
+              return next;
             });
-        });
+
+            updateBookList(title, library.name, signal)
+              .then((bookList) => {
+                if (signal.aborted) return;
+
+                setLibrarySearchStates((prev) => {
+                  const next = new Map(prev);
+                  next.set(library.name, {
+                    libraryName: library.name,
+                    status: "done",
+                    books: bookList,
+                  });
+                  return next;
+                });
+              })
+              .catch(() => {
+                if (signal.aborted) return;
+
+                setLibrarySearchStates((prev) => {
+                  const next = new Map(prev);
+                  next.set(library.name, {
+                    libraryName: library.name,
+                    status: "error",
+                    books: [],
+                  });
+                  return next;
+                });
+              })
+              .finally(() => {
+                activeCount--;
+                completedCount++;
+                if (completedCount === totalCount) {
+                  setIsLoading(false);
+                } else {
+                  processNext();
+                }
+              });
+          }
+        };
+
+        processNext();
       } else {
         setIsSearchingAll(false);
         setLibrarySearchStates(new Map());
