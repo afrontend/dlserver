@@ -56,6 +56,14 @@ export const StepWizard = ({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const blurTimeoutRef = useRef<number | null>(null);
 
+  // Auto-advance to step 3 when search is loading (e.g., after page refresh with URL params)
+  useEffect(() => {
+    if (isLoading && currentStep === 1 && !isStepCompleted(1)) {
+      completeStep(1);
+      completeStep(2);
+    }
+  }, [isLoading, currentStep, isStepCompleted, completeStep]);
+
   useEffect(() => {
     return () => {
       if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
