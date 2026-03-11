@@ -4,13 +4,15 @@ import type { SearchResult, Book } from "dongnelibrary";
 import * as gg from "dongnelibrary/dist/localLibraryModule/gg";
 import * as gunpo from "dongnelibrary/dist/localLibraryModule/gunpo";
 import * as hscity from "dongnelibrary/dist/localLibraryModule/hscity";
+import * as ice from "dongnelibrary/dist/localLibraryModule/ice";
+import * as jeju from "dongnelibrary/dist/localLibraryModule/jeju";
 import * as osan from "dongnelibrary/dist/localLibraryModule/osan";
 import * as snlib from "dongnelibrary/dist/localLibraryModule/snlib";
 import * as suwon from "dongnelibrary/dist/localLibraryModule/suwon";
 import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
 import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
 
-const LIBRARY_MODULES = [gg, gunpo, hscity, osan, snlib, suwon, yjlib, yongin];
+const LIBRARY_MODULES = [gg, gunpo, hscity, ice, jeju, osan, snlib, suwon, yjlib, yongin];
 
 const app = express();
 
