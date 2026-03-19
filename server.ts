@@ -13,8 +13,9 @@ import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
 import * as wonju from "dongnelibrary/dist/localLibraryModule/wonju";
 import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
 import * as yslib from "dongnelibrary/dist/localLibraryModule/yslib";
+import * as cbelib from "dongnelibrary/dist/localLibraryModule/cbelib";
 
-const LIBRARY_MODULES = [gg, gunpo, hscity, ice, jeju, osan, snlib, suwon, wonju, yjlib, yongin, yslib];
+const LIBRARY_MODULES = [cbelib, gg, gunpo, hscity, ice, jeju, osan, snlib, suwon, wonju, yjlib, yongin, yslib];
 
 const app = express();
 
