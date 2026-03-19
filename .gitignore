@@ -5,3 +5,5 @@ dist/
 docs
 AGENTS.md
 CLAUDE.md
+.playwright-cli
+.playwright-mcp
