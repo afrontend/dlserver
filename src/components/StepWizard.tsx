@@ -121,7 +121,11 @@ export const StepWizard = ({
     const parts = [];
     if (selectedModule) parts.push(selectedModule);
     if (selectedLibrary === DEFAULT_LIBRARY) {
-      parts.push("전체 도서관");
+      if (filterText?.trim() && filteredLibraries.length > 0) {
+        parts.push(filteredLibraries.map((lib) => lib.name).join(", "));
+      } else {
+        parts.push("전체 도서관");
+      }
     } else {
       parts.push(selectedLibrary);
     }

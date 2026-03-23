@@ -78,6 +78,60 @@ describe("StepWizard", () => {
     expect(onSearch).toHaveBeenCalled();
   });
 
+  it("shows filtered library names in step 3 summary when filter is active", async () => {
+    const user = userEvent.setup();
+    const filteredLibraries = [
+      { id: 0, name: "여주시립도서관" },
+      { id: 1, name: "여주어린이도서관" },
+    ];
+    render(
+      <StepWizard
+        {...defaultProps}
+        searchText="해리포터"
+        filterText="여주"
+        filteredLibraries={filteredLibraries}
+      />,
+    );
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+    await user.click(screen.getByTestId("step-2-skip"));
+
+    const step3 = screen.getByTestId("step-3-content");
+    expect(step3).toHaveTextContent("여주시립도서관");
+    expect(step3).toHaveTextContent("여주어린이도서관");
+    expect(step3).not.toHaveTextContent("전체 도서관");
+  });
+
+  it("shows '전체 도서관' in step 3 summary when no filter is active", async () => {
+    const user = userEvent.setup();
+    render(<StepWizard {...defaultProps} searchText="해리포터" filterText="" />);
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+    await user.click(screen.getByTestId("step-2-skip"));
+
+    expect(screen.getByTestId("step-3-content")).toHaveTextContent("전체 도서관");
+  });
+
+  it("shows filtered library names in step 2 summary when filter is active", async () => {
+    const user = userEvent.setup();
+    const filteredLibraries = [
+      { id: 0, name: "여주시립도서관" },
+      { id: 1, name: "여주어린이도서관" },
+    ];
+    render(
+      <StepWizard
+        {...defaultProps}
+        searchText="해리포터"
+        filterText="여주"
+        filteredLibraries={filteredLibraries}
+      />,
+    );
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+    await user.click(screen.getByTestId("step-2-skip"));
+
+    const step2Summary = screen.getByTestId("step-2-summary");
+    expect(step2Summary).toHaveTextContent("여주시립도서관");
+    expect(step2Summary).toHaveTextContent("여주어린이도서관");
+  });
+
   it("resets to step 1 when edit button is clicked on step 1 summary", async () => {
     const user = userEvent.setup();
     render(<StepWizard {...defaultProps} searchText="해리포터" />);
