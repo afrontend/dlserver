@@ -53,7 +53,7 @@ export const useLibraries = () => {
   const filteredLibraries = useMemo(() => {
     if (filterText?.trim()) {
       return baseLibraries.filter(
-        (lib) => lib.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1,
+        (lib) => lib.name.toLowerCase().indexOf(filterText.trim().toLowerCase()) !== -1,
       );
     }
     return baseLibraries;

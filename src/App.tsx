@@ -51,6 +51,7 @@ const App = () => {
   } = useSearchManager({
     libraryNames,
     baseLibraries,
+    filteredLibraries,
     performSearch,
     clearResults,
     resetFilters,
