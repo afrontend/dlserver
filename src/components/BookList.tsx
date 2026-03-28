@@ -59,7 +59,7 @@ export const BookList = ({
           <h2 className="font-medium text-base text-gray-700 flex items-center gap-2">
             <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             검색 중...
-            <span className="text-sm text-gray-500" data-testid="book-count">
+            <span className="text-base text-gray-500" data-testid="book-count">
               (현재 {books.length}권,{" "}
               <span
                 className="text-blue-600 font-semibold"
@@ -77,7 +77,7 @@ export const BookList = ({
                 지금 도서관에서 빌릴 수 있는 책이에요.
                 {totalBooks > 0 && (
                   <span
-                    className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0"
+                    className="block sm:inline sm:ml-1 text-base text-gray-500 mt-1 sm:mt-0"
                     data-testid="book-count"
                   >
                     ({totalBooks}권 중{" "}
@@ -126,7 +126,7 @@ export const BookList = ({
                     <div className="w-9 h-5 bg-gray-300 peer-checked:bg-blue-500 rounded-full relative transition-colors">
                       <div className={`absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${hideRented ? "translate-x-4" : ""}`} />
                     </div>
-                    <span className="text-sm text-gray-600">대출가능만</span>
+                    <span className="text-base text-gray-600">대출가능만</span>
                   </label>
                 </div>
               )}
@@ -140,7 +140,7 @@ export const BookList = ({
                   value={titleFilter}
                   onChange={(e) => setTitleFilter(e.target.value)}
                   placeholder="제목 필터..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 pr-8 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {titleFilter && (
                   <button

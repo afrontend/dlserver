@@ -19,11 +19,11 @@ export const SearchHistoryDropdown = ({
       data-testid="search-history-dropdown"
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
-        <span className="text-sm text-gray-600 font-medium">최근 검색</span>
+        <span className="text-base text-gray-600 font-medium">최근 검색</span>
         <button
           type="button"
           onClick={onClear}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-base text-gray-500 hover:text-gray-700"
           data-testid="clear-history-button"
         >
           전체 삭제

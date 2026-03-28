@@ -20,7 +20,7 @@ export const SearchProgressBar = ({ progress }: SearchProgressProps) => {
       data-testid="search-progress"
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-blue-800">
+        <span className="text-base font-medium text-blue-800">
           {isComplete ? (
             "검색 완료"
           ) : (
@@ -29,7 +29,7 @@ export const SearchProgressBar = ({ progress }: SearchProgressProps) => {
             </>
           )}
         </span>
-        <span className="text-sm text-blue-600">{percentage}%</span>
+        <span className="text-base text-blue-600">{percentage}%</span>
       </div>
 
       {/* Progress bar */}

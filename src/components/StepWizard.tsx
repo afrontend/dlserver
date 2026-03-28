@@ -105,11 +105,6 @@ export const StepWizard = ({
     onHistoryClear?.();
   };
 
-  const handleStep2Skip = () => {
-    onLibraryChange(DEFAULT_LIBRARY);
-    completeStep(2);
-  };
-
   const handleEditStep = useCallback(
     (step: number) => {
       goToStep(step);
@@ -145,7 +140,7 @@ export const StepWizard = ({
         {/* Step 1: Book name */}
         {currentStep === 1 && !isStepCompleted(1) ? (
           <div className="p-4" data-testid="step-1-content">
-            <p className="text-sm text-gray-500 mb-2">어떤 책을 찾으시나요?</p>
+            <p className="text-base text-gray-500 mb-2">어떤 책을 찾으시나요?</p>
             <div className="relative">
               <button
                 type="button"
@@ -193,7 +188,7 @@ export const StepWizard = ({
               <button
                 type="button"
                 onClick={() => completeStep(1)}
-                className="mt-3 w-full py-2 text-sm text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                className="mt-3 w-full py-2 text-base text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                 data-testid="step-1-next"
               >
                 다음 단계 →
@@ -214,7 +209,7 @@ export const StepWizard = ({
             </div>
             <button
               type="button"
-              className="text-sm text-gray-400 hover:text-blue-500"
+              className="text-base text-gray-400 hover:text-blue-500"
               data-testid="step-1-edit"
               onClick={(e) => {
                 e.stopPropagation();
@@ -232,7 +227,7 @@ export const StepWizard = ({
             className="p-4 border-t border-gray-100"
             data-testid="step-2-content"
           >
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-base text-gray-500 mb-2">
               도서관을 선택하세요. (선택하지 않으면 전체 검색)
             </p>
             <div className="space-y-3">
@@ -297,9 +292,6 @@ export const StepWizard = ({
                   value={selectedLibrary}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) => {
                     onLibraryChange(e.target.value);
-                    if (e.target.value !== DEFAULT_LIBRARY) {
-                      completeStep(2);
-                    }
                   }}
                 >
                   <option value={DEFAULT_LIBRARY}>
@@ -315,11 +307,11 @@ export const StepWizard = ({
             </div>
             <button
               type="button"
-              onClick={handleStep2Skip}
-              className="mt-3 w-full py-2 text-sm text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-              data-testid="step-2-skip"
+              onClick={() => completeStep(2)}
+              className="mt-3 w-full py-2 text-base text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+              data-testid="step-2-next"
             >
-              전체 도서관에서 검색 →
+              다음 단계 →
             </button>
           </div>
         ) : isStepCompleted(2) ? (
@@ -336,7 +328,7 @@ export const StepWizard = ({
             </div>
             <button
               type="button"
-              className="text-sm text-gray-400 hover:text-blue-500"
+              className="text-base text-gray-400 hover:text-blue-500"
               data-testid="step-2-edit"
               onClick={(e) => {
                 e.stopPropagation();
@@ -348,7 +340,7 @@ export const StepWizard = ({
           </div>
         ) : currentStep < 2 ? (
           <div
-            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm"
+            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-base"
             data-testid="step-2-disabled"
           >
             <i className="fa fa-university mr-2" />
@@ -363,8 +355,8 @@ export const StepWizard = ({
             data-testid="step-3-content"
           >
             <div className="bg-gray-50 rounded-lg p-3 mb-3">
-              <p className="text-sm text-gray-500 mb-1">검색 요약</p>
-              <p className="text-sm">
+              <p className="text-base text-gray-500 mb-1">검색 요약</p>
+              <p className="text-base">
                 <span className="font-medium">{searchText}</span>
                 <span className="text-gray-400 mx-1">·</span>
                 <span className="text-gray-600">{getLibrarySummary()}</span>
@@ -383,7 +375,10 @@ export const StepWizard = ({
             ) : (
               <button
                 type="button"
-                onClick={onSearch}
+                onClick={() => {
+                  completeStep(3);
+                  onSearch();
+                }}
                 className="w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors"
                 data-testid="search-submit-button"
               >
@@ -392,9 +387,35 @@ export const StepWizard = ({
               </button>
             )}
           </div>
+        ) : isStepCompleted(3) ? (
+          <div
+            className="px-4 py-3 border-t border-gray-100 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+            data-testid="step-3-summary"
+            onClick={() => handleEditStep(3)}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-green-500">
+                <i className="fa fa-search" />
+              </span>
+              <span className="font-medium text-base">{searchText}</span>
+              <span className="text-gray-400">·</span>
+              <span className="text-gray-600 text-base">{getLibrarySummary()}</span>
+            </div>
+            <button
+              type="button"
+              className="text-base text-gray-400 hover:text-blue-500"
+              data-testid="step-3-edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditStep(3);
+              }}
+            >
+              재검색
+            </button>
+          </div>
         ) : currentStep < 3 ? (
           <div
-            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-sm"
+            className="px-4 py-3 border-t border-gray-100 text-gray-300 text-base"
             data-testid="step-3-disabled"
           >
             <i className="fa fa-search mr-2" />

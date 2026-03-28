@@ -64,7 +64,7 @@ describe("StepWizard", () => {
     const user = userEvent.setup();
     render(<StepWizard {...defaultProps} searchText="해리포터" />);
     fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
-    await user.click(screen.getByTestId("step-2-skip"));
+    await user.click(screen.getByTestId("step-2-next"));
     expect(screen.getByTestId("search-submit-button")).toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe("StepWizard", () => {
     const user = userEvent.setup();
     render(<StepWizard {...defaultProps} searchText="해리포터" onSearch={onSearch} />);
     fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
-    await user.click(screen.getByTestId("step-2-skip"));
+    await user.click(screen.getByTestId("step-2-next"));
     await user.click(screen.getByTestId("search-submit-button"));
     expect(onSearch).toHaveBeenCalled();
   });
@@ -93,7 +93,7 @@ describe("StepWizard", () => {
       />,
     );
     fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
-    await user.click(screen.getByTestId("step-2-skip"));
+    await user.click(screen.getByTestId("step-2-next"));
 
     const step3 = screen.getByTestId("step-3-content");
     expect(step3).toHaveTextContent("여주시립도서관");
@@ -105,7 +105,7 @@ describe("StepWizard", () => {
     const user = userEvent.setup();
     render(<StepWizard {...defaultProps} searchText="해리포터" filterText="" />);
     fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
-    await user.click(screen.getByTestId("step-2-skip"));
+    await user.click(screen.getByTestId("step-2-next"));
 
     expect(screen.getByTestId("step-3-content")).toHaveTextContent("전체 도서관");
   });
@@ -125,7 +125,7 @@ describe("StepWizard", () => {
       />,
     );
     fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
-    await user.click(screen.getByTestId("step-2-skip"));
+    await user.click(screen.getByTestId("step-2-next"));
 
     const step2Summary = screen.getByTestId("step-2-summary");
     expect(step2Summary).toHaveTextContent("여주시립도서관");

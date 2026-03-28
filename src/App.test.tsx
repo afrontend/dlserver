@@ -30,7 +30,7 @@ async function navigateToSearch(user: ReturnType<typeof userEvent.setup>, search
   fireEvent.keyDown(searchInput, { key: "Enter" });
 
   // Step 2: Skip library selection (search all)
-  await user.click(screen.getByTestId("step-2-skip"));
+  await user.click(screen.getByTestId("step-2-next"));
 
   // Step 3: Click search
   await user.click(screen.getByTestId("search-submit-button"));

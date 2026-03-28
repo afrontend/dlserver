@@ -65,16 +65,16 @@ export const LibraryTagFilter = ({
 
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-3"
+      className="bg-white rounded-lg shadow-md border border-gray-200 p-3 sticky top-0 z-10"
       data-testid="library-tag-filter"
     >
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm text-gray-500 shrink-0">도서관 필터:</span>
+        <span className="text-base text-gray-500 shrink-0">도서관 필터:</span>
         <button
           type="button"
           onClick={handleSelectAll}
           disabled={disabled}
-          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+          className={`px-3 py-1 rounded-full text-base font-medium transition-colors ${
             isAllSelected
               ? "bg-blue-500 text-white"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -91,7 +91,7 @@ export const LibraryTagFilter = ({
               key={library.name}
               onClick={() => handleTagClick(library.name)}
               disabled={disabled}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-full text-base font-medium transition-colors ${
                 isSelected
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
