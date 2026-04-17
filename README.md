@@ -43,6 +43,12 @@ A Korean library book availability checker that provides both a web interface an
 
 Server will start on port 3000 (or use PORT environment variable to customize)
 
+## Environment Variables
+
+- `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`
+
+Copy `.env.example` to `.env` or set the variable in your deployment environment before building.
+
 **Development with hot reload:**
 
     npm run webapp    # Terminal 1: Start Express server

@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { useBookSearch } from "./useBookSearch";
 import { LibraryAPI } from "../api/library";
 import { DEFAULT_LIBRARY } from "../constants";
-import type { Library } from "../types";
+import type { Library, LibrarySearchResult } from "../types";
 
 vi.mock("../api/library", () => ({
   LibraryAPI: {
@@ -124,7 +124,7 @@ describe("useBookSearch", () => {
     });
 
     it("searchProgress가 진행 상황을 반영한다", async () => {
-      let resolvers: Array<(value: unknown) => void> = [];
+      let resolvers: Array<(value: LibrarySearchResult[]) => void> = [];
 
       vi.mocked(LibraryAPI.getLibrary).mockImplementation(
         () =>

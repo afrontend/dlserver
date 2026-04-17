@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { trackSearch } from "../analytics";
 import { getUrlParams, updateUrl } from "../utils/url";
 import type { Library } from "../types";
 
@@ -61,6 +62,7 @@ export const useSearchManager = (params: {
     resetFilters();
     addToHistory(searchText);
     updateUrl(searchText, libraryName);
+    trackSearch(searchText, libraryName);
 
     performSearch(searchText, libraryName, filteredLibraries);
   }, [

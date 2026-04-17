@@ -401,17 +401,31 @@ export const StepWizard = ({
               <span className="text-gray-400">·</span>
               <span className="text-gray-600 text-base">{getLibrarySummary()}</span>
             </div>
-            <button
-              type="button"
-              className="text-base text-gray-400 hover:text-blue-500"
-              data-testid="step-3-edit"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditStep(3);
-              }}
-            >
-              재검색
-            </button>
+            {isLoading ? (
+              <button
+                type="button"
+                className="text-base text-red-500 hover:text-red-600"
+                data-testid="cancel-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCancel();
+                }}
+              >
+                취소
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="text-base text-gray-400 hover:text-blue-500"
+                data-testid="step-3-edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditStep(3);
+                }}
+              >
+                재검색
+              </button>
+            )}
           </div>
         ) : currentStep < 3 ? (
           <div

@@ -24,7 +24,9 @@ const filteredYeoju: Library[] = [
   { id: 1, name: "여주어린이도서관" },
 ];
 
-function createMockParams(overrides?: Partial<ReturnType<typeof createMockParams>>) {
+type SearchManagerParams = Parameters<typeof useSearchManager>[0];
+
+function createMockParams(overrides?: Partial<SearchManagerParams>): SearchManagerParams {
   return {
     libraryNames: mockLibraries,
     baseLibraries: mockLibraries,

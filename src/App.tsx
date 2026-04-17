@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { trackPageView } from "./analytics";
 import { BookList } from "./components/BookList";
 import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
@@ -13,6 +14,7 @@ import { useSearchManager } from "./hooks/useSearchManager";
 import { DEFAULT_LIBRARY } from "./constants";
 
 const App = () => {
+  const pageViewTrackedRef = useRef(false);
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
   const {
@@ -65,6 +67,15 @@ const App = () => {
     },
     [setSelectedModule, setLibraryName],
   );
+
+  useEffect(() => {
+    if (pageViewTrackedRef.current) {
+      return;
+    }
+
+    pageViewTrackedRef.current = true;
+    trackPageView();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
