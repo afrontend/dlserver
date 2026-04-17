@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "webapp": "tsx server.ts",
+    "webapp": "npm run build && tsx server.ts",
     "start": "tsx mcp-server-SSE.ts",
     "mcpsse": "tsx mcp-server-SSE.ts",
     "mcpstdio": "tsx mcp-server-STDIO.ts",
