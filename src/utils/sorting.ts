@@ -1,6 +1,5 @@
-import type { Book, Library } from "../types";
+import type { Book } from "../types";
 
-// Utility function for alphabetical sorting by title
 export const sortByTitle = (items: Book[]): Book[] =>
   [...items].sort((a, b) => {
     const nameA = a.title.toUpperCase();
@@ -10,8 +9,7 @@ export const sortByTitle = (items: Book[]): Book[] =>
     return 0;
   });
 
-// Utility function for alphabetical sorting by name
-export const sortByName = (items: Library[]): Library[] =>
+export const sortByName = <T extends { name: string }>(items: T[]): T[] =>
   [...items].sort((a, b) => {
     const nameA = a.name.toUpperCase();
     const nameB = b.name.toUpperCase();

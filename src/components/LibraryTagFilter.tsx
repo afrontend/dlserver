@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { Book } from "../types";
 
 interface LibraryTagFilterProps {
@@ -19,27 +20,27 @@ export const LibraryTagFilter = ({
   onSelectionChange,
   disabled = false,
 }: LibraryTagFilterProps) => {
-  // Calculate counts per library
-  const libraryCounts: LibraryCount[] = books.reduce((acc, book) => {
-    const libraryName = book.libraryName || "알 수 없음";
-    const existing = acc.find((l) => l.name === libraryName);
-    if (existing) {
-      existing.count++;
-      if (book.exist) existing.availableCount++;
-    } else {
-      acc.push({
-        name: libraryName,
-        count: 1,
-        availableCount: book.exist ? 1 : 0,
-      });
-    }
-    return acc;
-  }, [] as LibraryCount[]);
+  const libraryCounts = useMemo<LibraryCount[]>(() => {
+    const counts = books.reduce((acc, book) => {
+      const libraryName = book.libraryName || "알 수 없음";
+      const existing = acc.find((l) => l.name === libraryName);
+      if (existing) {
+        existing.count++;
+        if (book.exist) existing.availableCount++;
+      } else {
+        acc.push({
+          name: libraryName,
+          count: 1,
+          availableCount: book.exist ? 1 : 0,
+        });
+      }
+      return acc;
+    }, [] as LibraryCount[]);
 
-  // Sort by name
-  libraryCounts.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+    counts.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+    return counts;
+  }, [books]);
 
-  // Don't render if no books or only one library
   if (books.length === 0 || libraryCounts.length <= 1) {
     return null;
   }

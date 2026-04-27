@@ -32,7 +32,6 @@ export const SearchProgressBar = ({ progress }: SearchProgressProps) => {
         <span className="text-base text-blue-600">{percentage}%</span>
       </div>
 
-      {/* Progress bar */}
       <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
         <div
           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -41,7 +40,6 @@ export const SearchProgressBar = ({ progress }: SearchProgressProps) => {
         />
       </div>
 
-      {/* Currently searching libraries */}
       {searchingLibraries.length > 0 && (
         <div className="flex items-center gap-2 text-xs text-blue-700">
           <span className="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />

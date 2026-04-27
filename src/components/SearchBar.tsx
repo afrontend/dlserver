@@ -24,10 +24,8 @@ export const SearchBar = ({
   onHistoryClear,
 }: SearchBarProps) => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const blurTimeoutRef = useRef<number | null>(null);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (blurTimeoutRef.current) {
@@ -70,8 +68,7 @@ export const SearchBar = ({
   };
 
   return (
-    <div className="relative" ref={containerRef}>
-      {/* Left: search icon button */}
+    <div className="relative">
       <button
         type="button"
         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 p-1 transition-colors"
@@ -82,7 +79,6 @@ export const SearchBar = ({
         <i className="fa fa-search" />
       </button>
 
-      {/* Input - borderless, inside card */}
       <input
         type="text"
         value={searchText}
@@ -97,7 +93,6 @@ export const SearchBar = ({
         data-testid="search-input"
       />
 
-      {/* Right: loading spinner OR clear icon */}
       {isLoading ? (
         <button
           type="button"
@@ -120,7 +115,6 @@ export const SearchBar = ({
         </button>
       ) : null}
 
-      {/* History dropdown */}
       {isHistoryOpen && searchHistory && searchHistory.length > 0 && (
         <SearchHistoryDropdown
           history={searchHistory}

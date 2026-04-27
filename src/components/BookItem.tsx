@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { Book } from "../types";
 
 interface BookItemProps {
@@ -6,12 +7,15 @@ interface BookItemProps {
 }
 
 function HighlightedText({ text, highlight }: { text: string; highlight?: string }) {
-  if (!highlight?.trim()) return <>{text}</>;
+  const parts = useMemo(() => {
+    if (!highlight?.trim()) return null;
+    const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return text.split(new RegExp(`(${escaped})`, "gi"));
+  }, [text, highlight]);
 
-  const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
-  const lower = highlight.toLowerCase();
+  if (!parts) return <>{text}</>;
 
+  const lower = highlight!.toLowerCase();
   return (
     <>
       {parts.map((part, i) =>
@@ -28,7 +32,7 @@ function HighlightedText({ text, highlight }: { text: string; highlight?: string
 }
 
 export const BookItem = ({ book, highlight }: BookItemProps) => {
-  const isAvailable = book.exist === true;
+  const isAvailable = book.exist;
   const icon = isAvailable ? "\u2705" : "\u274C";
   const textClass = isAvailable
     ? "text-base break-words"

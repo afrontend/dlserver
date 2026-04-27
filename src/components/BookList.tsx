@@ -33,9 +33,7 @@ export const BookList = ({
       )
     : books;
 
-  const availableCount = filteredBooks.filter(
-    (book) => book.exist === true,
-  ).length;
+  const availableCount = filteredBooks.filter((book) => book.exist).length;
   const hiddenCount = totalBooks - books.length;
 
   return (
@@ -119,7 +117,7 @@ export const BookList = ({
                   >
                     <input
                       type="checkbox"
-                      checked={true && hideRented}
+                      checked={hideRented}
                       onChange={(e) => onHideRentedChange(e.target.checked)}
                       className="sr-only peer"
                     />

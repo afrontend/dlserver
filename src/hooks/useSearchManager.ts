@@ -5,7 +5,6 @@ import type { Library } from "../types";
 
 export const useSearchManager = (params: {
   libraryNames: Library[];
-  baseLibraries: Library[];
   filteredLibraries: Library[];
   performSearch: (title: string, libName: string, libraries: Library[]) => void;
   clearResults: () => void;
@@ -21,11 +20,11 @@ export const useSearchManager = (params: {
     addToHistory,
   } = params;
 
-  const [searchText, setSearchText] = useState(() => getUrlParams().title);
-  const [libraryName, setLibraryName] = useState(() => getUrlParams().library);
+  const initialParams = getUrlParams();
+  const [searchText, setSearchText] = useState(initialParams.title);
+  const [libraryName, setLibraryName] = useState(initialParams.library);
   const initialSearchFiredRef = useRef(false);
 
-  // popstate handler (back/forward navigation)
   useEffect(() => {
     const handlePopState = () => {
       const { title, library } = getUrlParams();
@@ -42,7 +41,6 @@ export const useSearchManager = (params: {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [libraryNames, performSearch, clearResults]);
 
-  // initial URL search
   useEffect(() => {
     if (libraryNames.length > 0 && !initialSearchFiredRef.current) {
       const { title, library } = getUrlParams();
@@ -54,10 +52,7 @@ export const useSearchManager = (params: {
   }, [libraryNames, performSearch]);
 
   const handleSearch = useCallback(() => {
-    if (!searchText?.length) {
-      console.log("검색할 책 이름을 입력해주세요.");
-      return;
-    }
+    if (!searchText?.length) return;
 
     resetFilters();
     addToHistory(searchText);

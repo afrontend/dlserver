@@ -27,7 +27,6 @@ const App = () => {
   } = useBookSearch();
   const {
     libraryNames,
-    baseLibraries,
     filteredLibraries,
     filterText,
     setFilterText,
@@ -52,7 +51,6 @@ const App = () => {
     handleSearch,
   } = useSearchManager({
     libraryNames,
-    baseLibraries,
     filteredLibraries,
     performSearch,
     clearResults,

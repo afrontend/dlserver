@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import type { KeyboardEvent, ChangeEvent } from "react";
 import { StepIndicator } from "./StepIndicator";
 import { SearchHistoryDropdown } from "./SearchHistoryDropdown";
@@ -105,14 +104,7 @@ export const StepWizard = ({
     onHistoryClear?.();
   };
 
-  const handleEditStep = useCallback(
-    (step: number) => {
-      goToStep(step);
-    },
-    [goToStep],
-  );
-
-  const getLibrarySummary = () => {
+  const librarySummary = (() => {
     const parts = [];
     if (selectedModule) parts.push(selectedModule);
     if (selectedLibrary === DEFAULT_LIBRARY) {
@@ -125,7 +117,7 @@ export const StepWizard = ({
       parts.push(selectedLibrary);
     }
     return parts.join(" > ");
-  };
+  })();
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
@@ -133,11 +125,10 @@ export const StepWizard = ({
         steps={STEPS}
         currentStep={currentStep}
         isStepCompleted={isStepCompleted}
-        onStepClick={handleEditStep}
+        onStepClick={goToStep}
       />
 
       <div className="border-t border-gray-100">
-        {/* Step 1: Book name */}
         {currentStep === 1 && !isStepCompleted(1) ? (
           <div className="p-4" data-testid="step-1-content">
             <p className="text-base text-gray-500 mb-2">어떤 책을 찾으시나요?</p>
@@ -199,7 +190,7 @@ export const StepWizard = ({
           <div
             className="px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
             data-testid="step-1-summary"
-            onClick={() => handleEditStep(1)}
+            onClick={() => goToStep(1)}
           >
             <div className="flex items-center gap-2">
               <span className="text-blue-500">
@@ -213,7 +204,7 @@ export const StepWizard = ({
               data-testid="step-1-edit"
               onClick={(e) => {
                 e.stopPropagation();
-                handleEditStep(1);
+                goToStep(1);
               }}
             >
               수정
@@ -221,7 +212,6 @@ export const StepWizard = ({
           </div>
         ) : null}
 
-        {/* Step 2: Library selection */}
         {currentStep === 2 && !isStepCompleted(2) ? (
           <div
             className="p-4 border-t border-gray-100"
@@ -318,13 +308,13 @@ export const StepWizard = ({
           <div
             className="px-4 py-3 border-t border-gray-100 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
             data-testid="step-2-summary"
-            onClick={() => handleEditStep(2)}
+            onClick={() => goToStep(2)}
           >
             <div className="flex items-center gap-2">
               <span className="text-blue-500">
                 <i className="fa fa-university" />
               </span>
-              <span className="font-medium">{getLibrarySummary()}</span>
+              <span className="font-medium">{librarySummary}</span>
             </div>
             <button
               type="button"
@@ -332,7 +322,7 @@ export const StepWizard = ({
               data-testid="step-2-edit"
               onClick={(e) => {
                 e.stopPropagation();
-                handleEditStep(2);
+                goToStep(2);
               }}
             >
               수정
@@ -348,7 +338,6 @@ export const StepWizard = ({
           </div>
         ) : null}
 
-        {/* Step 3: Search */}
         {currentStep === 3 && !isStepCompleted(3) ? (
           <div
             className="p-4 border-t border-gray-100"
@@ -359,7 +348,7 @@ export const StepWizard = ({
               <p className="text-base">
                 <span className="font-medium">{searchText}</span>
                 <span className="text-gray-400 mx-1">·</span>
-                <span className="text-gray-600">{getLibrarySummary()}</span>
+                <span className="text-gray-600">{librarySummary}</span>
               </p>
             </div>
             {isLoading ? (
@@ -391,7 +380,7 @@ export const StepWizard = ({
           <div
             className="px-4 py-3 border-t border-gray-100 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
             data-testid="step-3-summary"
-            onClick={() => handleEditStep(3)}
+            onClick={() => goToStep(3)}
           >
             <div className="flex items-center gap-2">
               <span className="text-green-500">
@@ -399,7 +388,7 @@ export const StepWizard = ({
               </span>
               <span className="font-medium text-base">{searchText}</span>
               <span className="text-gray-400">·</span>
-              <span className="text-gray-600 text-base">{getLibrarySummary()}</span>
+              <span className="text-gray-600 text-base">{librarySummary}</span>
             </div>
             {isLoading ? (
               <button
@@ -420,7 +409,7 @@ export const StepWizard = ({
                 data-testid="step-3-edit"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEditStep(3);
+                  goToStep(3);
                 }}
               >
                 재검색

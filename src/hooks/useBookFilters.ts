@@ -17,7 +17,7 @@ export const useBookFilters = (aggregatedBooks: Book[]) => {
     }
 
     if (hideRented) {
-      filtered = filtered.filter((book) => book.exist === true);
+      filtered = filtered.filter((book) => book.exist);
     }
 
     return filtered;

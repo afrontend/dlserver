@@ -27,7 +27,6 @@ interface SearchParams {
   libraryName: string;
 }
 
-// Promisified wrapper for dl.search with AbortSignal support
 const searchBooks = (
   title: string,
   libraryName: string,
@@ -45,7 +44,6 @@ const searchBooks = (
   });
 };
 
-// Extract search params from request params or query
 const extractSearchParams = (
   params: Record<string, unknown>,
 ): SearchParams => ({
@@ -61,7 +59,6 @@ const makeBookDescription = (book: Book): string => {
 app.get("/search", async (req: Request, res: Response) => {
   const controller = new AbortController();
 
-  // Abort the search when client disconnects
   req.on("close", () => {
     controller.abort();
   });
@@ -125,10 +122,8 @@ app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
   res.json({ message: "Server Error" });
 });
 
-// Export app for testing
 export { app };
 
-// Only start the server if this file is run directly
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
   const port = process.env.PORT || 3000;

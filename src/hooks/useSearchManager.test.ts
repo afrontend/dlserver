@@ -29,7 +29,6 @@ type SearchManagerParams = Parameters<typeof useSearchManager>[0];
 function createMockParams(overrides?: Partial<SearchManagerParams>): SearchManagerParams {
   return {
     libraryNames: mockLibraries,
-    baseLibraries: mockLibraries,
     filteredLibraries: mockLibraries,
     performSearch: vi.fn(),
     clearResults: vi.fn(),

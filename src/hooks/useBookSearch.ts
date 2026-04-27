@@ -6,6 +6,11 @@ import { DEFAULT_LIBRARY } from "../constants";
 
 const MAX_CONCURRENT_SEARCHES = 3;
 
+const getDoneBooks = (states: Map<string, LibrarySearchState>): Book[] =>
+  Array.from(states.values())
+    .filter((s) => s.status === "done")
+    .flatMap((s) => s.books);
+
 export const useBookSearch = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +21,6 @@ export const useBookSearch = () => {
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Abort search on page unload
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (abortControllerRef.current) {
@@ -47,12 +51,7 @@ export const useBookSearch = () => {
 
   const aggregatedBooks: Book[] = useMemo(() => {
     if (!isSearchingAll) return books;
-
-    const allBooks = Array.from(librarySearchStates.values())
-      .filter((s) => s.status === "done")
-      .flatMap((s) => s.books);
-
-    return sortByTitle(allBooks);
+    return sortByTitle(getDoneBooks(librarySearchStates));
   }, [librarySearchStates, isSearchingAll, books]);
 
   const updateBookList = useCallback(
@@ -75,10 +74,7 @@ export const useBookSearch = () => {
     }
 
     if (isSearchingAll) {
-      const foundBooks = Array.from(librarySearchStates.values())
-        .filter((s) => s.status === "done")
-        .flatMap((s) => s.books);
-      setBooks(sortByTitle(foundBooks));
+      setBooks(sortByTitle(getDoneBooks(librarySearchStates)));
     }
 
     setIsLoading(false);
