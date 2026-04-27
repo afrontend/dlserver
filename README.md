@@ -92,8 +92,6 @@ Returns JSON array of book objects with availability data
 
 **Example:** `http://localhost:3000/search?title=javascript&libraryName=판교`
 
-Returns HTML list of all available libraries
-
 ### 4. Get Library List (JSON)
 
 ```
@@ -144,16 +142,16 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 [
   {
     "title": "Book Title",
-    "available": true,
-    "location": "Library Name",
-    ...
+    "exist": true,
+    "libraryName": "Library Name",
+    "bookUrl": "https://..."
   }
 ]
 ```
 
 ## Architecture
 
-- **Backend (server.js):** Express.js server with three main endpoints for book search and library list retrieval
+- **Backend (server.ts):** Express.js server with endpoints for book search, library list, and module list retrieval
 - **Frontend (src/):** React 19 application built with Vite, featuring search bar, library selector, and book list components
 - **Data Source:** Uses the `dongnelibrary` npm package for library API integration
 - **Styling:** Tailwind CSS framework for modern, responsive UI
@@ -162,18 +160,16 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 
 This project includes MCP (Model Context Protocol) server implementations:
 
-- **mcp-server-STDIO.js:** Standard input/output based MCP server
-- **mcp-server-SSE.js:** Server-sent events based MCP server
+- **mcp-server-STDIO.ts:** Standard input/output based MCP server
+- **mcp-server-SSE.ts:** Server-sent events based MCP server
 
 See MCPSTDIO_README.md for more details on MCP server configuration.
 
 ## Claude에서 MCP 서버 연결 방법
 
-Claude에서 아래 MCP 서버를 연결하여 사용할 수 있다.
+Claude에서 원격 MCP 서버를 연결하여 사용할 수 있다.
 
-- https://dongnelibrary-mcp-server.onrender.com
-
-Claude 설정 > 커넥터 > 커스텀 커넥터 추가 > 원격 MCP 서버 URL > 위의 URL 입력
+Claude 설정 > 커넥터 > 커스텀 커넥터 추가 > 원격 MCP 서버 URL 입력
 
 ## License
 
