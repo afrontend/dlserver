@@ -1,22 +1,28 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as dl from "dongnelibrary";
 import type { SearchResult, Book } from "dongnelibrary";
+import * as asan from "dongnelibrary/dist/localLibraryModule/asan";
+import * as cbelib from "dongnelibrary/dist/localLibraryModule/cbelib";
+import * as daegu from "dongnelibrary/dist/localLibraryModule/daegu";
 import * as gg from "dongnelibrary/dist/localLibraryModule/gg";
+import * as gjcity from "dongnelibrary/dist/localLibraryModule/gjcity";
 import * as gunpo from "dongnelibrary/dist/localLibraryModule/gunpo";
+import * as hanamlib from "dongnelibrary/dist/localLibraryModule/hanamlib";
 import * as hscity from "dongnelibrary/dist/localLibraryModule/hscity";
 import * as ice from "dongnelibrary/dist/localLibraryModule/ice";
 import * as jeju from "dongnelibrary/dist/localLibraryModule/jeju";
 import * as osan from "dongnelibrary/dist/localLibraryModule/osan";
+import * as ptlib from "dongnelibrary/dist/localLibraryModule/ptlib";
 import * as snlib from "dongnelibrary/dist/localLibraryModule/snlib";
 import * as suwon from "dongnelibrary/dist/localLibraryModule/suwon";
-import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
+import * as uwlib from "dongnelibrary/dist/localLibraryModule/uwlib";
 import * as wonju from "dongnelibrary/dist/localLibraryModule/wonju";
+import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
 import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
-import * as yslib from "dongnelibrary/dist/localLibraryModule/yslib";
-import * as cbelib from "dongnelibrary/dist/localLibraryModule/cbelib";
 import * as yplib from "dongnelibrary/dist/localLibraryModule/yplib";
+import * as yslib from "dongnelibrary/dist/localLibraryModule/yslib";
 
-const LIBRARY_MODULES = [cbelib, gg, gunpo, hscity, ice, jeju, osan, snlib, suwon, wonju, yjlib, yongin, yplib, yslib];
+const LIBRARY_MODULES = [asan, cbelib, daegu, gg, gjcity, gunpo, hanamlib, hscity, ice, jeju, osan, ptlib, snlib, suwon, uwlib, wonju, yjlib, yongin, yplib, yslib];
 
 const app = express();
 
