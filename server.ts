@@ -21,8 +21,11 @@ import * as hanamlib from "dongnelibrary/dist/localLibraryModule/hanamlib";
 import * as hscity from "dongnelibrary/dist/localLibraryModule/hscity";
 import * as ice from "dongnelibrary/dist/localLibraryModule/ice";
 import * as jeju from "dongnelibrary/dist/localLibraryModule/jeju";
+import * as junggulib from "dongnelibrary/dist/localLibraryModule/junggulib";
+import * as mokpolib from "dongnelibrary/dist/localLibraryModule/mokpolib";
 import * as nowon from "dongnelibrary/dist/localLibraryModule/nowon";
 import * as osan from "dongnelibrary/dist/localLibraryModule/osan";
+import * as paju from "dongnelibrary/dist/localLibraryModule/paju";
 import * as pohang from "dongnelibrary/dist/localLibraryModule/pohang";
 import * as ptlib from "dongnelibrary/dist/localLibraryModule/ptlib";
 import * as siheung from "dongnelibrary/dist/localLibraryModule/siheung";
@@ -37,7 +40,7 @@ import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
 import * as yplib from "dongnelibrary/dist/localLibraryModule/yplib";
 import * as yslib from "dongnelibrary/dist/localLibraryModule/yslib";
 
-const LIBRARY_MODULES = [ansan, asan, bcl, cbelib, daegu, gangnam, gangseo, gbelib, geoje, gg, gimhae, gjcity, gunpo, gunsan, gwanak, gwe, hanamlib, hscity, ice, jeju, nowon, osan, pohang, ptlib, siheung, snlib, suwon, uwlib, wonju, yangcheon, ydplib, yjlib, yongin, yplib, yslib];
+const LIBRARY_MODULES = [ansan, asan, bcl, cbelib, daegu, gangnam, gangseo, gbelib, geoje, gg, gimhae, gjcity, gunpo, gunsan, gwanak, gwe, hanamlib, hscity, ice, jeju, junggulib, mokpolib, nowon, osan, paju, pohang, ptlib, siheung, snlib, suwon, uwlib, wonju, yangcheon, ydplib, yjlib, yongin, yplib, yslib];
 
 const app = express();
 
