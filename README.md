@@ -165,6 +165,21 @@ This project includes MCP (Model Context Protocol) server implementations:
 
 See MCPSTDIO_README.md for more details on MCP server configuration.
 
+### MCP STDIO 서버 테스트 (MCP Inspector)
+
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector)를 사용하면 브라우저 UI에서 MCP 서버 도구를 바로 테스트할 수 있습니다.
+
+```bash
+PATH=/path/to/node/bin:$PATH npx @modelcontextprotocol/inspector npx tsx mcp-server-STDIO.ts
+```
+
+> nvm을 사용하는 경우 `/path/to/node/bin`을 `~/.nvm/versions/node/$(node -v)/bin`으로 교체하세요.
+
+브라우저에서 Inspector UI가 열리면 다음 도구를 테스트할 수 있습니다:
+
+- **`list_libraries`** — 검색 가능한 전체 도서관 목록 반환
+- **`search_books`** — 도서 제목과 도서관 이름으로 대출 가능 여부 검색 (`libraryName` 생략 시 전체 검색)
+
 ## Claude에서 MCP 서버 연결 방법
 
 Claude에서 원격 MCP 서버를 연결하여 사용할 수 있다.
