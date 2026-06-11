@@ -65,7 +65,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     if (name === "list_libraries") {
-      const libs = dl.getLibraryNames();
+      const libs = dl.getAllLibraryNames();
       return {
         content: [
           {
