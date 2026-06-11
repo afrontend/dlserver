@@ -85,7 +85,7 @@ function setupServerHandlers(server: Server): void {
 
     try {
       if (name === "list_libraries") {
-        const libs = dl.getLibraryNames();
+        const libs = dl.getAllLibraryNames();
         return {
           content: [
             {
