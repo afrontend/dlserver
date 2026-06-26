@@ -160,10 +160,12 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 
 This project includes MCP (Model Context Protocol) server implementations:
 
-- **mcp-server-STDIO.ts:** Standard input/output based MCP server
-- **mcp-server-SSE.ts:** Server-sent events based MCP server
-
-See MCPSTDIO_README.md for more details on MCP server configuration.
+| 파일 | 언어 | 방식 | 상세 문서 |
+|------|------|------|----------|
+| `mcp-server-STDIO.ts` | TypeScript | STDIO | [MCPSTDIO_README.md](./MCPSTDIO_README.md) |
+| `mcp-server-SSE.ts` | TypeScript | HTTP/SSE | [MCPSSE_README.md](./MCPSSE_README.md) |
+| `mcp-server-STDIO.py` | Python (FastMCP) | STDIO | [PYMCPSTDIO_README.md](./PYMCPSTDIO_README.md) |
+| `mcp-server-SSE.py` | Python (FastMCP) | HTTP/SSE | [PYMCPSSE_README.md](./PYMCPSSE_README.md) |
 
 ### MCP 서버 테스트 (MCP Inspector)
 
