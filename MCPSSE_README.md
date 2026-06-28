@@ -1,36 +1,31 @@
-# MCP Server SSE Implementation
+# DongneLibrary MCP 서버 (TypeScript/SSE)
 
 ![Root Directory Image](./public/logo.jpg)
 
-## Overview
+> AI 어시스턴트(Claude 등)가 HTTP/SSE를 통해 한국 도서관 책 검색을 수행할 수 있도록 해주는 MCP SSE 서버입니다.
 
-`mcp-server-SSE.js` is a Model Context Protocol (MCP) server that provides access to Korean library book search functionality via the `dongnelibrary` npm package. This implementation uses the SSE (Server-Sent Events) transport method with the StreamableHTTP transport from the MCP SDK.
+## 개요
 
-## What is MCP?
+`mcp-server-SSE.ts`는 HTTP 기반 SSE(Server-Sent Events) 전송 방식을 사용하는 MCP 서버입니다. `dongnelibrary` npm 패키지를 직접 사용하며, 포트 3000에서 실행됩니다. 여러 클라이언트가 동시에 연결할 수 있어 서버 배포(Render, Heroku 등)에 적합합니다.
 
-The Model Context Protocol (MCP) is a standard protocol that allows AI assistants (like Claude) to interact with external tools and data sources. This server exposes Korean library search capabilities as MCP tools that can be used by any MCP-compatible client.
+## MCP란?
 
-## Architecture
+Model Context Protocol(MCP)은 AI 어시스턴트가 외부 도구와 데이터 소스에 접근할 수 있도록 표준화된 프로토콜입니다. 이 서버는 한국 도서관 검색 기능을 MCP 도구로 제공합니다.
 
-### Server Components
+## 아키텍처
 
 ```
 ┌─────────────────────────────────────────────────┐
 │  Express HTTP Server (port 3000)                │
 │  ┌───────────────────────────────────────────┐  │
 │  │  POST /mcp - Main endpoint                │  │
-│  │  GET /mcp  - SSE streaming                │  │
+│  │  GET  /mcp - SSE streaming                │  │
 │  │  DELETE /mcp - Session cleanup            │  │
 │  └───────────────────────────────────────────┘  │
 │  ┌───────────────────────────────────────────┐  │
 │  │  StreamableHTTPServerTransport            │  │
-│  │  - Session management                     │  │
+│  │  - Session management (UUID-based)        │  │
 │  │  - SSE connection handling                │  │
-│  └───────────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────────┐  │
-│  │  MCP Server Instance                      │  │
-│  │  - Tool registration                      │  │
-│  │  - Request handling                       │  │
 │  └───────────────────────────────────────────┘  │
 │  ┌───────────────────────────────────────────┐  │
 │  │  dongnelibrary                            │  │
@@ -40,40 +35,52 @@ The Model Context Protocol (MCP) is a standard protocol that allows AI assistant
 └─────────────────────────────────────────────────┘
 ```
 
-### Session Management
+## 서버 실행
 
-The server maintains active sessions using a session-based architecture:
+### 1단계 — 의존성 설치
 
-1. **Session Initialization** - Client sends an `initialize` request without a session ID
-2. **Session ID Generation** - Server generates a UUID and creates a transport
-3. **Session Reuse** - Subsequent requests include the `mcp-session-id` header
-4. **Session Cleanup** - Sessions are removed on close or explicit DELETE
-
-### Key Files and Functions
-
-- **`createServer()`** (lines 25-42) - Creates a new MCP server instance with configuration
-- **`setupServerHandlers(server)`** (lines 45-170) - Registers tool handlers
-- **`transports` object** (line 22) - Stores active transport instances per session
-- **POST /mcp endpoint** (lines 173-220) - Handles initialization and requests
-- **GET /mcp endpoint** (lines 222-236) - Handles SSE streaming
-- **DELETE /mcp endpoint** (lines 238-252) - Handles session closure
-
-## Available Tools
-
-### 1. search_books
-
-Search for books across Korean libraries.
-
-**Input Schema:**
-
-```json
-{
-  "title": "string (required)",
-  "libraryName": "string (optional)"
-}
+```bash
+git clone https://github.com/afrontend/dlserver.git
+cd dlserver
+npm install
 ```
 
-**Example Request:**
+### 2단계 — SSE 서버 실행
+
+```bash
+npm run mcpsse
+```
+
+또는 직접 실행:
+
+```bash
+npx tsx mcp-server-SSE.ts
+```
+
+서버가 `http://localhost:3000/mcp`에서 실행됩니다.
+
+### 환경 변수
+
+| 변수   | 기본값 | 설명      |
+| ------ | ------ | --------- |
+| `PORT` | `3000` | 서버 포트 |
+
+---
+
+## 사용 가능한 도구
+
+### 1. `search_books` — 책 검색
+
+도서관에서 책 대출 가능 여부를 검색합니다.
+
+**파라미터:**
+
+| 파라미터      | 필수 여부 | 설명                                                               |
+| ------------- | --------- | ------------------------------------------------------------------ |
+| `title`       | 필수      | 검색할 책 제목 (한국어 또는 영어)                                  |
+| `libraryName` | 선택      | 도서관 이름 (예: "판교", "동탄", "성남"). 생략 시 전체 도서관 검색 |
+
+**요청 예시:**
 
 ```json
 {
@@ -85,7 +92,7 @@ Search for books across Korean libraries.
 }
 ```
 
-**Response Format:**
+**응답 예시:**
 
 ```
 Search results for "해리포터" in 판교:
@@ -93,29 +100,18 @@ Search results for "해리포터" in 판교:
 Library: 판교도서관
   ✓ 해리 포터와 마법사의 돌
   ✖ 해리 포터와 비밀의 방
-
 ```
 
-- ✓ indicates the book is available for rent
-- ✖ indicates the book is not currently available
+- ✓ : 대출 가능
+- ✖ : 대출 불가
 
-**Implementation Details:**
+### 2. `list_libraries` — 도서관 목록 조회
 
-- Uses callback-based `dl.search()` wrapped in a Promise (lines 108-123)
-- Supports filtering by library name or searching all libraries
-- Returns formatted text with availability indicators
+검색 가능한 전체 도서관 이름 목록을 반환합니다.
 
-### 2. list_libraries
+**파라미터:** 없음
 
-Get a list of all available Korean library names.
-
-**Input Schema:**
-
-```json
-{}
-```
-
-**Example Response:**
+**응답 예시:**
 
 ```
 Available libraries:
@@ -125,216 +121,33 @@ Available libraries:
 ...
 ```
 
-**Implementation:**
+---
 
-- Calls `dl.getLibraryNames()` directly (line 89)
-- Returns newline-separated list of library names
+## 테스트
 
-## Running the Server
+### MCP Inspector 사용
 
-### Local Development
+1단계 — 서버 실행:
 
 ```bash
-# Install dependencies
-npm install
-
-# Run the server
 npm run mcpsse
-
-# Or directly
-node mcp-server-SSE.js
 ```
 
-Server starts on port 3000 (default) or the port specified in `PORT` environment variable.
-
-### Environment Variables
-
-- `PORT` - Server port (default: 3000)
-
-## API Endpoints
-
-### POST /mcp
-
-Main MCP endpoint for initializing sessions and making tool calls.
-
-**Headers:**
-
-- `Content-Type: application/json`
-- `mcp-session-id` (optional, required after initialization)
-
-**Request Types:**
-
-1. **Initialize Request** (first request):
-
-   ```json
-   {
-     "jsonrpc": "2.0",
-     "method": "initialize",
-     "params": {
-       "protocolVersion": "2024-11-05",
-       "capabilities": {},
-       "clientInfo": {
-         "name": "client-name",
-         "version": "1.0.0"
-       }
-     },
-     "id": 1
-   }
-   ```
-
-2. **Tool List Request**:
-
-   ```json
-   {
-     "jsonrpc": "2.0",
-     "method": "tools/list",
-     "id": 2
-   }
-   ```
-
-3. **Tool Call Request**:
-   ```json
-   {
-     "jsonrpc": "2.0",
-     "method": "tools/call",
-     "params": {
-       "name": "search_books",
-       "arguments": {
-         "title": "해리포터"
-       }
-     },
-     "id": 3
-   }
-   ```
-
-### GET /mcp
-
-SSE endpoint for receiving server-sent events.
-
-**Headers:**
-
-- `mcp-session-id` (required)
-
-**Response:**
-
-- Content-Type: `text/event-stream`
-- Streams server events to the client
-
-### DELETE /mcp
-
-Closes an active session.
-
-**Headers:**
-
-- `mcp-session-id` (required)
-
-**Response:**
-
-- Status 200 on successful closure
-
-## Technical Details
-
-### StreamableHTTP Transport
-
-The server uses `StreamableHTTPServerTransport` which provides:
-
-1. **Bidirectional Communication** - POST for client→server, GET/SSE for server→client
-2. **Session Persistence** - UUID-based session management
-3. **Event Streaming** - SSE for real-time server responses
-4. **Automatic Cleanup** - Callback hooks for session lifecycle
-
-### Error Handling
-
-**Tool Execution Errors** (lines 158-168):
-
-```json
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "Error: <error message>"
-    }
-  ],
-  "isError": true
-}
-```
-
-**Session Errors** (lines 204-208):
-
-```json
-{
-  "jsonrpc": "2.0",
-  "error": {
-    "code": -32000,
-    "message": "Invalid session"
-  },
-  "id": null
-}
-```
-
-**Server Errors** (lines 214-218):
-
-```json
-{
-  "jsonrpc": "2.0",
-  "error": {
-    "code": -32603,
-    "message": "<error message>"
-  },
-  "id": null
-}
-```
-
-### Callback to Promise Conversion
-
-The `dongnelibrary` package uses callbacks, but the MCP server uses async/await. The conversion happens at lines 108-123:
-
-```javascript
-const books = await new Promise((resolve, reject) => {
-  dl.search(
-    {
-      title: title,
-      libraryName: libraryName,
-    },
-    null,
-    (err, books) => {
-      if (err) {
-        reject(new Error(err.msg || "Search failed"));
-      } else {
-        resolve(books);
-      }
-    },
-  );
-});
-```
-
-This pattern ensures clean async handling in the request handlers.
-
-## Supported Libraries
-
-The server supports searching across multiple Korean libraries in the Seoul metropolitan area, including:
-
-- 판교도서관 (Pangyo Library)
-- 동탄복합문화센터 (Dongtan Culture Center)
-- 성남중앙도서관 (Seongnam Central Library)
-- And many more (use `list_libraries` tool to see all)
-
-## Differences from mcp-server.js
-
-If you're familiar with the standard `mcp-server.js`:
-
-1. **Transport Type**: Uses `StreamableHTTPServerTransport` instead of stdio
-2. **Network Access**: HTTP endpoints instead of stdin/stdout
-3. **Session Management**: Explicit session tracking with UUIDs
-4. **Multi-Client**: Can handle multiple simultaneous clients
-5. **Deployment Ready**: Designed for cloud deployment (Render, Heroku, etc.)
-
-## Testing the Server
-
-### Using curl
+2단계 — MCP Inspector 실행:
 
 ```bash
-# Initialize session
+npx @modelcontextprotocol/inspector
+```
+
+Inspector UI에서 다음과 같이 설정 후 Connect:
+
+- Transport Type: **Streamable HTTP**
+- URL: `http://localhost:3000/mcp`
+
+### curl 사용
+
+```bash
+# 세션 초기화
 curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
   -d '{
@@ -348,9 +161,9 @@ curl -X POST http://localhost:3000/mcp \
     "id": 1
   }'
 
-# Note the session ID from the response, then:
+# 응답의 세션 ID를 확인한 후:
 
-# List tools
+# 도구 목록 조회
 curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
   -H "mcp-session-id: <session-id>" \
@@ -360,7 +173,7 @@ curl -X POST http://localhost:3000/mcp \
     "id": 2
   }'
 
-# Search books
+# 책 검색
 curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
   -H "mcp-session-id: <session-id>" \
@@ -375,9 +188,11 @@ curl -X POST http://localhost:3000/mcp \
   }'
 ```
 
-## MCP Client Configuration
+---
 
-To use this server with Claude Desktop or other MCP clients, add to your config:
+## Claude Desktop 설정
+
+Claude Desktop 또는 다른 MCP 클라이언트에서 사용하려면 설정 파일에 추가하세요:
 
 ```json
 {
@@ -389,7 +204,7 @@ To use this server with Claude Desktop or other MCP clients, add to your config:
 }
 ```
 
-For deployed version:
+배포된 서버를 사용하는 경우:
 
 ```json
 {
@@ -401,7 +216,18 @@ For deployed version:
 }
 ```
 
-## Dependencies
+---
+
+## 참고 사항
+
+- 이 서버는 `dongnelibrary` npm 패키지를 직접 사용하므로 별도 웹 서버가 필요하지 않습니다.
+- 여러 클라이언트가 동시에 연결 가능하며, 각 세션은 UUID로 관리됩니다.
+- STDIO 방식 MCP 서버는 `npm run mcpstdio`로 실행할 수 있습니다 (MCPSTDIO_README.md 참고).
+- Python SSE 버전(`npm run pymcpsse`)도 동일한 기능을 제공합니다 (PYMCPSSE_README.md 참고).
+
+---
+
+## 의존성
 
 ```json
 {
@@ -411,18 +237,8 @@ For deployed version:
 }
 ```
 
-## Version
+---
 
-Current version: **0.0.3**
-
-## License
+## 라이선스
 
 MIT
-
-## Author
-
-afrontend
-
-## Repository
-
-https://github.com/afrontend/dlserver

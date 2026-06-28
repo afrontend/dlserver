@@ -1,8 +1,16 @@
-# DongneLibrary MCP Server (STDIO)
+# DongneLibrary MCP 서버 (TypeScript/STDIO)
 
-AI 어시스턴트(Claude 등)가 한국 도서관 책 검색을 직접 수행할 수 있도록 해주는 MCP(Model Context Protocol) STDIO 서버입니다.
+> AI 어시스턴트(Claude 등)가 한국 도서관 책 검색을 직접 수행할 수 있도록 해주는 MCP STDIO 서버입니다.
 
-## 빠른 시작 (Quick Start)
+## 개요
+
+`mcp-server-STDIO.ts`는 Claude Desktop 등 MCP 클라이언트와 표준 입출력(STDIO)으로 통신하는 MCP 서버입니다. `dongnelibrary` npm 패키지를 직접 사용하므로 별도 서버 없이 독립 실행됩니다.
+
+## MCP란?
+
+Model Context Protocol(MCP)은 AI 어시스턴트가 외부 도구와 데이터 소스에 접근할 수 있도록 표준화된 프로토콜입니다. 이 서버는 한국 도서관 검색 기능을 MCP 도구로 제공합니다.
+
+## 빠른 시작 — Claude Desktop 연결
 
 ### 1단계 — 저장소 클론 및 의존성 설치
 
@@ -74,7 +82,7 @@ Claude Desktop에서 아래와 같이 요청해 보세요:
 
 ---
 
-## MCP 서버 직접 실행 (테스트용)
+## 서버 직접 실행 (테스트용)
 
 ```bash
 npm run mcpstdio
@@ -88,7 +96,7 @@ npx tsx mcp-server-STDIO.ts
 
 ---
 
-## 사용 가능한 도구 (Available Tools)
+## 사용 가능한 도구
 
 ### 1. `search_books` — 책 검색
 
@@ -108,6 +116,19 @@ npx tsx mcp-server-STDIO.ts
 "javascript" 책을 전체 도서관에서 찾아줘
 ```
 
+**응답 예시:**
+
+```
+Search results for "해리포터" in 판교:
+
+Library: 판교도서관
+  ✓ 해리 포터와 마법사의 돌
+  ✖ 해리 포터와 비밀의 방
+```
+
+- ✓ : 대출 가능
+- ✖ : 대출 불가
+
 ### 2. `list_libraries` — 도서관 목록 조회
 
 검색 가능한 전체 도서관 이름 목록을 반환합니다.
@@ -120,9 +141,19 @@ npx tsx mcp-server-STDIO.ts
 검색 가능한 도서관 목록을 알려줘
 ```
 
+**응답 예시:**
+
+```
+Available libraries:
+판교도서관
+동탄복합문화센터
+성남중앙도서관
+...
+```
+
 ---
 
-## 문제 해결 (Troubleshooting)
+## 문제 해결
 
 **Claude가 도구를 인식하지 못하는 경우**
 
@@ -140,5 +171,23 @@ npx tsx mcp-server-STDIO.ts
 ## 참고 사항
 
 - 이 MCP 서버는 웹 API(`npm run webapp`)와 독립적으로 실행됩니다.
-- 동일한 `dongnelibrary` npm 패키지를 사용하므로 검색 결과는 동일합니다.
-- SSE 방식 MCP 서버는 `npm run mcpsse`로 실행할 수 있습니다 (README.md 참고).
+- `dongnelibrary` npm 패키지를 직접 사용하므로 별도 웹 서버가 필요하지 않습니다.
+- SSE 방식 MCP 서버는 `npm run mcpsse`로 실행할 수 있습니다 (MCPSSE_README.md 참고).
+- Python STDIO 버전(`npm run pymcpstdio`)도 동일한 기능을 제공합니다 (PYMCPSTDIO_README.md 참고).
+
+---
+
+## 의존성
+
+```json
+{
+  "@modelcontextprotocol/sdk": "^1.0.4",
+  "dongnelibrary": "^0.2.3"
+}
+```
+
+---
+
+## 라이선스
+
+MIT

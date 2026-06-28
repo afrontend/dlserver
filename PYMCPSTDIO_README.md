@@ -1,13 +1,16 @@
-# DongneLibrary MCP Server (Python/STDIO)
+# DongneLibrary MCP 서버 (Python/STDIO)
 
-AI 어시스턴트(Claude 등)가 한국 도서관 책 검색을 직접 수행할 수 있도록 해주는 MCP(Model Context Protocol) STDIO 서버입니다.
-Python + FastMCP로 구현된 버전입니다.
+> AI 어시스턴트(Claude 등)가 한국 도서관 책 검색을 직접 수행할 수 있도록 해주는 Python MCP STDIO 서버입니다.
 
-> TypeScript 버전(`mcp-server-STDIO.ts`)과 동일한 기능을 제공합니다.
-> TypeScript 버전은 `dongnelibrary` 패키지를 직접 사용하지만,
-> Python 버전은 Express 웹 서버의 REST API를 통해 도서관 데이터를 가져옵니다.
+## 개요
 
-## 빠른 시작 (Quick Start)
+`mcp-server-STDIO.py`는 Claude Desktop 등 MCP 클라이언트와 표준 입출력(STDIO)으로 통신하는 MCP 서버입니다. Python + FastMCP로 구현되었으며, 도서관 데이터는 Express 웹 서버의 REST API를 통해 가져옵니다.
+
+## MCP란?
+
+Model Context Protocol(MCP)은 AI 어시스턴트가 외부 도구와 데이터 소스에 접근할 수 있도록 표준화된 프로토콜입니다. 이 서버는 한국 도서관 검색 기능을 MCP 도구로 제공합니다.
+
+## 빠른 시작 — Claude Desktop 연결
 
 ### 1단계 — 저장소 클론 및 의존성 설치
 
@@ -95,7 +98,7 @@ Claude Desktop에서 아래와 같이 요청해 보세요:
 
 ---
 
-## MCP 서버 직접 실행 (테스트용)
+## 서버 직접 실행 (테스트용)
 
 ```bash
 npm run pymcpstdio
@@ -109,7 +112,7 @@ python mcp-server-STDIO.py
 
 ---
 
-## 사용 가능한 도구 (Available Tools)
+## 사용 가능한 도구
 
 ### 1. `search_books` — 책 검색
 
@@ -129,6 +132,19 @@ python mcp-server-STDIO.py
 "javascript" 책을 전체 도서관에서 찾아줘
 ```
 
+**응답 예시:**
+
+```
+Search results for "해리포터" in 판교:
+
+Library: 판교도서관
+  ✓ 해리 포터와 마법사의 돌
+  ✖ 해리 포터와 비밀의 방
+```
+
+- ✓ : 대출 가능
+- ✖ : 대출 불가
+
 ### 2. `list_libraries` — 도서관 목록 조회
 
 검색 가능한 전체 도서관 이름 목록을 반환합니다.
@@ -141,9 +157,19 @@ python mcp-server-STDIO.py
 검색 가능한 도서관 목록을 알려줘
 ```
 
+**응답 예시:**
+
+```
+Available libraries:
+판교도서관
+동탄복합문화센터
+성남중앙도서관
+...
+```
+
 ---
 
-## 문제 해결 (Troubleshooting)
+## 문제 해결
 
 **Claude가 도구를 인식하지 못하는 경우**
 
@@ -163,8 +189,38 @@ python mcp-server-STDIO.py
 
 ---
 
+## TypeScript 버전과의 차이점
+
+| 항목              | TypeScript (`mcp-server-STDIO.ts`) | Python (`mcp-server-STDIO.py`) |
+| ----------------- | ---------------------------------- | ------------------------------ |
+| 런타임            | Node.js + tsx                      | Python 3.10+                   |
+| 프레임워크        | MCP SDK                            | FastMCP                        |
+| 도서관 데이터     | `dongnelibrary` 직접 호출          | Express REST API via httpx     |
+| Express 서버 필요 | 불필요                             | 필요 (`npm run webapp`)        |
+| 도구 정의 방식    | `setRequestHandler` 수동           | `@mcp.tool` 데코레이터         |
+| 파라미터명        | `libraryName`                      | `library_name`                 |
+
+---
+
 ## 참고 사항
 
 - 이 MCP 서버는 Express 웹 서버(`npm run webapp`)가 실행 중일 때만 동작합니다.
-- TypeScript STDIO 버전(`npm run mcpstdio`)과 달리 Express 서버에 의존합니다.
 - SSE 방식 Python MCP 서버는 `npm run pymcpsse`로 실행할 수 있습니다 (PYMCPSSE_README.md 참고).
+- TypeScript STDIO 버전(`npm run mcpstdio`)과 동일한 기능을 제공합니다 (MCPSTDIO_README.md 참고).
+
+---
+
+## 의존성
+
+```
+fastmcp
+httpx
+```
+
+Python 3.10 이상이 필요합니다.
+
+---
+
+## 라이선스
+
+MIT
