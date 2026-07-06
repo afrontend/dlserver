@@ -160,12 +160,12 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 
 This project includes MCP (Model Context Protocol) server implementations:
 
-| 파일 | 언어 | 방식 | 상세 문서 |
-|------|------|------|----------|
-| `mcp-server-STDIO.ts` | TypeScript | STDIO | [MCPSTDIO_README.md](./MCPSTDIO_README.md) |
-| `mcp-server-SSE.ts` | TypeScript | HTTP/SSE | [MCPSSE_README.md](./MCPSSE_README.md) |
-| `mcp-server-STDIO.py` | Python (FastMCP) | STDIO | [PYMCPSTDIO_README.md](./PYMCPSTDIO_README.md) |
-| `mcp-server-SSE.py` | Python (FastMCP) | HTTP/SSE | [PYMCPSSE_README.md](./PYMCPSSE_README.md) |
+| 파일                  | 언어             | 방식     | 상세 문서                                      |
+| --------------------- | ---------------- | -------- | ---------------------------------------------- |
+| `mcp-server-STDIO.ts` | TypeScript       | STDIO    | [MCPSTDIO_README.md](./MCPSTDIO_README.md)     |
+| `mcp-server-SSE.ts`   | TypeScript       | HTTP/SSE | [MCPSSE_README.md](./MCPSSE_README.md)         |
+| `mcp-server-STDIO.py` | Python (FastMCP) | STDIO    | [PYMCPSTDIO_README.md](./PYMCPSTDIO_README.md) |
+| `mcp-server-SSE.py`   | Python (FastMCP) | HTTP/SSE | [PYMCPSSE_README.md](./PYMCPSSE_README.md)     |
 
 ### MCP 서버 테스트 (MCP Inspector)
 
@@ -210,6 +210,29 @@ Inspector UI에서 다음과 같이 설정 후 Connect:
 Claude에서 원격 MCP 서버를 연결하여 사용할 수 있다.
 
 Claude 설정 > 커넥터 > 커스텀 커넥터 추가 > 원격 MCP 서버 URL 입력
+
+## Portfolio — FE + AI Engineer
+
+이 프로젝트는 아래 두 사이드 프로젝트와 하나의 포트폴리오 서사를 구성합니다.
+
+```
+┌──────────────────┬──────────────────┬──────────────────────┐
+│  AgentSandbox    │     Dongne       │   IVI Playground     │
+│  AI 에이전트     │  MCP 서버 +      │   차량 WebView       │
+│  라우팅 시각화   │  풀스택 API      │   개발 도구          │
+├──────────────────┴──────────────────┴──────────────────────┤
+│          AbortController · SSE 스트리밍 · Mock-first       │
+└────────────────────────────────────────────────────────────┘
+```
+
+| 연결                 | 내용                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **→ AgentSandbox**   | `list_libraries` / `search_books` MCP Tool이 AgentSandbox Live 모드에서 실연동. Claude Haiku가 이 서버를 실제 도구로 호출하며 AgentEvent 스트림으로 시각화됨 |
+| **← IVI Playground** | AbortController 기반 요청 취소 패턴 공유. 클라이언트 연결 해제 시 스크래핑까지 즉시 중단하는 구조가 IVI의 ScenarioPlayer 중단 로직과 동일                    |
+
+**Live 데모:** [AgentSandbox](https://agent-sandbox-tm5k.onrender.com) · [Dongne](https://dongne.onrender.com) · [IVI Playground](https://ivi-playground.onrender.com)
+
+---
 
 ## License
 
