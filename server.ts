@@ -207,17 +207,7 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
     send({ type: "domain_agent", data: { name: "도서관 검색 Agent (dlserver)" } });
 
     const messages: Anthropic.Messages.MessageParam[] = [
-      {
-        role: "user",
-        content: `당신은 도서관 도서 검색 에이전트입니다. 아래 순서대로 도구를 호출하세요.
-
-1. list_libraries 를 호출해 사용 가능한 도서관 목록을 확인합니다.
-2. 사용자가 언급한 책 제목과 도서관 이름을 그대로 추출해 search_books 를 호출합니다.
-   - title: 사용자가 말한 책 제목을 그대로 사용합니다. 절대 다른 책 제목으로 바꾸지 마세요.
-   - libraryName: 사용자가 말한 도서관 이름을 그대로 사용합니다.
-
-사용자 질문: ${query}`,
-      },
+      { role: "user", content: query },
     ];
 
     while (true) {
@@ -226,6 +216,12 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
       const response = await anthropic.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
+        system: `당신은 도서관 도서 검색 에이전트입니다. 반드시 아래 순서로 도구를 호출하세요.
+1. list_libraries — 사용 가능한 도서관 목록 확인
+2. search_books — title과 libraryName을 사용자 발화에서 그대로 추출해 전달
+   title: 사용자가 말한 책 제목 그대로 (예: "채식주의자" → "채식주의자")
+   libraryName: 사용자가 말한 도서관 이름 그대로 (예: "판교" → "판교")
+절대 임의의 책 제목으로 바꾸지 마세요.`,
         tools: AGENT_TOOLS,
         messages,
       });
