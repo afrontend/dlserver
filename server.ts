@@ -210,6 +210,7 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
       { role: "user", content: query },
     ];
 
+    let firstIteration = true;
     while (true) {
       if (controller.signal.aborted) break;
 
@@ -223,8 +224,10 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
    libraryName: 사용자가 말한 도서관 이름 그대로 (예: "판교" → "판교")
 절대 임의의 책 제목으로 바꾸지 마세요.`,
         tools: AGENT_TOOLS,
+        tool_choice: firstIteration ? { type: "any" as const } : { type: "auto" as const },
         messages,
       });
+      firstIteration = false;
 
       if (response.stop_reason === "tool_use") {
         const toolUseBlocks = response.content.filter(
@@ -267,9 +270,8 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
       }
     }
   } catch (e) {
-    if (!controller.signal.aborted) {
-      send({ type: "response", data: `오류: ${e instanceof Error ? e.message : "알 수 없는 오류"}` });
-    }
+    console.error("[agent-stream] error:", e);
+    send({ type: "response", data: `오류: ${e instanceof Error ? e.message : "알 수 없는 오류"}` });
   }
 
   res.end();
