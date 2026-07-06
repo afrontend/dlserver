@@ -209,7 +209,14 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
     const messages: Anthropic.Messages.MessageParam[] = [
       {
         role: "user",
-        content: `당신은 도서관 도서 검색 에이전트입니다. 사용자 질문에 답하기 위해 list_libraries와 search_books 도구를 활용하세요.\n\n사용자 질문: ${query}`,
+        content: `당신은 도서관 도서 검색 에이전트입니다. 아래 순서대로 도구를 호출하세요.
+
+1. list_libraries 를 호출해 사용 가능한 도서관 목록을 확인합니다.
+2. 사용자가 언급한 책 제목과 도서관 이름을 그대로 추출해 search_books 를 호출합니다.
+   - title: 사용자가 말한 책 제목을 그대로 사용합니다. 절대 다른 책 제목으로 바꾸지 마세요.
+   - libraryName: 사용자가 말한 도서관 이름을 그대로 사용합니다.
+
+사용자 질문: ${query}`,
       },
     ];
 
