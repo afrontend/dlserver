@@ -41,6 +41,7 @@
   },
   "homepage": "https://github.com/afrontend/dlserver#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "dongnelibrary": "^0.3.16",
     "express": "^4.15.4",

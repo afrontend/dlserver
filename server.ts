@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import Anthropic from "@anthropic-ai/sdk";
 import * as dl from "dongnelibrary";
 import type { SearchResult, Book } from "dongnelibrary";
 import * as ansan from "dongnelibrary/dist/localLibraryModule/ansan";
@@ -44,6 +45,7 @@ const LIBRARY_MODULES = [ansan, asan, bcl, cbelib, daegu, gangnam, gangseo, gbel
 
 const app = express();
 
+app.use(express.json());
 app.use("/", express.static(import.meta.dirname + "/dist"));
 
 interface SearchParams {
@@ -130,6 +132,147 @@ app.get("/:title/:libraryName", async (req: Request, res: Response) => {
     res.json({ message: error.msg });
   }
 });
+
+// ── Agent Stream proxy ──────────────────────────────────────────────────────
+
+type AgentEventType = "core_agent" | "domain_agent" | "tool_call" | "tool_result" | "response";
+interface AgentEvent { type: AgentEventType; data: unknown }
+
+const AGENT_TOOLS: Anthropic.Messages.Tool[] = [
+  {
+    name: "list_libraries",
+    description: "검색 가능한 전체 도서관 목록을 반환합니다.",
+    input_schema: { type: "object" as const, properties: {}, required: [] },
+  },
+  {
+    name: "search_books",
+    description: "도서 제목과 도서관 이름으로 대출 가능 여부를 검색합니다.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        title: { type: "string", description: "검색할 도서 제목" },
+        libraryName: { type: "string", description: "검색할 도서관 이름 (예: 판교)" },
+      },
+      required: ["title", "libraryName"],
+    },
+  },
+];
+
+async function callAgentTool(
+  name: string,
+  input: Record<string, unknown>,
+  signal: AbortSignal,
+): Promise<string> {
+  if (name === "list_libraries") {
+    return JSON.stringify(dl.getAllLibraryNames()).slice(0, 800);
+  }
+  if (name === "search_books") {
+    const { title, libraryName } = input as { title: string; libraryName: string };
+    try {
+      const books = await searchBooks(title, libraryName, signal);
+      return JSON.stringify(books).slice(0, 1200);
+    } catch (e) {
+      return `Error: ${e instanceof Error ? e.message : "search failed"}`;
+    }
+  }
+  return "Unknown tool";
+}
+
+app.options("/api/agent-stream", (_req: Request, res: Response) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(204);
+});
+
+app.post("/api/agent-stream", async (req: Request, res: Response) => {
+  const { query } = req.body as { query: string };
+
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const controller = new AbortController();
+  req.on("close", () => controller.abort());
+
+  const send = (event: AgentEvent) => {
+    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  };
+
+  try {
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    send({ type: "core_agent", data: { intent: "Knowledge", confidence: 0.95, reason: "도서관 도서 검색 쿼리 감지" } });
+    send({ type: "domain_agent", data: { name: "도서관 검색 Agent (dlserver)" } });
+
+    const messages: Anthropic.Messages.MessageParam[] = [
+      {
+        role: "user",
+        content: `당신은 도서관 도서 검색 에이전트입니다. 사용자 질문에 답하기 위해 list_libraries와 search_books 도구를 활용하세요.\n\n사용자 질문: ${query}`,
+      },
+    ];
+
+    while (true) {
+      if (controller.signal.aborted) break;
+
+      const response = await anthropic.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        tools: AGENT_TOOLS,
+        messages,
+      });
+
+      if (response.stop_reason === "tool_use") {
+        const toolUseBlocks = response.content.filter(
+          (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use",
+        );
+        const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+
+        for (const block of toolUseBlocks) {
+          if (controller.signal.aborted) break;
+
+          send({
+            type: "tool_call",
+            data: {
+              name: block.name,
+              description: AGENT_TOOLS.find((t) => t.name === block.name)?.description ?? "",
+              input: block.input as Record<string, unknown>,
+            },
+          });
+
+          const output = await callAgentTool(
+            block.name,
+            block.input as Record<string, unknown>,
+            controller.signal,
+          );
+
+          if (controller.signal.aborted) break;
+
+          send({ type: "tool_result", data: { toolName: block.name, output } });
+          toolResults.push({ type: "tool_result", tool_use_id: block.id, content: output });
+        }
+
+        messages.push({ role: "assistant", content: response.content });
+        messages.push({ role: "user", content: toolResults });
+      } else {
+        const textBlock = response.content.find(
+          (b): b is Anthropic.Messages.TextBlock => b.type === "text",
+        );
+        send({ type: "response", data: textBlock?.text ?? "검색 결과를 찾을 수 없습니다." });
+        break;
+      }
+    }
+  } catch (e) {
+    if (!controller.signal.aborted) {
+      send({ type: "response", data: `오류: ${e instanceof Error ? e.message : "알 수 없는 오류"}` });
+    }
+  }
+
+  res.end();
+});
+
+// ────────────────────────────────────────────────────────────────────────────
 
 interface HttpError extends Error {
   status?: number;
