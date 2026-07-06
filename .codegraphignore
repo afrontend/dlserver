@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Git internals
+.git/
+
+# Claude Code settings
+.claude/
+
+# Playwright artifacts
+.playwright-cli/
+.playwright-mcp/
+
+# Static assets & images
+public/
+contributors*.png
+
+# Documentation (markdown/HTML - no symbols)
+docs/
+README.md
+CLAUDE.md
+AGENTS.md
+LICENSE
+MCPSSE_README.md
+MCPSTDIO_README.md
+PYMCPSSE_README.md
+PYMCPSTDIO_README.md
+
+# Lock files
+package-lock.json
+
+# Config files
+tsconfig.node.json
+.env.example
+Makefile
+
+# HTML entry point
+index.html
