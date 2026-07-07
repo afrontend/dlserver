@@ -164,7 +164,7 @@ async function callAgentTool(
   signal: AbortSignal,
 ): Promise<string> {
   if (name === "list_libraries") {
-    return JSON.stringify(dl.getAllLibraryNames()).slice(0, 800);
+    return JSON.stringify(dl.getAllLibraryNames());
   }
   if (name === "search_books") {
     const { title, libraryName } = input as { title: string; libraryName: string };
@@ -194,11 +194,15 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
   res.setHeader("Connection", "keep-alive");
 
   const controller = new AbortController();
-  req.on("close", () => controller.abort());
+  res.on("close", () => controller.abort());
 
   const send = (event: AgentEvent) => {
     res.write(`data: ${JSON.stringify(event)}\n\n`);
   };
+
+  const heartbeat = setInterval(() => {
+    if (!res.writableEnded) res.write(': ping\n\n');
+  }, 1000);
 
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -217,12 +221,11 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
       const response = await anthropic.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
-        system: `당신은 도서관 도서 검색 에이전트입니다. 반드시 아래 순서로 도구를 호출하세요.
-1. list_libraries — 사용 가능한 도서관 목록 확인
-2. search_books — title과 libraryName을 사용자 발화에서 그대로 추출해 전달
-   title: 사용자가 말한 책 제목 그대로 (예: "채식주의자" → "채식주의자")
-   libraryName: 사용자가 말한 도서관 이름 그대로 (예: "판교" → "판교")
-절대 임의의 책 제목으로 바꾸지 마세요.`,
+        system: `당신은 도서관 도서 검색 에이전트입니다.
+사용자가 책 제목과 도서관 이름을 말하면 즉시 search_books 도구를 호출하세요.
+- title: 사용자가 말한 책 제목 그대로 (절대 바꾸지 마세요)
+- libraryName: 사용자가 말한 도서관 이름 그대로 (예: "판교", "강남")
+list_libraries는 사용자가 도서관 이름을 모를 때만 사용하세요.`,
         tools: AGENT_TOOLS,
         tool_choice: firstIteration ? { type: "any" as const } : { type: "auto" as const },
         messages,
@@ -272,6 +275,8 @@ app.post("/api/agent-stream", async (req: Request, res: Response) => {
   } catch (e) {
     console.error("[agent-stream] error:", e);
     send({ type: "response", data: `오류: ${e instanceof Error ? e.message : "알 수 없는 오류"}` });
+  } finally {
+    clearInterval(heartbeat);
   }
 
   res.end();
