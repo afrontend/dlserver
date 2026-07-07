@@ -45,9 +45,10 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 
 ## Environment Variables
 
+- `ANTHROPIC_API_KEY`: Required for the `/api/agent-stream` endpoint. Set in your deployment environment (e.g. Render environment variables). Never exposed to the client.
 - `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`
 
-Copy `.env.example` to `.env` or set the variable in your deployment environment before building.
+Copy `.env.example` to `.env` or set variables in your deployment environment before building.
 
 **Development with hot reload:**
 
@@ -155,6 +156,34 @@ curl "http://localhost:3000/search?title=javascript&libraryName=판교"
 - **Frontend (src/):** React 19 application built with Vite, featuring search bar, library selector, and book list components
 - **Data Source:** Uses the `dongnelibrary` npm package for library API integration
 - **Styling:** Tailwind CSS framework for modern, responsive UI
+
+## Agent Stream — AgentSandbox Live Mode
+
+```
+POST /api/agent-stream
+Content-Type: application/json
+{ "query": "판교 도서관에서 채식주의자 있어?" }
+```
+
+Server-Sent Events response — streams agent events as Claude Haiku processes the query:
+
+```
+data: {"type":"core_agent",  "data":{"intent":"Knowledge","confidence":0.95}}
+data: {"type":"domain_agent","data":{"name":"도서관 검색 Agent (dlserver)"}}
+data: {"type":"tool_call",   "data":{"name":"search_books","input":{"title":"채식주의자","libraryName":"판교"}}}
+data: {"type":"tool_result", "data":{"toolName":"search_books","output":"[...]"}}
+data: {"type":"response",    "data":"판교도서관에 채식주의자가 있으며 현재 대출 가능합니다."}
+```
+
+**Implementation notes:**
+- Uses `res.on("close")` (not `req`) to detect client disconnect and abort in-flight requests
+- Sends `: ping` heartbeat every 1 s to keep the SSE connection alive during Anthropic API latency
+- `tool_choice: { type: "any" }` on the first Anthropic call forces tool use; `"auto"` on subsequent iterations
+- `ANTHROPIC_API_KEY` is read from `process.env` — never sent to the browser
+
+This endpoint powers the **Live mode** in [AgentSandbox](https://agent-sandbox-tm5k.onrender.com).
+
+---
 
 ## MCP Server Support
 
