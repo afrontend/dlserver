@@ -15,6 +15,7 @@ A Korean library book availability checker that provides both a web interface an
 - 🔎 Incremental library search filter
 - 📜 Search history with localStorage persistence
 - ⚛️ React 19 frontend with Vite
+- 🛑 Cancel-safe requests — client disconnect aborts in-flight scraping via `res.on("close")`
 
 ## Technology Stack
 
