@@ -240,7 +240,7 @@ Claude에서 원격 MCP 서버를 연결하여 사용할 수 있다.
 
 Claude 설정 > 커넥터 > 커스텀 커넥터 추가 > 원격 MCP 서버 URL 입력
 
-## Portfolio — FE + AI Engineer
+## Portfolio — DX / Frontend Platform Engineer
 
 이 프로젝트는 아래 두 사이드 프로젝트와 하나의 포트폴리오 서사를 구성합니다.
 
