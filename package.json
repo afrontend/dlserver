@@ -49,6 +49,23 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
+  "overrides": {
+    "vite": {
+      "postcss": "^8.5.18"
+    },
+    "express": {
+      "body-parser": "^1.20.6"
+    },
+    "@modelcontextprotocol/sdk": {
+      "@hono/node-server": "^2.0.5",
+      "ajv": {
+        "fast-uri": "^3.1.4"
+      },
+      "express": {
+        "body-parser": "^2.3.0"
+      }
+    }
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
