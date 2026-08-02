@@ -8,3 +8,5 @@ CLAUDE.md
 .playwright-cli
 .playwright-mcp
 .claude
+.codegraph
+.codegraphignore
