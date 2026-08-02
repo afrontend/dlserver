@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import * as dl from "dongnelibrary";
-import type { LibraryResult, Book } from "dongnelibrary";
+import type { SearchResult, Book } from "dongnelibrary";
 
 // Create MCP server
 const server = new Server(
@@ -84,18 +84,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       // Wrap callback-based dl.search in a Promise
-      const books = await new Promise<LibraryResult[]>((resolve, reject) => {
+      const books = await new Promise<SearchResult[]>((resolve, reject) => {
         dl.search(
           {
             title: title,
             libraryName: libraryName,
           },
-          null,
+          undefined,
           (err, books) => {
             if (err) {
               reject(new Error(err.msg || "Search failed"));
             } else {
-              resolve(books);
+              resolve(books ?? []);
             }
           },
         );
@@ -109,7 +109,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       result += ":\n\n";
 
       if (books && books.length > 0) {
-        books.forEach((libraryResult: LibraryResult) => {
+        books.forEach((libraryResult: SearchResult) => {
           if (libraryResult.booklist && libraryResult.booklist.length > 0) {
             result += `Library: ${libraryResult.libraryName}\n`;
             libraryResult.booklist.forEach((book: Book) => {

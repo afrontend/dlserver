@@ -9,7 +9,7 @@ import {
 import express, { Request, Response } from "express";
 import { randomUUID } from "crypto";
 import * as dl from "dongnelibrary";
-import type { LibraryResult, Book } from "dongnelibrary";
+import type { SearchResult, Book } from "dongnelibrary";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -104,18 +104,18 @@ function setupServerHandlers(server: Server): void {
         }
 
         // Wrap callback-based dl.search in a Promise
-        const books = await new Promise<LibraryResult[]>((resolve, reject) => {
+        const books = await new Promise<SearchResult[]>((resolve, reject) => {
           dl.search(
             {
               title: title,
               libraryName: libraryName,
             },
-            null,
+            undefined,
             (err, books) => {
               if (err) {
                 reject(new Error(err.msg || "Search failed"));
               } else {
-                resolve(books);
+                resolve(books ?? []);
               }
             },
           );
@@ -129,7 +129,7 @@ function setupServerHandlers(server: Server): void {
         result += ":\n\n";
 
         if (books && books.length > 0) {
-          books.forEach((libraryResult: LibraryResult) => {
+          books.forEach((libraryResult: SearchResult) => {
             if (libraryResult.booklist && libraryResult.booklist.length > 0) {
               result += `Library: ${libraryResult.libraryName}\n`;
               libraryResult.booklist.forEach((book: Book) => {

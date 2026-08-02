@@ -78,7 +78,7 @@ describe("Server API", () => {
       const dl = await import("dongnelibrary");
       vi.mocked(dl.search).mockImplementationOnce(
         (_options, _unknown, callback) => {
-          callback(null, []);
+          callback?.(null, []);
         }
       );
 
