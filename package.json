@@ -1,6 +1,7 @@
 {
   "name": "dlserver",
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "description": "Web API for dongnelibrary",
   "scripts": {
