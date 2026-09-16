@@ -44,7 +44,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "dongnelibrary": "^0.3.16",
+    "dongnelibrary": "^0.3.29",
     "express": "^4.15.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
