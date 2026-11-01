@@ -89,6 +89,28 @@ describe("Server API", () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual([]);
     });
+
+    it("keeps the error of a library that could not be searched", async () => {
+      const dl = await import("dongnelibrary");
+      const failed = {
+        libraryName: "판교도서관",
+        totalBookCount: 0,
+        booklist: [],
+        error: { msg: "Connect Timeout Error", libraryName: "판교도서관" },
+      };
+      vi.mocked(dl.search).mockImplementationOnce(
+        (_options, _unknown, callback) => {
+          callback?.(null, [failed]);
+        }
+      );
+
+      const res = await request(app).get(
+        "/search?title=테스트&libraryName=판교"
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual([failed]);
+    });
   });
 
   describe("GET /:title/:libraryName", () => {

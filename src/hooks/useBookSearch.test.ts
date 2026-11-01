@@ -86,6 +86,26 @@ describe("useBookSearch", () => {
       });
 
       expect(result.current.aggregatedBooks).toEqual([]);
+      expect(result.current.failedLibraries).toEqual([]);
+    });
+
+    it("도서관 사이트에 접속하지 못하면 실패한 도서관으로 알린다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockResolvedValue([
+        { booklist: [], error: { msg: "Connect Timeout Error" } },
+      ]);
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", "여주시립도서관", mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.aggregatedBooks).toEqual([]);
+      expect(result.current.failedLibraries).toEqual(["여주시립도서관"]);
     });
 
     it("빈 제목으로 검색하면 아무 동작도 하지 않는다", () => {
@@ -174,6 +194,29 @@ describe("useBookSearch", () => {
 
       // 3개 중 1개 실패 → 2개 성공 결과
       expect(result.current.aggregatedBooks).toHaveLength(2);
+    });
+
+    it("error 가 담긴 결과는 실패한 도서관으로 모은다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockImplementation(({ libraryName }) =>
+        Promise.resolve(
+          libraryName === "강남도서관"
+            ? [{ booklist: [], error: { msg: "Connect Timeout Error" } }]
+            : makeSearchResult(libraryName, ["해리포터"]),
+        ),
+      );
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", DEFAULT_LIBRARY, mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.aggregatedBooks).toHaveLength(2);
+      expect(result.current.failedLibraries).toEqual(["강남도서관"]);
     });
 
     it("동시 요청 수가 제한된다 (MAX_CONCURRENT_SEARCHES)", async () => {
