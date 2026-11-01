@@ -29,6 +29,24 @@ describe("BookList", () => {
     );
   });
 
+  it("lists libraries that could not be searched", () => {
+    render(
+      <BookList {...defaultProps} failedLibraries={["판교도서관", "동탄도서관"]} />,
+    );
+
+    expect(screen.getByTestId("failed-libraries")).toHaveTextContent(
+      "판교도서관, 동탄도서관",
+    );
+  });
+
+  it("hides the failed-library notice while loading", () => {
+    render(
+      <BookList {...defaultProps} isLoading={true} failedLibraries={["판교도서관"]} />,
+    );
+
+    expect(screen.queryByTestId("failed-libraries")).toBeNull();
+  });
+
   it("renders book items when books are provided", () => {
     const books: Book[] = [
       { title: "책 1", exist: true, libraryName: "판교" },

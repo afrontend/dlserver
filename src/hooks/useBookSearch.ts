@@ -19,6 +19,8 @@ export const useBookSearch = () => {
     new Map(),
   );
 
+  const [failedLibrary, setFailedLibrary] = useState<string | null>(null);
+
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -49,6 +51,13 @@ export const useBookSearch = () => {
     };
   }, [librarySearchStates, isSearchingAll]);
 
+  const failedLibraries: string[] = useMemo(() => {
+    if (!isSearchingAll) return failedLibrary ? [failedLibrary] : [];
+    return Array.from(librarySearchStates.values())
+      .filter((s) => s.status === "error")
+      .map((s) => s.libraryName);
+  }, [librarySearchStates, isSearchingAll, failedLibrary]);
+
   const aggregatedBooks: Book[] = useMemo(() => {
     if (!isSearchingAll) return books;
     return sortByTitle(getDoneBooks(librarySearchStates));
@@ -57,12 +66,16 @@ export const useBookSearch = () => {
   const updateBookList = useCallback(
     (title: string, libName: string, signal?: AbortSignal): Promise<Book[]> =>
       LibraryAPI.getLibrary({ title, libraryName: libName, signal })
-        .then((list) => list?.[0]?.booklist ?? [])
+        .then((list) => {
+          const result = list?.[0];
+          if (result?.error) throw new Error(result.error.msg);
+          return result?.booklist ?? [];
+        })
         .catch((error) => {
           if (error.name !== "AbortError") {
-            console.error("Search failed:", error);
+            console.error("Search failed:", libName, error);
           }
-          return [];
+          throw error;
         }),
     [],
   );
@@ -80,6 +93,7 @@ export const useBookSearch = () => {
     setIsLoading(false);
     setIsSearchingAll(false);
     setLibrarySearchStates(new Map());
+    setFailedLibrary(null);
   }, [isSearchingAll, librarySearchStates]);
 
   const performSearch = useCallback(
@@ -95,6 +109,7 @@ export const useBookSearch = () => {
       const { signal } = controller;
 
       setBooks([]);
+      setFailedLibrary(null);
       setIsLoading(true);
 
       if (libName === DEFAULT_LIBRARY) {
@@ -183,7 +198,8 @@ export const useBookSearch = () => {
             setIsLoading(false);
           })
           .catch((error) => {
-            if (error.name !== "AbortError") {
+            if (error.name !== "AbortError" && !signal.aborted) {
+              setFailedLibrary(libName);
               setIsLoading(false);
             }
           });
@@ -196,12 +212,14 @@ export const useBookSearch = () => {
     setBooks([]);
     setIsSearchingAll(false);
     setLibrarySearchStates(new Map());
+    setFailedLibrary(null);
   }, []);
 
   return {
     isLoading,
     searchProgress,
     aggregatedBooks,
+    failedLibraries,
     performSearch,
     cancelSearch,
     clearResults,

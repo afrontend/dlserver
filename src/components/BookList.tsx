@@ -5,6 +5,8 @@ import { BookItem } from "./BookItem";
 interface BookListProps {
   books: Book[];
   totalBooks: number;
+  /** 사이트에 접속하지 못해 검색하지 못한 도서관 */
+  failedLibraries?: string[];
   isLoading: boolean;
   hideRented: boolean;
   onHideRentedChange: (value: boolean) => void;
@@ -13,6 +15,7 @@ interface BookListProps {
 export const BookList = ({
   books,
   totalBooks,
+  failedLibraries = [],
   isLoading,
   hideRented,
   onHideRentedChange,
@@ -156,6 +159,14 @@ export const BookList = ({
           </div>
         )}
       </div>
+      {failedLibraries.length > 0 && !isLoading && (
+        <div
+          className="px-4 py-2 bg-amber-50 border-b border-amber-200 text-base text-amber-800"
+          data-testid="failed-libraries"
+        >
+          도서관 사이트에 접속하지 못해 검색하지 못했어요: {failedLibraries.join(", ")}
+        </div>
+      )}
       {books.length === 0 && !isLoading ? (
         <div
           className="px-4 py-8 text-center text-gray-500"

@@ -12,6 +12,8 @@ export interface Library {
 
 export interface LibrarySearchResult {
   booklist: Book[];
+  /** 도서관 사이트에 접속하지 못했거나 응답을 읽지 못하면 채워진다 (booklist 는 빈 배열) */
+  error?: { msg: string };
 }
 
 export type LibrarySearchParams = {

@@ -144,6 +144,14 @@ function setupServerHandlers(server: Server): void {
           result += "No books found.\n";
         }
 
+        const failed = (books ?? []).filter((r: SearchResult) => r.error);
+        if (failed.length > 0) {
+          result += "Could not search (library site unreachable):\n";
+          failed.forEach((r: SearchResult) => {
+            result += `  ${r.libraryName}: ${r.error?.msg}\n`;
+          });
+        }
+
         return {
           content: [
             {
