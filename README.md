@@ -47,7 +47,8 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 ## Environment Variables
 
 - `ANTHROPIC_API_KEY`: Required for the `/api/agent-stream` endpoint. Set in your deployment environment (e.g. Render environment variables). Never exposed to the client.
-- `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`
+- `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`. If unset, production builds use the project's default ID in `src/analytics.ts`. Development builds send nothing.
+  - Events: `page_view`, `search` (`search_scope`: `single`/`group`/`all`, `library_count`), `search_complete` (`library_count`, `failed_count`, `result_count`, `available_count`, `duration_ms`), `search_cancel` (`library_count`, `completed_count`, `duration_ms`)
 
 Copy `.env.example` to `.env` or set variables in your deployment environment before building.
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { trackSearch } from "../analytics";
+import { trackSearch, type SearchScope } from "../analytics";
+import { DEFAULT_LIBRARY } from "../constants";
 import { getUrlParams, updateUrl } from "../utils/url";
 import type { Library } from "../types";
 
@@ -57,12 +58,24 @@ export const useSearchManager = (params: {
     resetFilters();
     addToHistory(searchText);
     updateUrl(searchText, libraryName);
-    trackSearch(searchText, libraryName);
+    const scope: SearchScope =
+      libraryName !== DEFAULT_LIBRARY
+        ? "single"
+        : filteredLibraries.length === libraryNames.length
+          ? "all"
+          : "group";
+    trackSearch(
+      searchText,
+      libraryName,
+      scope,
+      scope === "single" ? 1 : filteredLibraries.length,
+    );
 
     performSearch(searchText, libraryName, filteredLibraries);
   }, [
     searchText,
     libraryName,
+    libraryNames,
     filteredLibraries,
     performSearch,
     resetFilters,

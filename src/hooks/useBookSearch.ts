@@ -3,8 +3,19 @@ import { LibraryAPI } from "../api/library";
 import { sortByTitle } from "../utils/sorting";
 import type { Book, Library, LibrarySearchState, SearchProgress } from "../types";
 import { DEFAULT_LIBRARY } from "../constants";
+import { trackSearchCancel, trackSearchComplete } from "../analytics";
 
 const MAX_CONCURRENT_SEARCHES = 3;
+
+// 측정용: 진행 중인 검색의 시작 시각과 완료된 도서관 수
+interface SearchRun {
+  startedAt: number;
+  libraryCount: number;
+  completedCount: number;
+}
+
+const countAvailable = (books: Book[]): number =>
+  books.filter((book) => book.exist).length;
 
 const getDoneBooks = (states: Map<string, LibrarySearchState>): Book[] =>
   Array.from(states.values())
@@ -22,6 +33,7 @@ export const useBookSearch = () => {
   const [failedLibrary, setFailedLibrary] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const searchRunRef = useRef<SearchRun | null>(null);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -81,6 +93,16 @@ export const useBookSearch = () => {
   );
 
   const cancelSearch = useCallback(() => {
+    const run = searchRunRef.current;
+    if (run) {
+      trackSearchCancel({
+        libraryCount: run.libraryCount,
+        completedCount: run.completedCount,
+        durationMs: Date.now() - run.startedAt,
+      });
+      searchRunRef.current = null;
+    }
+
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -112,6 +134,24 @@ export const useBookSearch = () => {
       setFailedLibrary(null);
       setIsLoading(true);
 
+      const run: SearchRun = {
+        startedAt: Date.now(),
+        libraryCount: libName === DEFAULT_LIBRARY ? libraries.length : 1,
+        completedCount: 0,
+      };
+      searchRunRef.current = run;
+      const finishRun = (failedCount: number, books: Book[]) => {
+        if (searchRunRef.current !== run) return;
+        searchRunRef.current = null;
+        trackSearchComplete({
+          libraryCount: run.libraryCount,
+          failedCount,
+          resultCount: books.length,
+          availableCount: countAvailable(books),
+          durationMs: Date.now() - run.startedAt,
+        });
+      };
+
       if (libName === DEFAULT_LIBRARY) {
         setIsSearchingAll(true);
 
@@ -126,6 +166,8 @@ export const useBookSearch = () => {
         setLibrarySearchStates(initialStates);
 
         let completedCount = 0;
+        let failedCount = 0;
+        const foundBooks: Book[] = [];
         const totalCount = libraries.length;
         const queue = [...libraries];
         let activeCount = 0;
@@ -150,6 +192,7 @@ export const useBookSearch = () => {
             updateBookList(title, library.name, signal)
               .then((bookList) => {
                 if (signal.aborted) return;
+                foundBooks.push(...bookList);
 
                 setLibrarySearchStates((prev) => {
                   const next = new Map(prev);
@@ -163,6 +206,7 @@ export const useBookSearch = () => {
               })
               .catch(() => {
                 if (signal.aborted) return;
+                failedCount++;
 
                 setLibrarySearchStates((prev) => {
                   const next = new Map(prev);
@@ -177,7 +221,9 @@ export const useBookSearch = () => {
               .finally(() => {
                 activeCount--;
                 completedCount++;
+                run.completedCount = completedCount;
                 if (completedCount === totalCount) {
+                  finishRun(failedCount, foundBooks);
                   setIsLoading(false);
                 } else {
                   processNext();
@@ -194,11 +240,15 @@ export const useBookSearch = () => {
         updateBookList(title, libName, signal)
           .then((bookList) => {
             if (signal.aborted) return;
+            run.completedCount = 1;
+            finishRun(0, bookList);
             setBooks(sortByTitle(bookList));
             setIsLoading(false);
           })
           .catch((error) => {
             if (error.name !== "AbortError" && !signal.aborted) {
+              run.completedCount = 1;
+              finishRun(1, []);
               setFailedLibrary(libName);
               setIsLoading(false);
             }

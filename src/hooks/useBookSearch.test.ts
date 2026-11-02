@@ -11,6 +11,13 @@ vi.mock("../api/library", () => ({
   },
 }));
 
+vi.mock("../analytics", () => ({
+  trackSearchComplete: vi.fn(),
+  trackSearchCancel: vi.fn(),
+}));
+
+import { trackSearchCancel, trackSearchComplete } from "../analytics";
+
 const mockLibraries: Library[] = [
   { id: 0, name: "여주시립도서관" },
   { id: 1, name: "강남도서관" },
@@ -321,6 +328,103 @@ describe("useBookSearch", () => {
       });
 
       expect(result.current.aggregatedBooks).toEqual([]);
+    });
+  });
+
+  describe("검색 측정", () => {
+    it("전체 검색이 끝나면 도서관·실패·결과 수를 보낸다", async () => {
+      let callCount = 0;
+      vi.mocked(LibraryAPI.getLibrary).mockImplementation(() => {
+        callCount++;
+        if (callCount === 2) {
+          return Promise.reject(new Error("네트워크 오류"));
+        }
+        return Promise.resolve([
+          {
+            booklist: [
+              { title: "해리포터 1", exist: true },
+              { title: "해리포터 2", exist: false },
+            ],
+          },
+        ]);
+      });
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", DEFAULT_LIBRARY, mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(trackSearchComplete).toHaveBeenCalledTimes(1);
+      expect(trackSearchComplete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          libraryCount: 3,
+          failedCount: 1,
+          resultCount: 4,
+          availableCount: 2,
+        }),
+      );
+    });
+
+    it("도서관 하나 검색이 실패해도 완료로 보낸다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockRejectedValue(new Error("네트워크 오류"));
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", "강남도서관", mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(trackSearchComplete).toHaveBeenCalledWith(
+        expect.objectContaining({ libraryCount: 1, failedCount: 1, resultCount: 0 }),
+      );
+    });
+
+    it("취소하면 search_cancel 만 보내고 완료는 보내지 않는다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve([{ booklist: [] }]), 50)),
+      );
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", DEFAULT_LIBRARY, mockLibraries);
+      });
+      act(() => {
+        result.current.cancelSearch();
+      });
+
+      expect(trackSearchCancel).toHaveBeenCalledWith(
+        expect.objectContaining({ libraryCount: 3, completedCount: 0 }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(trackSearchComplete).not.toHaveBeenCalled();
+    });
+
+    it("새 검색이 이전 검색을 대신하면 이전 검색은 완료로 보내지 않는다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockResolvedValue([{ booklist: [] }]);
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("첫번째", "강남도서관", mockLibraries);
+        result.current.performSearch("두번째", "서울도서관", mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(trackSearchComplete).toHaveBeenCalledTimes(1);
     });
   });
 });
