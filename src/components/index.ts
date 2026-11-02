@@ -3,3 +3,4 @@ export { BookList } from "./BookList";
 export { StepIndicator } from "./StepIndicator";
 export { StepWizard } from "./StepWizard";
 export { Header } from "./Header";
+export { MyLibraryChips } from "./MyLibraryChips";

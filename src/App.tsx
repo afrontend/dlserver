@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import { trackPageView } from "./analytics";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { trackMyLibrarySelect, trackPageView } from "./analytics";
 import { BookList } from "./components/BookList";
 import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
@@ -7,6 +7,7 @@ import { SearchProgressBar } from "./components/SearchProgress";
 import { LibraryTagFilter } from "./components/LibraryTagFilter";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import { useSearchHistory } from "./hooks/useSearchHistory";
+import { useMyLibraries } from "./hooks/useMyLibraries";
 import { useBookSearch } from "./hooks/useBookSearch";
 import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
@@ -16,6 +17,7 @@ import { DEFAULT_LIBRARY } from "./constants";
 const App = () => {
   const pageViewTrackedRef = useRef(false);
   const { history, addToHistory, clearHistory } = useSearchHistory();
+  const { myLibraries, addMyLibrary, removeMyLibrary } = useMyLibraries();
 
   const {
     isLoading,
@@ -57,12 +59,29 @@ const App = () => {
     clearResults,
     resetFilters,
     addToHistory,
+    addToMyLibraries: addMyLibrary,
   });
 
   const handleModuleChange = useCallback(
     (moduleName: string) => {
       setSelectedModule(moduleName);
       setLibraryName(DEFAULT_LIBRARY);
+    },
+    [setSelectedModule, setLibraryName],
+  );
+
+  // 서버 목록에서 빠진 도서관은 골라도 검색되지 않으므로 숨긴다
+  const availableMyLibraries = useMemo(
+    () => myLibraries.filter((name) => libraryNames.some((lib) => lib.name === name)),
+    [myLibraries, libraryNames],
+  );
+
+  // 모듈·이름 필터가 걸려 있으면 도서관 목록에서 고른 도서관이 빠질 수 있어 함께 푼다
+  const handleMyLibrarySelect = useCallback(
+    (name: string) => {
+      setSelectedModule("");
+      setLibraryName(name);
+      trackMyLibrarySelect();
     },
     [setSelectedModule, setLibraryName],
   );
@@ -90,6 +109,9 @@ const App = () => {
             filteredLibraries={filteredLibraries}
             selectedLibrary={libraryName}
             onLibraryChange={setLibraryName}
+            myLibraries={availableMyLibraries}
+            onMyLibrarySelect={handleMyLibrarySelect}
+            onMyLibraryRemove={removeMyLibrary}
             filterText={filterText}
             onFilterChange={setFilterText}
             modules={modules}

@@ -11,6 +11,8 @@ export const useSearchManager = (params: {
   clearResults: () => void;
   resetFilters: () => void;
   addToHistory: (query: string) => void;
+  /** 도서관 하나를 골라 검색했을 때 그 도서관을 "내 도서관"에 남긴다 */
+  addToMyLibraries?: (libraryName: string) => void;
 }) => {
   const {
     libraryNames,
@@ -19,6 +21,7 @@ export const useSearchManager = (params: {
     clearResults,
     resetFilters,
     addToHistory,
+    addToMyLibraries,
   } = params;
 
   const initialParams = getUrlParams();
@@ -64,6 +67,9 @@ export const useSearchManager = (params: {
         : filteredLibraries.length === libraryNames.length
           ? "all"
           : "group";
+    if (scope === "single") {
+      addToMyLibraries?.(libraryName);
+    }
     trackSearch(
       searchText,
       libraryName,
@@ -80,6 +86,7 @@ export const useSearchManager = (params: {
     performSearch,
     resetFilters,
     addToHistory,
+    addToMyLibraries,
   ]);
 
   return {

@@ -121,3 +121,12 @@ export const trackSearchCancel = (params: SearchCancelParams) => {
     duration_ms: params.durationMs,
   });
 };
+
+/** "내 도서관" 칩으로 도서관을 골랐을 때 */
+export const trackMyLibrarySelect = () => {
+  if (!canTrack() || !window.gtag) {
+    return;
+  }
+
+  window.gtag("event", "my_library_select");
+};
