@@ -28,8 +28,10 @@ export const initAnalytics = () => {
   }
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = (...args: unknown[]) => {
-    window.dataLayer.push(args);
+  // gtag.js 는 dataLayer 에 들어온 arguments 객체만 명령으로 처리한다.
+  // 나머지 매개변수(...args)로 만든 배열을 넣으면 config·event 가 무시되어 아무것도 전송되지 않는다.
+  window.gtag = function gtag() {
+    window.dataLayer.push(arguments);
   };
 
   window.gtag("js", new Date());

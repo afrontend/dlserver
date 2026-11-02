@@ -1,5 +1,31 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { trackSearch, trackSearchCancel, trackSearchComplete } from "./analytics";
+import { initAnalytics, trackSearch, trackSearchCancel, trackSearchComplete } from "./analytics";
+
+describe("initAnalytics", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    delete window.gtag;
+    window.dataLayer = [];
+    document.getElementById("google-analytics-gtag")?.remove();
+  });
+
+  it("dataLayer 에 배열이 아닌 arguments 객체로 명령을 넣는다", () => {
+    vi.stubEnv("PROD", true);
+
+    initAnalytics();
+
+    expect(window.dataLayer).toHaveLength(2);
+    for (const command of window.dataLayer) {
+      expect(Array.isArray(command)).toBe(false);
+      expect(Object.prototype.toString.call(command)).toBe("[object Arguments]");
+    }
+    expect(Array.from(window.dataLayer[1] as IArguments)).toEqual([
+      "config",
+      "G-9WDTNJDBR7",
+      { send_page_view: false },
+    ]);
+  });
+});
 
 describe("analytics", () => {
   const gtag = vi.fn();
