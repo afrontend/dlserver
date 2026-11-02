@@ -14,8 +14,8 @@ declare global {
   }
 }
 
-// index.html 에 하드코딩돼 있던 측정 ID. VITE_GA_ID 가 없는 빌드도 같은 속성으로 보낸다.
-const DEFAULT_GA_ID = "G-BWZ82JJGE8";
+// dongne.onrender.com 웹 스트림의 측정 ID. VITE_GA_ID 가 없는 빌드도 이 ID 로 보낸다.
+const DEFAULT_GA_ID = "G-9WDTNJDBR7";
 const GA_ID = import.meta.env.VITE_GA_ID || DEFAULT_GA_ID;
 const GA_SCRIPT_ID = "google-analytics-gtag";
 
