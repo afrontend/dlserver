@@ -10,7 +10,12 @@ vi.mock("../utils/url", () => ({
   updateUrl: vi.fn(),
 }));
 
+vi.mock("../analytics", () => ({
+  trackSearch: vi.fn(),
+}));
+
 import { getUrlParams, updateUrl } from "../utils/url";
+import { trackSearch } from "../analytics";
 
 const mockLibraries: Library[] = [
   { id: 0, name: "여주시립도서관" },
@@ -258,6 +263,37 @@ describe("useSearchManager", () => {
       });
 
       expect(params.clearResults).toHaveBeenCalled();
+    });
+  });
+
+  describe("검색 측정 (trackSearch)", () => {
+    const search = (params: SearchManagerParams, libraryName?: string) => {
+      const { result } = renderHook(() => useSearchManager(params));
+      act(() => {
+        result.current.setSearchText("해리포터");
+        if (libraryName) result.current.setLibraryName(libraryName);
+      });
+      act(() => {
+        result.current.handleSearch();
+      });
+    };
+
+    it("도서관을 고르지 않고 필터도 없으면 all 로 보낸다", () => {
+      search(createMockParams());
+
+      expect(trackSearch).toHaveBeenCalledWith("해리포터", DEFAULT_LIBRARY, "all", 4);
+    });
+
+    it("필터로 좁힌 전체 검색은 group 으로 보낸다", () => {
+      search(createMockParams({ filteredLibraries: filteredYeoju }));
+
+      expect(trackSearch).toHaveBeenCalledWith("해리포터", DEFAULT_LIBRARY, "group", 2);
+    });
+
+    it("도서관을 고르면 single 로 보낸다", () => {
+      search(createMockParams({ filteredLibraries: filteredYeoju }), "강남도서관");
+
+      expect(trackSearch).toHaveBeenCalledWith("해리포터", "강남도서관", "single", 1);
     });
   });
 });
