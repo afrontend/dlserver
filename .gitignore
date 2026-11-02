@@ -10,3 +10,6 @@ CLAUDE.md
 .claude
 .codegraph
 .codegraphignore
+
+# 루트의 스크린샷(브라우저 자동화 결과 등). 앱 이미지는 public/ 에 둔다
+/*.png
