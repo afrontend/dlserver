@@ -111,6 +111,35 @@ describe("useSearchManager", () => {
   });
 
   describe("handleSearch", () => {
+    it("도서관 하나를 골라 검색하면 내 도서관에 남긴다", () => {
+      const params = createMockParams({ addToMyLibraries: vi.fn() });
+      const { result } = renderHook(() => useSearchManager(params));
+
+      act(() => {
+        result.current.setSearchText("어린왕자");
+        result.current.setLibraryName("여주시립도서관");
+      });
+      act(() => {
+        result.current.handleSearch();
+      });
+
+      expect(params.addToMyLibraries).toHaveBeenCalledWith("여주시립도서관");
+    });
+
+    it("여러 도서관을 검색하면 내 도서관에 남기지 않는다", () => {
+      const params = createMockParams({ addToMyLibraries: vi.fn() });
+      const { result } = renderHook(() => useSearchManager(params));
+
+      act(() => {
+        result.current.setSearchText("어린왕자");
+      });
+      act(() => {
+        result.current.handleSearch();
+      });
+
+      expect(params.addToMyLibraries).not.toHaveBeenCalled();
+    });
+
     it("검색 시 URL 업데이트, 히스토리 추가, 검색 수행을 한다", () => {
       const params = createMockParams();
       const { result } = renderHook(() => useSearchManager(params));

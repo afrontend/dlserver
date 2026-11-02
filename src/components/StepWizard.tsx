@@ -1,6 +1,7 @@
 import type { KeyboardEvent, ChangeEvent } from "react";
 import { StepIndicator } from "./StepIndicator";
 import { SearchHistoryDropdown } from "./SearchHistoryDropdown";
+import { MyLibraryChips } from "./MyLibraryChips";
 import { useStepWizard } from "../hooks/useStepWizard";
 import { useState, useRef, useEffect } from "react";
 import type { Library, ModuleInfo } from "../types";
@@ -21,6 +22,9 @@ interface StepWizardProps {
   filteredLibraries: Library[];
   selectedLibrary: string;
   onLibraryChange: (name: string) => void;
+  myLibraries?: string[];
+  onMyLibrarySelect?: (name: string) => void;
+  onMyLibraryRemove?: (name: string) => void;
   filterText: string;
   onFilterChange: (text: string) => void;
   modules: ModuleInfo[];
@@ -40,6 +44,9 @@ export const StepWizard = ({
   filteredLibraries,
   selectedLibrary,
   onLibraryChange,
+  myLibraries = [],
+  onMyLibrarySelect,
+  onMyLibraryRemove,
   filterText,
   onFilterChange,
   modules,
@@ -102,6 +109,11 @@ export const StepWizard = ({
   const handleHistoryClear = () => {
     setIsHistoryOpen(false);
     onHistoryClear?.();
+  };
+
+  const handleMyLibrarySelect = (name: string) => {
+    onMyLibrarySelect?.(name);
+    completeStep(2);
   };
 
   const librarySummary = (() => {
@@ -221,6 +233,15 @@ export const StepWizard = ({
               도서관을 선택하세요. (선택하지 않으면 전체 검색)
             </p>
             <div className="space-y-3">
+              {onMyLibrarySelect && (
+                <MyLibraryChips
+                  libraries={myLibraries}
+                  selectedLibrary={selectedLibrary}
+                  onSelect={handleMyLibrarySelect}
+                  onRemove={(name) => onMyLibraryRemove?.(name)}
+                  disabled={isLoading}
+                />
+              )}
               {modules.length > 0 && (
                 <div className="relative">
                   <select

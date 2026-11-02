@@ -142,3 +142,42 @@ describe("StepWizard", () => {
     expect(screen.queryByTestId("step-1-summary")).not.toBeInTheDocument();
   });
 });
+
+describe("StepWizard 내 도서관", () => {
+  const goToStep2 = (props: Partial<typeof defaultProps> & Record<string, unknown>) => {
+    render(<StepWizard {...defaultProps} searchText="해리포터" {...props} />);
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+  };
+
+  it("저장된 도서관이 없으면 안내 문구를 보여 준다", () => {
+    goToStep2({ myLibraries: [], onMyLibrarySelect: vi.fn(), onMyLibraryRemove: vi.fn() });
+    expect(screen.getByTestId("my-libraries-hint")).toBeInTheDocument();
+  });
+
+  it("칩을 누르면 도서관을 고르고 검색 단계로 넘어간다", async () => {
+    const onMyLibrarySelect = vi.fn();
+    goToStep2({ myLibraries: ["판교도서관"], onMyLibrarySelect, onMyLibraryRemove: vi.fn() });
+
+    await userEvent.click(screen.getByTestId("my-library-chip"));
+
+    expect(onMyLibrarySelect).toHaveBeenCalledWith("판교도서관");
+    expect(screen.getByTestId("step-2-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("step-3-content")).toBeInTheDocument();
+  });
+
+  it("× 를 누르면 그 도서관을 뺀다", async () => {
+    const onMyLibraryRemove = vi.fn();
+    goToStep2({ myLibraries: ["판교도서관"], onMyLibrarySelect: vi.fn(), onMyLibraryRemove });
+
+    await userEvent.click(screen.getByTestId("my-library-remove"));
+
+    expect(onMyLibraryRemove).toHaveBeenCalledWith("판교도서관");
+    expect(screen.getByTestId("step-2-content")).toBeInTheDocument();
+  });
+
+  it("onMyLibrarySelect 가 없으면 내 도서관 영역을 그리지 않는다", () => {
+    goToStep2({});
+    expect(screen.queryByTestId("my-libraries")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("my-libraries-hint")).not.toBeInTheDocument();
+  });
+});
