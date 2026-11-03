@@ -15,6 +15,7 @@ A Korean library book availability checker that provides both a web interface an
 - 🔎 Incremental library search filter
 - 📜 Search history with localStorage persistence
 - ⭐ "My libraries": libraries searched one at a time are remembered (up to 5) and shown as one-tap chips
+- 🗺️ Region filter: pick 시·도 → 시·군·구 to narrow the library list (mapping in `src/data/libraryRegions.json`)
 - ⚛️ React 19 frontend with Vite
 - 🛑 Cancel-safe requests — client disconnect aborts in-flight scraping via `res.on("close")`
 
@@ -50,6 +51,15 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 - `ANTHROPIC_API_KEY`: Required for the `/api/agent-stream` endpoint. Set in your deployment environment (e.g. Render environment variables). Never exposed to the client.
 - `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`. If unset, production builds use the project's default ID in `src/analytics.ts`. Development builds send nothing.
   - Events: `page_view`, `search` (`search_scope`: `single`/`group`/`all`, `library_count`), `search_complete` (`library_count`, `failed_count`, `result_count`, `available_count`, `duration_ms`), `search_cancel` (`library_count`, `completed_count`, `duration_ms`), `my_library_select`
+
+## Library Regions
+
+`src/data/libraryRegions.json` maps each library name to 시·도/시·군·구. It is generated from `/moduleList` and the public "전국도서관표준데이터" CSV (cp949). Regenerate and commit it whenever library modules change:
+
+    curl -s http://localhost:3000/moduleList > /tmp/modules.json
+    python3 scripts/build-library-regions.py /tmp/modules.json <national_library_standard.csv>
+
+Libraries that cannot be placed in a 시·군·구 (multi-region 교육청 modules) are listed under `""` and appear only when the whole 시·도 is selected.
 
 Copy `.env.example` to `.env` or set variables in your deployment environment before building.
 

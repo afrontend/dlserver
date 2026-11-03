@@ -5,6 +5,7 @@ import { MyLibraryChips } from "./MyLibraryChips";
 import { useStepWizard } from "../hooks/useStepWizard";
 import { useState, useRef, useEffect } from "react";
 import type { Library, ModuleInfo } from "../types";
+import type { RegionInfo } from "../utils/regions";
 import { DEFAULT_LIBRARY } from "../constants";
 
 const STEPS = [
@@ -30,6 +31,11 @@ interface StepWizardProps {
   modules: ModuleInfo[];
   selectedModule: string;
   onModuleChange: (name: string) => void;
+  regions?: RegionInfo[];
+  selectedSido?: string;
+  selectedSigungu?: string;
+  /** 시군구가 비어 있으면 시도 전체 */
+  onRegionChange?: (sido: string, sigungu: string) => void;
   onSearch: () => void;
   onCancel: () => void;
   isLoading: boolean;
@@ -52,6 +58,10 @@ export const StepWizard = ({
   modules,
   selectedModule,
   onModuleChange,
+  regions = [],
+  selectedSido = "",
+  selectedSigungu = "",
+  onRegionChange,
   onSearch,
   onCancel,
   isLoading,
@@ -119,6 +129,7 @@ export const StepWizard = ({
   const librarySummary = (() => {
     const parts = [];
     if (selectedModule) parts.push(selectedModule);
+    if (selectedSido) parts.push([selectedSido, selectedSigungu].filter(Boolean).join(" "));
     if (selectedLibrary === DEFAULT_LIBRARY) {
       if (filterText?.trim() && filteredLibraries.length > 0) {
         parts.push(filteredLibraries.map((lib) => lib.name).join(", "));
@@ -241,6 +252,46 @@ export const StepWizard = ({
                   onRemove={(name) => onMyLibraryRemove?.(name)}
                   disabled={isLoading}
                 />
+              )}
+              {onRegionChange && regions.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="region-selects">
+                  <select
+                    data-testid="sido-select"
+                    aria-label="시·도"
+                    disabled={isLoading}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none pr-10"
+                    value={selectedSido}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      onRegionChange(e.target.value, "")
+                    }
+                  >
+                    <option value="">시·도 선택</option>
+                    {regions.map((region) => (
+                      <option key={region.sido} value={region.sido}>
+                        {region.sido}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    data-testid="sigungu-select"
+                    aria-label="시·군·구"
+                    disabled={isLoading || !selectedSido}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] appearance-none pr-10 disabled:text-gray-300"
+                    value={selectedSigungu}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                      onRegionChange(selectedSido, e.target.value)
+                    }
+                  >
+                    <option value="">{selectedSido ? "시·군·구 전체" : "시·군·구 선택"}</option>
+                    {regions
+                      .find((region) => region.sido === selectedSido)
+                      ?.sigungus.map((sigungu) => (
+                        <option key={sigungu} value={sigungu}>
+                          {sigungu}
+                        </option>
+                      ))}
+                  </select>
+                </div>
               )}
               {modules.length > 0 && (
                 <div className="relative">

@@ -3,6 +3,13 @@ import { renderHook, act } from "@testing-library/react";
 import { useLibraries } from "./useLibraries";
 import { LibraryAPI } from "../api/library";
 
+vi.mock("../data/libraryRegions.json", () => ({
+  default: {
+    경기도: { 여주시: ["여주시립도서관", "여주어린이도서관"] },
+    서울특별시: { 강남구: ["강남도서관"], 중구: ["서울도서관"] },
+  },
+}));
+
 vi.mock("../api/library", () => ({
   LibraryAPI: {
     getLibraryNames: vi.fn(),
@@ -140,6 +147,51 @@ describe("useLibraries", () => {
       });
 
       expect(result.current.filterText).toBe("");
+    });
+  });
+
+  describe("지역 선택", () => {
+    it("시도를 고르면 그 시도의 도서관만 남긴다", async () => {
+      const result = await setupHook();
+
+      act(() => {
+        result.current.setSelectedRegion("서울특별시");
+      });
+
+      expect(result.current.baseLibraries.map((l) => l.name).sort()).toEqual(["강남도서관", "서울도서관"]);
+    });
+
+    it("시군구까지 고르면 그 시군구의 도서관만 남긴다", async () => {
+      const result = await setupHook();
+
+      act(() => {
+        result.current.setSelectedRegion("서울특별시", "강남구");
+      });
+
+      expect(result.current.baseLibraries.map((l) => l.name)).toEqual(["강남도서관"]);
+    });
+
+    it("지역과 모듈은 하나만 고른 상태로 둔다", async () => {
+      const result = await setupHook();
+
+      act(() => {
+        result.current.setSelectedModule("여주");
+        result.current.setFilterText("시립");
+      });
+      act(() => {
+        result.current.setSelectedRegion("서울특별시", "중구");
+      });
+
+      expect(result.current.selectedModule).toBe("");
+      expect(result.current.filterText).toBe("");
+      expect(result.current.baseLibraries.map((l) => l.name)).toEqual(["서울도서관"]);
+
+      act(() => {
+        result.current.setSelectedModule("여주");
+      });
+
+      expect(result.current.selectedSido).toBe("");
+      expect(result.current.selectedSigungu).toBe("");
     });
   });
 });
