@@ -15,7 +15,7 @@ A Korean library book availability checker that provides both a web interface an
 - 🔎 Incremental library search filter
 - 📜 Search history with localStorage persistence
 - ⭐ "My libraries": libraries searched one at a time are remembered (up to 5) and shown as one-tap chips
-- 🗺️ Region filter: pick 시·도 → 시·군·구 to narrow the library list (mapping in `src/data/libraryRegions.json`)
+- 🗺️ Region filter: pick 시·도 → 시·군·구 to narrow the library list and the module list (mapping in `src/data/libraryRegions.json`)
 - ⚛️ React 19 frontend with Vite
 - 🛑 Cancel-safe requests — client disconnect aborts in-flight scraping via `res.on("close")`
 
@@ -54,7 +54,7 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 
 ## Library Regions
 
-`src/data/libraryRegions.json` maps each library name to 시·도/시·군·구. It is generated from `/moduleList` and the public "전국도서관표준데이터" CSV (cp949). Regenerate and commit it whenever library modules change:
+`src/data/libraryRegions.json` maps each library to 시·도 → 시·군·구 → module (kept per module because the same library name exists in several modules). It is generated from `/moduleList` and the public "전국도서관표준데이터" CSV (cp949). Regenerate and commit it whenever library modules change:
 
     curl -s http://localhost:3000/moduleList > /tmp/modules.json
     python3 scripts/build-library-regions.py /tmp/modules.json <national_library_standard.csv>

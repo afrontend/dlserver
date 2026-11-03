@@ -222,6 +222,21 @@ describe("StepWizard 지역 선택", () => {
     expect(screen.getByTestId("step-2-summary")).toHaveTextContent("경기도 성남시 > 전체 도서관");
   });
 
+  it("요약에 지역 다음 모듈을 보여 준다", async () => {
+    goToStep2({
+      regions,
+      selectedSido: "서울특별시",
+      selectedSigungu: "마포구",
+      modules: [{ name: "마포구립도서관", libraries: ["판교"] }],
+      selectedModule: "마포구립도서관",
+      onRegionChange: vi.fn(),
+    });
+
+    await userEvent.click(screen.getByTestId("step-2-next"));
+
+    expect(screen.getByTestId("step-2-summary")).toHaveTextContent("서울특별시 마포구 > 마포구립도서관 > 전체 도서관");
+  });
+
   it("onRegionChange 가 없으면 지역 선택을 그리지 않는다", () => {
     goToStep2({ regions });
     expect(screen.queryByTestId("region-selects")).not.toBeInTheDocument();

@@ -128,8 +128,8 @@ export const StepWizard = ({
 
   const librarySummary = (() => {
     const parts = [];
-    if (selectedModule) parts.push(selectedModule);
     if (selectedSido) parts.push([selectedSido, selectedSigungu].filter(Boolean).join(" "));
+    if (selectedModule) parts.push(selectedModule);
     if (selectedLibrary === DEFAULT_LIBRARY) {
       if (filterText?.trim() && filteredLibraries.length > 0) {
         parts.push(filteredLibraries.map((lib) => lib.name).join(", "));
