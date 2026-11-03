@@ -21,6 +21,8 @@
     "mcp-server-SSE.ts",
     "mcp-server-STDIO.ts",
     "librarySearch.ts",
+    "mcpAnalytics.ts",
+    "mcpAnalytics.test.ts",
     "types"
   ]
 }

@@ -9,7 +9,10 @@ import {
 import express, { Request, Response } from "express";
 import { randomUUID } from "crypto";
 import type { Book } from "dongnelibrary";
+import { createMcpAnalytics } from "./mcpAnalytics";
 import { libraryListByModule, resultLabel, searchBooks, type LibrarySearchResult } from "./librarySearch";
+
+const analytics = createMcpAnalytics();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,11 +88,16 @@ function setupServerHandlers(server: Server): void {
   });
 
   // Handle tool calls
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
     const { name, arguments: args } = request.params;
+    // 어떤 MCP 클라이언트(Claude 등)에서 부르는지
+    const mcpClient = server.getClientVersion()?.name;
+    const track = (event: string, params: Record<string, string | number | undefined> = {}) =>
+      analytics.track(extra.sessionId, event, { mcp_client: mcpClient, ...params });
 
     try {
       if (name === "list_libraries") {
+        track("list_libraries");
         const libs = libraryListByModule();
         return {
           content: [
@@ -108,7 +116,17 @@ function setupServerHandlers(server: Server): void {
           throw new Error("Title is required");
         }
 
+        const startedAt = Date.now();
+        track("search", { search_term: title, library_name: libraryName, module });
         const books = await searchBooks(title, libraryName, undefined, module);
+        const found = books.flatMap((r: LibrarySearchResult) => r.booklist ?? []);
+        track("search_complete", {
+          library_count: books.length,
+          failed_count: books.filter((r: LibrarySearchResult) => r.error).length,
+          result_count: found.length,
+          available_count: found.filter((book: Book) => book.exist).length,
+          duration_ms: Date.now() - startedAt,
+        });
 
         // Format results
         let result = `Search results for "${title}"`;
