@@ -1,77 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import * as dl from "dongnelibrary";
-import type { SearchResult, Book } from "dongnelibrary";
-import * as ansan from "dongnelibrary/dist/localLibraryModule/ansan";
-import * as anyang from "dongnelibrary/dist/localLibraryModule/anyang";
-import * as asan from "dongnelibrary/dist/localLibraryModule/asan";
-import * as bcl from "dongnelibrary/dist/localLibraryModule/bcl";
-import * as bppl from "dongnelibrary/dist/localLibraryModule/bppl";
-import * as cbelib from "dongnelibrary/dist/localLibraryModule/cbelib";
-import * as changwon from "dongnelibrary/dist/localLibraryModule/changwon";
-import * as cheonan from "dongnelibrary/dist/localLibraryModule/cheonan";
-import * as cheongju from "dongnelibrary/dist/localLibraryModule/cheongju";
-import * as daegu from "dongnelibrary/dist/localLibraryModule/daegu";
-import * as djdonggu from "dongnelibrary/dist/localLibraryModule/djdonggu";
-import * as gangnam from "dongnelibrary/dist/localLibraryModule/gangnam";
-import * as gangseo from "dongnelibrary/dist/localLibraryModule/gangseo";
-import * as gbelib from "dongnelibrary/dist/localLibraryModule/gbelib";
-import * as geoje from "dongnelibrary/dist/localLibraryModule/geoje";
-import * as geumcheon from "dongnelibrary/dist/localLibraryModule/geumcheon";
-import * as gg from "dongnelibrary/dist/localLibraryModule/gg";
-import * as gimhae from "dongnelibrary/dist/localLibraryModule/gimhae";
-import * as gjcity from "dongnelibrary/dist/localLibraryModule/gjcity";
-import * as goyanglib from "dongnelibrary/dist/localLibraryModule/goyanglib";
-import * as gunpo from "dongnelibrary/dist/localLibraryModule/gunpo";
-import * as gunsan from "dongnelibrary/dist/localLibraryModule/gunsan";
-import * as guro from "dongnelibrary/dist/localLibraryModule/guro";
-import * as gwanak from "dongnelibrary/dist/localLibraryModule/gwanak";
-import * as gwangjinsmall from "dongnelibrary/dist/localLibraryModule/gwangjinsmall";
-import * as gwe from "dongnelibrary/dist/localLibraryModule/gwe";
-import * as hanamlib from "dongnelibrary/dist/localLibraryModule/hanamlib";
-import * as hscity from "dongnelibrary/dist/localLibraryModule/hscity";
-import * as ice from "dongnelibrary/dist/localLibraryModule/ice";
-import * as jbe from "dongnelibrary/dist/localLibraryModule/jbe";
-import * as jeju from "dongnelibrary/dist/localLibraryModule/jeju";
-import * as jeonju from "dongnelibrary/dist/localLibraryModule/jeonju";
-import * as jongno from "dongnelibrary/dist/localLibraryModule/jongno";
-import * as junggulib from "dongnelibrary/dist/localLibraryModule/junggulib";
-import * as mapo from "dongnelibrary/dist/localLibraryModule/mapo";
-import * as michu from "dongnelibrary/dist/localLibraryModule/michu";
-import * as mokpolib from "dongnelibrary/dist/localLibraryModule/mokpolib";
-import * as namwon from "dongnelibrary/dist/localLibraryModule/namwon";
-import * as nowon from "dongnelibrary/dist/localLibraryModule/nowon";
-import * as nyj from "dongnelibrary/dist/localLibraryModule/nyj";
-import * as osan from "dongnelibrary/dist/localLibraryModule/osan";
-import * as paju from "dongnelibrary/dist/localLibraryModule/paju";
-import * as pen from "dongnelibrary/dist/localLibraryModule/pen";
-import * as pohang from "dongnelibrary/dist/localLibraryModule/pohang";
-import * as ptlib from "dongnelibrary/dist/localLibraryModule/ptlib";
-import * as saha from "dongnelibrary/dist/localLibraryModule/saha";
-import * as sblib from "dongnelibrary/dist/localLibraryModule/sblib";
-import * as sdm from "dongnelibrary/dist/localLibraryModule/sdm";
-import * as sejong from "dongnelibrary/dist/localLibraryModule/sejong";
-import * as siheung from "dongnelibrary/dist/localLibraryModule/siheung";
-import * as snlib from "dongnelibrary/dist/localLibraryModule/snlib";
-import * as splib from "dongnelibrary/dist/localLibraryModule/splib";
-import * as suwon from "dongnelibrary/dist/localLibraryModule/suwon";
-import * as uilib from "dongnelibrary/dist/localLibraryModule/uilib";
-import * as ulju from "dongnelibrary/dist/localLibraryModule/ulju";
-import * as ulsanjunggu from "dongnelibrary/dist/localLibraryModule/ulsanjunggu";
-import * as uwlib from "dongnelibrary/dist/localLibraryModule/uwlib";
-import * as wanju from "dongnelibrary/dist/localLibraryModule/wanju";
-import * as wonju from "dongnelibrary/dist/localLibraryModule/wonju";
-import * as yangcheon from "dongnelibrary/dist/localLibraryModule/yangcheon";
-import * as ydplib from "dongnelibrary/dist/localLibraryModule/ydplib";
-import * as yeonsu from "dongnelibrary/dist/localLibraryModule/yeonsu";
-import * as yjlib from "dongnelibrary/dist/localLibraryModule/yjlib";
-import * as yongin from "dongnelibrary/dist/localLibraryModule/yongin";
-import * as yongsan from "dongnelibrary/dist/localLibraryModule/yongsan";
-import * as yplib from "dongnelibrary/dist/localLibraryModule/yplib";
-import * as yslib from "dongnelibrary/dist/localLibraryModule/yslib";
-import * as yuseong from "dongnelibrary/dist/localLibraryModule/yuseong";
+import type { Book } from "dongnelibrary";
+import { LIBRARY_MODULES, libraryListByModule, searchBooks } from "./librarySearch";
 
-const LIBRARY_MODULES = [ansan, anyang, asan, bcl, bppl, cbelib, changwon, cheonan, cheongju, daegu, djdonggu, gangnam, gangseo, gbelib, geoje, geumcheon, gg, gimhae, gjcity, goyanglib, gunpo, gunsan, guro, gwanak, gwangjinsmall, gwe, hanamlib, hscity, ice, jbe, jeju, jeonju, jongno, junggulib, mapo, michu, mokpolib, namwon, nowon, nyj, osan, paju, pen, pohang, ptlib, saha, sblib, sdm, sejong, siheung, snlib, splib, suwon, uilib, ulju, ulsanjunggu, uwlib, wanju, wonju, yangcheon, ydplib, yeonsu, yjlib, yongin, yongsan, yplib, yslib, yuseong];
 
 const app = express();
 
@@ -83,67 +15,6 @@ interface SearchParams {
   libraryName: string;
   module: string;
 }
-
-const searchBooks = (
-  title: string,
-  libraryName: string,
-  signal?: AbortSignal,
-): Promise<SearchResult[]> => {
-  return new Promise((resolve, reject) => {
-    dl.search({ title, libraryName, signal }, undefined, (err, books) => {
-      if (err) {
-        console.error(err);
-        reject(err);
-      } else {
-        resolve(books ?? []);
-      }
-    });
-  });
-};
-
-const findLibraryModule = (moduleName: string, libraryName: string) =>
-  LIBRARY_MODULES.find(
-    (mod) => mod.moduleName === moduleName && mod.getLibraryNames().includes(libraryName),
-  );
-
-/**
- * 모듈을 알면 그 모듈의 search 를 바로 부른다.
- * dongnelibrary 는 이름만으로 도서관을 찾아서(부분 일치·첫 일치) 이름이 같은 도서관을 구분하지 못한다.
- * 결과 모양은 dongnelibrary 의 search 와 같다 (실패하면 error 와 빈 booklist).
- */
-const searchModuleLibrary = (
-  mod: (typeof LIBRARY_MODULES)[number],
-  title: string,
-  libraryName: string,
-  signal?: AbortSignal,
-): Promise<SearchResult[]> =>
-  new Promise((resolve) => {
-    mod.search({ title, libraryName, signal }, (err, data) => {
-      if (signal?.aborted) {
-        resolve([]);
-        return;
-      }
-      if (err || !data?.booklist) {
-        const error = err ? { ...err, libraryName } : { msg: "invalid Data response", libraryName };
-        console.error(error);
-        resolve([{ title, libraryName, homeUrl: mod.homeUrl, totalBookCount: 0, booklist: [], error }]);
-        return;
-      }
-      const booklist = data.booklist
-        .map(({ libraryName, title, exist, bookUrl }: Book) => ({ libraryName, title, exist, bookUrl }))
-        .sort((a: Book, b: Book) => (a.exist === b.exist ? 0 : a.exist ? -1 : 1));
-      resolve([
-        {
-          title,
-          libraryName,
-          homeUrl: mod.homeUrl,
-          totalBookCount: data.totalBookCount,
-          startPage: data.startPage,
-          booklist,
-        },
-      ]);
-    });
-  });
 
 const extractSearchParams = (
   params: Record<string, unknown>,
@@ -166,12 +37,9 @@ app.get("/search", async (req: Request, res: Response) => {
   });
 
   const { title, libraryName, module } = extractSearchParams(req.query);
-  const mod = module ? findLibraryModule(module, libraryName) : undefined;
 
   try {
-    const books = mod
-      ? await searchModuleLibrary(mod, title, libraryName, controller.signal)
-      : await searchBooks(title, libraryName, controller.signal);
+    const books = await searchBooks(title, libraryName, controller.signal, module);
 
     if (res.writableEnded) return;
     res.json(books);
@@ -220,7 +88,7 @@ interface AgentEvent { type: AgentEventType; data: unknown }
 const AGENT_TOOLS: Anthropic.Messages.Tool[] = [
   {
     name: "list_libraries",
-    description: "검색 가능한 전체 도서관 목록을 반환합니다.",
+    description: "검색 가능한 전체 도서관 목록을 \"모듈명: 도서관, …\" 형식으로 반환합니다.",
     input_schema: { type: "object" as const, properties: {}, required: [] },
   },
   {
@@ -231,6 +99,10 @@ const AGENT_TOOLS: Anthropic.Messages.Tool[] = [
       properties: {
         title: { type: "string", description: "검색할 도서 제목" },
         libraryName: { type: "string", description: "검색할 도서관 이름 (예: 판교)" },
+        module: {
+          type: "string",
+          description: "이름이 같은 도서관이 여러 모듈에 있을 때 하나만 고르는 모듈명 (예: 천안시도서관)",
+        },
       },
       required: ["title", "libraryName"],
     },
@@ -243,12 +115,12 @@ async function callAgentTool(
   signal: AbortSignal,
 ): Promise<string> {
   if (name === "list_libraries") {
-    return JSON.stringify(dl.getAllLibraryNames());
+    return libraryListByModule();
   }
   if (name === "search_books") {
-    const { title, libraryName } = input as { title: string; libraryName: string };
+    const { title, libraryName, module } = input as { title: string; libraryName: string; module?: string };
     try {
-      const books = await searchBooks(title, libraryName, signal);
+      const books = await searchBooks(title, libraryName, signal, module);
       return JSON.stringify(books).slice(0, 1200);
     } catch (e) {
       return `Error: ${e instanceof Error ? e.message : "search failed"}`;

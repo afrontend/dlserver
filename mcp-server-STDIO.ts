@@ -6,8 +6,8 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import * as dl from "dongnelibrary";
-import type { SearchResult, Book } from "dongnelibrary";
+import type { Book } from "dongnelibrary";
+import { libraryListByModule, resultLabel, searchBooks, type LibrarySearchResult } from "./librarySearch";
 
 // Create MCP server
 const server = new Server(
@@ -42,6 +42,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               description:
                 'Library name (e.g., "판교", "동탄", "성남"). Leave empty to search all libraries.',
             },
+            module: {
+              type: "string",
+              description:
+                'Module name (e.g., "천안시도서관") to pick one library when several modules have a library with the same name (e.g., "중앙도서관"). Without it, all of them are searched. See list_libraries.',
+            },
           },
           required: ["title"],
         },
@@ -49,7 +54,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "list_libraries",
         description:
-          "Get a list of all available Korean library names that can be searched. Use this to see which libraries are supported.",
+          "Get all searchable Korean libraries, one line per module as \"module: library, library, ...\". Use the module name with search_books when a library name appears in several modules.",
         inputSchema: {
           type: "object" as const,
           properties: {},
@@ -65,41 +70,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     if (name === "list_libraries") {
-      const libs = dl.getAllLibraryNames();
+      const libs = libraryListByModule();
       return {
         content: [
           {
             type: "text" as const,
-            text: `Available libraries:\n${libs.join("\n")}`,
+            text: `Available libraries:\n${libs}`,
           },
         ],
       };
     }
 
     if (name === "search_books") {
-      const { title, libraryName = "" } = args as { title?: string; libraryName?: string };
+      const { title, libraryName = "", module } = args as { title?: string; libraryName?: string; module?: string };
 
       if (!title) {
         throw new Error("Title is required");
       }
 
-      // Wrap callback-based dl.search in a Promise
-      const books = await new Promise<SearchResult[]>((resolve, reject) => {
-        dl.search(
-          {
-            title: title,
-            libraryName: libraryName,
-          },
-          undefined,
-          (err, books) => {
-            if (err) {
-              reject(new Error(err.msg || "Search failed"));
-            } else {
-              resolve(books ?? []);
-            }
-          },
-        );
-      });
+      const books = await searchBooks(title, libraryName, undefined, module);
 
       // Format results
       let result = `Search results for "${title}"`;
@@ -109,9 +98,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       result += ":\n\n";
 
       if (books && books.length > 0) {
-        books.forEach((libraryResult: SearchResult) => {
+        books.forEach((libraryResult: LibrarySearchResult) => {
           if (libraryResult.booklist && libraryResult.booklist.length > 0) {
-            result += `Library: ${libraryResult.libraryName}\n`;
+            result += `Library: ${resultLabel(libraryResult)}\n`;
             libraryResult.booklist.forEach((book: Book) => {
               const mark = book.exist ? "✓" : "✖";
               result += `  ${mark} ${book.title}\n`;
@@ -123,11 +112,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result += "No books found.\n";
       }
 
-      const failed = (books ?? []).filter((r: SearchResult) => r.error);
+      const failed = (books ?? []).filter((r: LibrarySearchResult) => r.error);
       if (failed.length > 0) {
         result += "Could not search (library site unreachable):\n";
-        failed.forEach((r: SearchResult) => {
-          result += `  ${r.libraryName}: ${r.error?.msg}\n`;
+        failed.forEach((r: LibrarySearchResult) => {
+          result += `  ${resultLabel(r)}: ${r.error?.msg}\n`;
         });
       }
 
