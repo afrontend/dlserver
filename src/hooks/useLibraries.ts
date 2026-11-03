@@ -4,26 +4,32 @@ import { sortByName } from "../utils/sorting";
 import { getRegionModules } from "../utils/regions";
 import type { Library, ModuleInfo } from "../types";
 
-const namesToLibraries = (names: string[]): Library[] =>
-  names.map((name, index) => ({ id: index, name }));
+/**
+ * 모듈 목록을 도서관 목록으로 편다. 여러 모듈에 같은 이름의 도서관이 있으면
+ * "중앙도서관 (안산시도서관)"처럼 모듈명을 붙여 구분한다.
+ */
+export const modulesToLibraries = (modules: ModuleInfo[]): Library[] => {
+  const counts = new Map<string, number>();
+  modules.forEach((m) => m.libraries.forEach((name) => counts.set(name, (counts.get(name) ?? 0) + 1)));
+  let id = 0;
+  return sortByName(
+    modules.flatMap((m) =>
+      m.libraries.map((name) => ({
+        id: id++,
+        name: (counts.get(name) ?? 0) > 1 ? `${name} (${m.name})` : name,
+        libraryName: name,
+        module: m.name,
+      })),
+    ),
+  );
+};
 
 export const useLibraries = () => {
-  const [libraryNames, setLibraryNames] = useState<Library[]>([]);
   const [filterText, setFilterText] = useState("");
   const [modules, setModules] = useState<ModuleInfo[]>([]);
   const [selectedModule, setSelectedModuleState] = useState("");
   const [selectedSido, setSelectedSido] = useState("");
   const [selectedSigungu, setSelectedSigungu] = useState("");
-
-  useEffect(() => {
-    LibraryAPI.getLibraryNames()
-      .then((list) => {
-        setLibraryNames(sortByName(namesToLibraries(list)));
-      })
-      .catch((error) => {
-        console.error("Failed to load library names:", error);
-      });
-  }, []);
 
   useEffect(() => {
     LibraryAPI.getModuleList()
@@ -32,6 +38,8 @@ export const useLibraries = () => {
         console.error("Failed to load module list:", error);
       });
   }, []);
+
+  const libraryNames = useMemo(() => modulesToLibraries(modules), [modules]);
 
   const setSelectedModule = useCallback((moduleName: string) => {
     setSelectedModuleState(moduleName);
@@ -64,20 +72,13 @@ export const useLibraries = () => {
 
   // 모듈과 지역을 함께 고르면 그 모듈에서 그 지역에 있는 도서관만 남긴다
   const baseLibraries = useMemo(() => {
-    const mod = selectedModule ? modules.find((m) => m.name === selectedModule) : undefined;
-    if (regionModules) {
-      const names = new Set<string>();
-      regionModules.forEach((set, module) => {
-        if (!mod || module === mod.name) set.forEach((name) => names.add(name));
-      });
-      const libraries = mod ? sortByName(namesToLibraries(mod.libraries)) : libraryNames;
-      return libraries.filter((lib) => names.has(lib.name));
-    }
-    if (mod) {
-      return sortByName(namesToLibraries(mod.libraries));
-    }
-    return libraryNames;
-  }, [libraryNames, selectedModule, modules, regionModules]);
+    if (!selectedModule && !regionModules) return libraryNames;
+    return libraryNames.filter(
+      (lib) =>
+        (!selectedModule || lib.module === selectedModule) &&
+        (!regionModules || regionModules.get(lib.module ?? "")?.has(lib.libraryName ?? lib.name)),
+    );
+  }, [libraryNames, selectedModule, regionModules]);
 
   // filterText는 도서관 드롭다운 목록에만 영향
   const filteredLibraries = useMemo(() => {

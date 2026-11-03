@@ -75,17 +75,24 @@ export const useBookSearch = () => {
     return sortByTitle(getDoneBooks(librarySearchStates));
   }, [librarySearchStates, isSearchingAll, books]);
 
+  // 모듈을 알면 서버가 그 모듈로 바로 검색한다. 책의 도서관 이름은 목록의 표시 이름으로 바꿔
+  // 이름이 같은 도서관의 결과가 섞이지 않게 한다.
   const updateBookList = useCallback(
-    (title: string, libName: string, signal?: AbortSignal): Promise<Book[]> =>
-      LibraryAPI.getLibrary({ title, libraryName: libName, signal })
+    (title: string, library: Library, signal?: AbortSignal): Promise<Book[]> =>
+      LibraryAPI.getLibrary({
+        title,
+        libraryName: library.libraryName ?? library.name,
+        module: library.module,
+        signal,
+      })
         .then((list) => {
           const result = list?.[0];
           if (result?.error) throw new Error(result.error.msg);
-          return result?.booklist ?? [];
+          return (result?.booklist ?? []).map((book) => ({ ...book, libraryName: library.name }));
         })
         .catch((error) => {
           if (error.name !== "AbortError") {
-            console.error("Search failed:", libName, error);
+            console.error("Search failed:", library.name, error);
           }
           throw error;
         }),
@@ -189,7 +196,7 @@ export const useBookSearch = () => {
               return next;
             });
 
-            updateBookList(title, library.name, signal)
+            updateBookList(title, library, signal)
               .then((bookList) => {
                 if (signal.aborted) return;
                 foundBooks.push(...bookList);
@@ -237,7 +244,9 @@ export const useBookSearch = () => {
         setIsSearchingAll(false);
         setLibrarySearchStates(new Map());
 
-        updateBookList(title, libName, signal)
+        // 목록에 없는 이름(예전 URL·내 도서관)은 모듈 없이 이름으로 검색한다
+        const library = libraries.find((lib) => lib.name === libName) ?? { id: -1, name: libName };
+        updateBookList(title, library, signal)
           .then((bookList) => {
             if (signal.aborted) return;
             run.completedCount = 1;

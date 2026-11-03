@@ -31,6 +31,13 @@ vi.mock("dongnelibrary", () => ({
   ),
 }));
 
+// 이름이 같은 도서관을 구분하는 모듈 직접 검색 경로용
+const cheonanSearch = vi.hoisted(() => vi.fn());
+vi.mock("dongnelibrary/dist/localLibraryModule/cheonan", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  search: cheonanSearch,
+}));
+
 describe("Server API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -110,6 +117,65 @@ describe("Server API", () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual([failed]);
+    });
+  });
+
+  describe("GET /search with module", () => {
+    it("모듈과 도서관 이름이 맞으면 그 모듈로 바로 검색한다", async () => {
+      const { search } = await import("dongnelibrary");
+      cheonanSearch.mockImplementation((_opt, callback) => {
+        callback(null, {
+          totalBookCount: 2,
+          startPage: 1,
+          booklist: [
+            { libraryName: "중앙도서관", title: "없는 책", exist: false, extra: 1 },
+            { libraryName: "중앙도서관", title: "있는 책", exist: true },
+          ],
+        });
+      });
+
+      const res = await request(app).get(
+        "/search?title=" + encodeURIComponent("책") +
+          "&libraryName=" + encodeURIComponent("중앙도서관") +
+          "&module=" + encodeURIComponent("천안시도서관"),
+      );
+
+      expect(res.status).toBe(200);
+      expect(search).not.toHaveBeenCalled();
+      expect(cheonanSearch).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "책", libraryName: "중앙도서관" }),
+        expect.any(Function),
+      );
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].libraryName).toBe("중앙도서관");
+      expect(res.body[0].booklist).toEqual([
+        { libraryName: "중앙도서관", title: "있는 책", exist: true },
+        { libraryName: "중앙도서관", title: "없는 책", exist: false },
+      ]);
+    });
+
+    it("모듈 검색이 실패하면 error 와 빈 booklist 를 돌려준다", async () => {
+      cheonanSearch.mockImplementation((_opt, callback) => callback({ msg: "접속 실패" }));
+
+      const res = await request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("중앙도서관") +
+          "&module=" + encodeURIComponent("천안시도서관"),
+      );
+
+      expect(res.body[0].booklist).toEqual([]);
+      expect(res.body[0].error.msg).toBe("접속 실패");
+    });
+
+    it("모듈에 없는 도서관이면 이름으로 검색한다", async () => {
+      const { search } = await import("dongnelibrary");
+
+      await request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("판교") +
+          "&module=" + encodeURIComponent("천안시도서관"),
+      );
+
+      expect(cheonanSearch).not.toHaveBeenCalled();
+      expect(search).toHaveBeenCalled();
     });
   });
 

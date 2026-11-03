@@ -81,6 +81,7 @@ app.use("/", express.static(import.meta.dirname + "/dist"));
 interface SearchParams {
   title: string;
   libraryName: string;
+  module: string;
 }
 
 const searchBooks = (
@@ -100,11 +101,56 @@ const searchBooks = (
   });
 };
 
+const findLibraryModule = (moduleName: string, libraryName: string) =>
+  LIBRARY_MODULES.find(
+    (mod) => mod.moduleName === moduleName && mod.getLibraryNames().includes(libraryName),
+  );
+
+/**
+ * 모듈을 알면 그 모듈의 search 를 바로 부른다.
+ * dongnelibrary 는 이름만으로 도서관을 찾아서(부분 일치·첫 일치) 이름이 같은 도서관을 구분하지 못한다.
+ * 결과 모양은 dongnelibrary 의 search 와 같다 (실패하면 error 와 빈 booklist).
+ */
+const searchModuleLibrary = (
+  mod: (typeof LIBRARY_MODULES)[number],
+  title: string,
+  libraryName: string,
+  signal?: AbortSignal,
+): Promise<SearchResult[]> =>
+  new Promise((resolve) => {
+    mod.search({ title, libraryName, signal }, (err, data) => {
+      if (signal?.aborted) {
+        resolve([]);
+        return;
+      }
+      if (err || !data?.booklist) {
+        const error = err ? { ...err, libraryName } : { msg: "invalid Data response", libraryName };
+        console.error(error);
+        resolve([{ title, libraryName, homeUrl: mod.homeUrl, totalBookCount: 0, booklist: [], error }]);
+        return;
+      }
+      const booklist = data.booklist
+        .map(({ libraryName, title, exist, bookUrl }: Book) => ({ libraryName, title, exist, bookUrl }))
+        .sort((a: Book, b: Book) => (a.exist === b.exist ? 0 : a.exist ? -1 : 1));
+      resolve([
+        {
+          title,
+          libraryName,
+          homeUrl: mod.homeUrl,
+          totalBookCount: data.totalBookCount,
+          startPage: data.startPage,
+          booklist,
+        },
+      ]);
+    });
+  });
+
 const extractSearchParams = (
   params: Record<string, unknown>,
 ): SearchParams => ({
   title: (params.title as string) || "",
   libraryName: (params.libraryName as string) || "",
+  module: (params.module as string) || "",
 });
 
 const makeBookDescription = (book: Book): string => {
@@ -119,10 +165,13 @@ app.get("/search", async (req: Request, res: Response) => {
     controller.abort();
   });
 
-  const { title, libraryName } = extractSearchParams(req.query);
+  const { title, libraryName, module } = extractSearchParams(req.query);
+  const mod = module ? findLibraryModule(module, libraryName) : undefined;
 
   try {
-    const books = await searchBooks(title, libraryName, controller.signal);
+    const books = mod
+      ? await searchModuleLibrary(mod, title, libraryName, controller.signal)
+      : await searchBooks(title, libraryName, controller.signal);
 
     if (res.writableEnded) return;
     res.json(books);
