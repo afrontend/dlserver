@@ -79,6 +79,29 @@ describe("useBookSearch", () => {
       );
     });
 
+    it("목록에 있는 도서관은 실제 이름과 모듈로 검색하고 책에는 표시 이름을 단다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockResolvedValue(makeSearchResult("중앙도서관", ["해리포터"]));
+      const libraries: Library[] = [
+        { id: 0, name: "중앙도서관 (안산시도서관)", libraryName: "중앙도서관", module: "안산시도서관" },
+        { id: 1, name: "중앙도서관 (천안시도서관)", libraryName: "중앙도서관", module: "천안시도서관" },
+      ];
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", "중앙도서관 (천안시도서관)", libraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(LibraryAPI.getLibrary).toHaveBeenCalledWith(
+        expect.objectContaining({ libraryName: "중앙도서관", module: "천안시도서관" }),
+      );
+      expect(result.current.aggregatedBooks[0].libraryName).toBe("중앙도서관 (천안시도서관)");
+    });
+
     it("검색 결과가 없으면 빈 배열을 반환한다", async () => {
       vi.mocked(LibraryAPI.getLibrary).mockResolvedValue([{ booklist: [] }]);
 

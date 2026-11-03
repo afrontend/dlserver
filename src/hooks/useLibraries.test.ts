@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useLibraries } from "./useLibraries";
+import { useLibraries, modulesToLibraries } from "./useLibraries";
 import { LibraryAPI } from "../api/library";
 
 vi.mock("../data/libraryRegions.json", () => ({
@@ -12,18 +12,9 @@ vi.mock("../data/libraryRegions.json", () => ({
 
 vi.mock("../api/library", () => ({
   LibraryAPI: {
-    getLibraryNames: vi.fn(),
     getModuleList: vi.fn(),
   },
 }));
-
-const mockLibraryNames = [
-  "여주시립도서관",
-  "여주어린이도서관",
-  "강남도서관",
-  "서울도서관",
-  "세종도서관",
-];
 
 const mockModules = [
   { name: "여주", libraries: ["여주시립도서관", "여주어린이도서관"] },
@@ -32,7 +23,6 @@ const mockModules = [
 
 describe("useLibraries", () => {
   beforeEach(() => {
-    vi.mocked(LibraryAPI.getLibraryNames).mockResolvedValue(mockLibraryNames);
     vi.mocked(LibraryAPI.getModuleList).mockResolvedValue(mockModules);
   });
 
@@ -215,6 +205,32 @@ describe("useLibraries", () => {
       });
       expect(result.current.selectedModule).toBe("");
       expect(result.current.baseLibraries.map((l) => l.name).sort()).toEqual(["여주시립도서관", "여주어린이도서관"]);
+    });
+  });
+
+  describe("이름이 같은 도서관", () => {
+    const modules = [
+      { name: "안산시도서관", libraries: ["중앙도서관", "감골도서관"] },
+      { name: "천안시도서관", libraries: ["중앙도서관"] },
+    ];
+
+    it("모듈명을 붙여 구분하고 실제 이름과 모듈을 담는다", () => {
+      expect(modulesToLibraries(modules).map(({ name, libraryName, module }) => ({ name, libraryName, module }))).toEqual([
+        { name: "감골도서관", libraryName: "감골도서관", module: "안산시도서관" },
+        { name: "중앙도서관 (안산시도서관)", libraryName: "중앙도서관", module: "안산시도서관" },
+        { name: "중앙도서관 (천안시도서관)", libraryName: "중앙도서관", module: "천안시도서관" },
+      ]);
+    });
+
+    it("모듈을 고르면 그 모듈의 같은 이름 도서관만 남긴다", async () => {
+      vi.mocked(LibraryAPI.getModuleList).mockResolvedValue(modules);
+      const result = await setupHook();
+
+      act(() => {
+        result.current.setSelectedModule("천안시도서관");
+      });
+
+      expect(result.current.baseLibraries.map((l) => l.name)).toEqual(["중앙도서관 (천안시도서관)"]);
     });
   });
 });

@@ -7,7 +7,12 @@ export interface Book {
 
 export interface Library {
   id: number;
+  /** 화면에 보이는 이름이자 식별자. 이름이 같은 도서관이 있으면 "이름 (모듈명)" */
   name: string;
+  /** 도서관 사이트에서 쓰는 실제 이름. 없으면 name 과 같다 */
+  libraryName?: string;
+  /** 이 도서관을 검색하는 dongnelibrary 모듈 */
+  module?: string;
 }
 
 export interface LibrarySearchResult {
@@ -19,6 +24,7 @@ export interface LibrarySearchResult {
 export type LibrarySearchParams = {
   title: string;
   libraryName: string;
+  module?: string;
   signal?: AbortSignal;
 };
 

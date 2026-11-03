@@ -3,13 +3,11 @@ import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/re
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 
-const mockGetLibraryNames = vi.fn();
 const mockGetLibrary = vi.fn();
 const mockGetModuleList = vi.fn();
 
 vi.mock("./api/library", () => ({
   LibraryAPI: {
-    getLibraryNames: () => mockGetLibraryNames(),
     getLibrary: (params: { title: string; libraryName: string }) =>
       mockGetLibrary(params),
     getModuleList: () => mockGetModuleList(),
@@ -46,10 +44,8 @@ describe("App - Cancel Search", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetLibrary.mockReset();
-    mockGetLibraryNames.mockReset();
     mockGetModuleList.mockReset();
-    mockGetLibraryNames.mockResolvedValue(libraries.map((l) => l.name));
-    mockGetModuleList.mockResolvedValue([]);
+    mockGetModuleList.mockResolvedValue([{ name: "경기", libraries: libraries.map((l) => l.name) }]);
   });
 
   afterEach(() => {
@@ -95,7 +91,7 @@ describe("App - Cancel Search", () => {
 
     // Wait for library list to load
     await waitFor(() => {
-      expect(mockGetLibraryNames).toHaveBeenCalled();
+      expect(mockGetModuleList).toHaveBeenCalled();
     });
 
     // Navigate through wizard and start search
@@ -136,7 +132,7 @@ describe("App - Cancel Search", () => {
 
     // Wait for library list to load
     await waitFor(() => {
-      expect(mockGetLibraryNames).toHaveBeenCalled();
+      expect(mockGetModuleList).toHaveBeenCalled();
     });
 
     // Navigate through wizard and start search
