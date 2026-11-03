@@ -181,3 +181,49 @@ describe("StepWizard 내 도서관", () => {
     expect(screen.queryByTestId("my-libraries-hint")).not.toBeInTheDocument();
   });
 });
+
+describe("StepWizard 지역 선택", () => {
+  const regions = [
+    { sido: "경기도", sigungus: ["성남시", "수원시"] },
+    { sido: "서울특별시", sigungus: ["마포구"] },
+  ];
+  const goToStep2 = (props: Partial<typeof defaultProps> & Record<string, unknown>) => {
+    render(<StepWizard {...defaultProps} searchText="해리포터" {...props} />);
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+  };
+
+  it("시도를 고르면 시군구 없이 알린다", async () => {
+    const onRegionChange = vi.fn();
+    goToStep2({ regions, onRegionChange });
+
+    expect(screen.getByTestId("sigungu-select")).toBeDisabled();
+    await userEvent.selectOptions(screen.getByTestId("sido-select"), "경기도");
+
+    expect(onRegionChange).toHaveBeenCalledWith("경기도", "");
+  });
+
+  it("고른 시도의 시군구를 보여 주고 고르면 함께 알린다", async () => {
+    const onRegionChange = vi.fn();
+    goToStep2({ regions, selectedSido: "경기도", onRegionChange });
+
+    const sigungu = screen.getByTestId("sigungu-select");
+    expect(sigungu).toBeEnabled();
+    expect(Array.from((sigungu as HTMLSelectElement).options).map((o) => o.value)).toEqual(["", "성남시", "수원시"]);
+    await userEvent.selectOptions(sigungu, "수원시");
+
+    expect(onRegionChange).toHaveBeenCalledWith("경기도", "수원시");
+  });
+
+  it("요약에 고른 지역을 보여 준다", async () => {
+    goToStep2({ regions, selectedSido: "경기도", selectedSigungu: "성남시", onRegionChange: vi.fn() });
+
+    await userEvent.click(screen.getByTestId("step-2-next"));
+
+    expect(screen.getByTestId("step-2-summary")).toHaveTextContent("경기도 성남시 > 전체 도서관");
+  });
+
+  it("onRegionChange 가 없으면 지역 선택을 그리지 않는다", () => {
+    goToStep2({ regions });
+    expect(screen.queryByTestId("region-selects")).not.toBeInTheDocument();
+  });
+});

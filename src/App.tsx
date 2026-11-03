@@ -13,6 +13,9 @@ import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
 import { useSearchManager } from "./hooks/useSearchManager";
 import { DEFAULT_LIBRARY } from "./constants";
+import { getRegionList } from "./utils/regions";
+
+const REGIONS = getRegionList();
 
 const App = () => {
   const pageViewTrackedRef = useRef(false);
@@ -36,6 +39,9 @@ const App = () => {
     modules,
     selectedModule,
     setSelectedModule,
+    selectedSido,
+    selectedSigungu,
+    setSelectedRegion,
   } = useLibraries();
   const {
     displayedBooks,
@@ -68,6 +74,14 @@ const App = () => {
       setLibraryName(DEFAULT_LIBRARY);
     },
     [setSelectedModule, setLibraryName],
+  );
+
+  const handleRegionChange = useCallback(
+    (sido: string, sigungu: string) => {
+      setSelectedRegion(sido, sigungu);
+      setLibraryName(DEFAULT_LIBRARY);
+    },
+    [setSelectedRegion, setLibraryName],
   );
 
   // 서버 목록에서 빠진 도서관은 골라도 검색되지 않으므로 숨긴다
@@ -117,6 +131,10 @@ const App = () => {
             modules={modules}
             selectedModule={selectedModule}
             onModuleChange={handleModuleChange}
+            regions={REGIONS}
+            selectedSido={selectedSido}
+            selectedSigungu={selectedSigungu}
+            onRegionChange={handleRegionChange}
             onSearch={handleSearch}
             onCancel={cancelSearch}
             isLoading={isLoading}
