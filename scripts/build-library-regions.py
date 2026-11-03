@@ -138,12 +138,16 @@ for m in mods:
         "missing": [l for l in libs if l not in found],
     }
 
-# 시도 → 시군구 → 도서관 이름. 시군구를 정하지 못한 도서관은 "" 아래에 둔다
-tree = defaultdict(lambda: defaultdict(set))
-for libs in result.values():
+# 시도 → 시군구 → 모듈 → 도서관 이름. 시군구를 정하지 못한 도서관은 "" 아래에 둔다.
+# 같은 이름의 도서관이 여러 모듈에 있어 모듈까지 남긴다 (마포·부평의 "해오름 작은도서관")
+tree = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+for module, libs in result.items():
     for lib, r in libs.items():
-        tree[r["sido"]][r["sigungu"] or ""].add(lib)
-regions = {sido: {sgg: sorted(names) for sgg, names in sorted(sggs.items())} for sido, sggs in sorted(tree.items())}
+        tree[r["sido"]][r["sigungu"] or ""][module].append(lib)
+regions = {
+    sido: {sgg: {module: sorted(names) for module, names in sorted(ms.items())} for sgg, ms in sorted(sggs.items())}
+    for sido, sggs in sorted(tree.items())
+}
 with open(out_path, "w") as f:
     json.dump(regions, f, ensure_ascii=False, indent=1)
     f.write("\n")

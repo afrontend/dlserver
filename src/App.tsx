@@ -36,7 +36,7 @@ const App = () => {
     filteredLibraries,
     filterText,
     setFilterText,
-    modules,
+    availableModules,
     selectedModule,
     setSelectedModule,
     selectedSido,
@@ -90,14 +90,15 @@ const App = () => {
     [myLibraries, libraryNames],
   );
 
-  // 모듈·이름 필터가 걸려 있으면 도서관 목록에서 고른 도서관이 빠질 수 있어 함께 푼다
+  // 지역·모듈·이름 필터가 걸려 있으면 도서관 목록에서 고른 도서관이 빠질 수 있어 함께 푼다
   const handleMyLibrarySelect = useCallback(
     (name: string) => {
+      setSelectedRegion("");
       setSelectedModule("");
       setLibraryName(name);
       trackMyLibrarySelect();
     },
-    [setSelectedModule, setLibraryName],
+    [setSelectedRegion, setSelectedModule, setLibraryName],
   );
 
   useEffect(() => {
@@ -128,7 +129,7 @@ const App = () => {
             onMyLibraryRemove={removeMyLibrary}
             filterText={filterText}
             onFilterChange={setFilterText}
-            modules={modules}
+            modules={availableModules}
             selectedModule={selectedModule}
             onModuleChange={handleModuleChange}
             regions={REGIONS}
