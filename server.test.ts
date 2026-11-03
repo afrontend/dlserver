@@ -38,6 +38,20 @@ vi.mock("dongnelibrary/dist/localLibraryModule/cheonan", async (importOriginal) 
   search: cheonanSearch,
 }));
 
+const ansanSearch = vi.hoisted(() => vi.fn());
+vi.mock("dongnelibrary/dist/localLibraryModule/ansan", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  search: ansanSearch,
+}));
+const gunpoSearch = vi.hoisted(() => vi.fn());
+vi.mock("dongnelibrary/dist/localLibraryModule/gunpo", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  search: gunpoSearch,
+}));
+
+const respondWith = (title: string) => (_opt: unknown, callback: (err: null, data: object) => void) =>
+  callback(null, { totalBookCount: 1, booklist: [{ title, exist: true }] });
+
 describe("Server API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -176,6 +190,40 @@ describe("Server API", () => {
 
       expect(cheonanSearch).not.toHaveBeenCalled();
       expect(search).toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /search without module", () => {
+    it("이름이 정확히 같은 도서관이 한 곳이면 그 모듈로 바로 검색한다", async () => {
+      const { search } = await import("dongnelibrary");
+      cheonanSearch.mockImplementation(respondWith("천안 책"));
+
+      const res = await request(app).get("/search?title=a&libraryName=" + encodeURIComponent("쌍용도서관"));
+
+      expect(search).not.toHaveBeenCalled();
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].moduleName).toBe("천안시도서관");
+    });
+
+    it("이름이 같은 도서관이 여러 모듈에 있으면 모두 검색한다", async () => {
+      ansanSearch.mockImplementation(respondWith("안산 책"));
+      gunpoSearch.mockImplementation(respondWith("군포 책"));
+
+      const res = await request(app).get("/search?title=a&libraryName=" + encodeURIComponent("부곡도서관"));
+
+      expect(res.body.map((r: { moduleName: string }) => r.moduleName)).toEqual(["안산시도서관", "군포시도서관"]);
+    });
+
+    it("module 을 주면 같은 이름 중 그 모듈만 검색한다", async () => {
+      gunpoSearch.mockImplementation(respondWith("군포 책"));
+
+      const res = await request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("부곡도서관") +
+          "&module=" + encodeURIComponent("군포시도서관"),
+      );
+
+      expect(ansanSearch).not.toHaveBeenCalled();
+      expect(res.body.map((r: { moduleName: string }) => r.moduleName)).toEqual(["군포시도서관"]);
     });
   });
 
