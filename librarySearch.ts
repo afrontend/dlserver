@@ -160,4 +160,7 @@ export const resultLabel = (result: LibrarySearchResult): string =>
 
 /** MCP·에이전트가 고를 수 있게 모듈별 도서관 목록 */
 export const libraryListByModule = (): string =>
-  LIBRARY_MODULES.map((mod) => `${mod.moduleName}: ${mod.getLibraryNames().join(", ")}`).join("\n");
+  [...LIBRARY_MODULES]
+    .sort((a, b) => a.moduleName.localeCompare(b.moduleName, "ko"))
+    .map((mod) => `${mod.moduleName}: ${mod.getLibraryNames().join(", ")}`)
+    .join("\n");

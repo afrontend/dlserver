@@ -14,7 +14,7 @@
     "mcpstdio": "tsx mcp-server-STDIO.ts",
     "pymcpstdio": "python mcp-server-STDIO.py",
     "pymcpsse": "python mcp-server-SSE.py",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run --config vitest.config.node.ts && vitest run --config vite.config.ts",
     "test:watch": "vitest",
