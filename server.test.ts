@@ -2,52 +2,52 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "./server";
 
-// Mock dongnelibrary module
-vi.mock("dongnelibrary", () => ({
-  search: vi.fn(
-    (
-      _options: { title: string; libraryName: string },
-      _unknown: unknown,
-      callback: (
-        err: Error | null,
-        result: Array<{ booklist: Array<{ title: string; exist: boolean }> }>
-      ) => void
-    ) => {
-      callback(null, [
-        {
-          booklist: [
-            { title: "테스트 책", exist: true },
-            { title: "다른 책", exist: false },
-          ],
-        },
-      ]);
-    }
-  ),
-  getLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
-  getAllLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
-  getAllModuleNames: vi.fn(() => ["성남시도서관", "수원시도서관"]),
-  isModuleName: vi.fn((name: string) =>
-    ["성남시도서관", "수원시도서관"].includes(name)
-  ),
-}));
-
 // 이름이 같은 도서관을 구분하는 모듈 직접 검색 경로용
 const cheonanSearch = vi.hoisted(() => vi.fn());
-vi.mock("dongnelibrary/dist/localLibraryModule/cheonan", async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  search: cheonanSearch,
-}));
-
 const ansanSearch = vi.hoisted(() => vi.fn());
-vi.mock("dongnelibrary/dist/localLibraryModule/ansan", async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  search: ansanSearch,
-}));
 const gunpoSearch = vi.hoisted(() => vi.fn());
-vi.mock("dongnelibrary/dist/localLibraryModule/gunpo", async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  search: gunpoSearch,
-}));
+
+// Mock dongnelibrary module
+vi.mock("dongnelibrary", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("dongnelibrary")>();
+  const stubs: Record<string, unknown> = {
+    천안시도서관: cheonanSearch,
+    안산시도서관: ansanSearch,
+    군포시도서관: gunpoSearch,
+  };
+  return {
+    search: vi.fn(
+      (
+        _options: { title: string; libraryName: string },
+        _unknown: unknown,
+        callback: (
+          err: Error | null,
+          result: Array<{ booklist: Array<{ title: string; exist: boolean }> }>
+        ) => void
+      ) => {
+        callback(null, [
+          {
+            booklist: [
+              { title: "테스트 책", exist: true },
+              { title: "다른 책", exist: false },
+            ],
+          },
+        ]);
+      }
+    ),
+    getLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
+    getAllLibraryNames: vi.fn(() => ["판교", "동탄", "성남"]),
+    getAllModuleNames: vi.fn(() => ["성남시도서관", "수원시도서관"]),
+    isModuleName: vi.fn((name: string) =>
+      ["성남시도서관", "수원시도서관"].includes(name)
+    ),
+    // 실제 모듈 목록을 쓰되, 몇 모듈은 search 만 바꾼다
+    getLibraryModules: () =>
+      actual
+        .getLibraryModules()
+        .map((mod) => (stubs[mod.moduleName] ? { ...mod, search: stubs[mod.moduleName] } : mod)),
+  };
+});
 
 const respondWith = (title: string) => (_opt: unknown, callback: (err: null, data: object) => void) =>
   callback(null, { totalBookCount: 1, booklist: [{ title, exist: true }] });
