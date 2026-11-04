@@ -30,7 +30,7 @@ jobs:
           node-version-file: package.json
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --engine-strict
 
       - name: 타입 체크
         run: npm run typecheck
