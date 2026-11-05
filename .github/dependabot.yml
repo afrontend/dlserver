@@ -5,8 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
-    # 새 버전은 기본 3일 기다린 뒤 올린다. dongnelibrary 는 직접 배포하는 패키지라 바로 받는다
+    # 새 버전은 3일 기다린 뒤 올린다. dongnelibrary 는 직접 배포하는 패키지라 바로 받는다
+    # cooldown 블록을 쓰면 default-days 를 빼먹었을 때 0일이 되므로 반드시 적는다
     cooldown:
+      default-days: 3
       exclude: ["dongnelibrary"]
     groups:
       # react 와 react-dom 은 버전이 정확히 같아야 한다 (따로 올리면 테스트가 실패한다)
