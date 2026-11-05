@@ -24,7 +24,7 @@
     "test:package": "tsx --test package.test.ts"
   },
   "engines": {
-    "node": "22.x"
+    "node": "^22.22.2"
   },
   "repository": {
     "type": "git",
