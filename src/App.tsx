@@ -27,6 +27,7 @@ const App = () => {
     searchProgress,
     aggregatedBooks,
     failedLibraries,
+    unreachableLibraries,
     performSearch,
     refreshSearch,
     cancelSearch,
@@ -152,6 +153,7 @@ const App = () => {
             books={displayedBooks}
             totalBooks={aggregatedBooks.length}
             failedLibraries={failedLibraries}
+            unreachableLibraries={unreachableLibraries}
             isLoading={isLoading}
             hideRented={hideRented}
             onHideRentedChange={setHideRented}

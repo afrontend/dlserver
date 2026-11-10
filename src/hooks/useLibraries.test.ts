@@ -222,6 +222,18 @@ describe("useLibraries", () => {
       ]);
     });
 
+    it("접속할 수 없는 모듈의 도서관에 표시를 단다", () => {
+      const libraries = modulesToLibraries([
+        { name: "안산시도서관", libraries: ["감골도서관"], unreachable: true },
+        { name: "천안시도서관", libraries: ["중앙도서관"] },
+      ]);
+
+      expect(libraries.map(({ name, unreachable }) => ({ name, unreachable }))).toEqual([
+        { name: "감골도서관", unreachable: true },
+        { name: "중앙도서관", unreachable: undefined },
+      ]);
+    });
+
     it("모듈을 고르면 그 모듈의 같은 이름 도서관만 남긴다", async () => {
       vi.mocked(LibraryAPI.getModuleList).mockResolvedValue(modules);
       const result = await setupHook();

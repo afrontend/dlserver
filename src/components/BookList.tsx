@@ -16,6 +16,8 @@ interface BookListProps {
   totalBooks: number;
   /** 사이트에 접속하지 못해 검색하지 못한 도서관 */
   failedLibraries?: string[];
+  /** 서버에서 사이트에 접속할 수 없어 검색하지 않은 도서관 */
+  unreachableLibraries?: string[];
   isLoading: boolean;
   hideRented: boolean;
   onHideRentedChange: (value: boolean) => void;
@@ -27,6 +29,7 @@ export const BookList = ({
   books,
   totalBooks,
   failedLibraries = [],
+  unreachableLibraries = [],
   isLoading,
   hideRented,
   onHideRentedChange,
@@ -178,6 +181,15 @@ export const BookList = ({
           data-testid="failed-libraries"
         >
           도서관 사이트에 접속하지 못해 검색하지 못했어요: {failedLibraries.join(", ")}
+        </div>
+      )}
+      {unreachableLibraries.length > 0 && !isLoading && (
+        <div
+          className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-base text-gray-600"
+          data-testid="unreachable-libraries"
+        >
+          현재 이 서버에서 접속할 수 없는 도서관이라 검색하지 않았어요. 도서관 사이트에서 직접 확인해 주세요:{" "}
+          {unreachableLibraries.join(", ")}
         </div>
       )}
       {checkedMinutesAgo > 0 && (

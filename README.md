@@ -49,6 +49,7 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 ## Environment Variables
 
 - `ANTHROPIC_API_KEY`: Required for the `/api/agent-stream` endpoint. Set in your deployment environment (e.g. Render environment variables). Never exposed to the client.
+- `UNREACHABLE_MODULES`: Optional comma-separated module names the server cannot reach (e.g. `화성시립도서관` blocks overseas IPs). Searches for their libraries answer "unreachable" at once instead of waiting for a timeout, and `/moduleList` marks them with `unreachable: true`. Modules that fail to connect twice in a row are also marked automatically for 10 minutes.
 - `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`. If unset, production builds use the project's default ID in `src/analytics.ts`. Development builds send nothing.
   - Events: `page_view`, `search` (`search_scope`: `single`/`group`/`all`, `library_count`), `search_complete` (`library_count`, `failed_count`, `result_count`, `available_count`, `duration_ms`), `search_cancel` (`library_count`, `completed_count`, `duration_ms`), `my_library_select`
 

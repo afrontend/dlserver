@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "./server";
-import { clearSearchCache } from "./librarySearch";
+import { clearSearchCache, resetModuleHealth } from "./librarySearch";
 
 // 이름이 같은 도서관을 구분하는 모듈 직접 검색 경로용
 const cheonanSearch = vi.hoisted(() => vi.fn());
@@ -57,6 +57,8 @@ describe("Server API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     clearSearchCache();
+    resetModuleHealth();
+    vi.unstubAllEnvs();
   });
 
   describe("GET /libraryList", () => {
@@ -174,6 +176,71 @@ describe("Server API", () => {
       expect(failed.body[0].error.msg).toBe("접속 실패");
       expect(retried.body[0].booklist[0].title).toBe("천안 책");
       expect(cheonanSearch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("GET /search unreachable modules", () => {
+    const searchCheonan = () =>
+      request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("중앙도서관") +
+          "&module=" + encodeURIComponent("천안시도서관"),
+      );
+    const connectTimeout = (_opt: unknown, callback: (err: object) => void) =>
+      callback({ msg: "Connect Timeout Error", code: "UND_ERR_CONNECT_TIMEOUT" });
+    const cheonanModule = async () => {
+      const res = await request(app).get("/moduleList");
+      return res.body.find((mod: { name: string }) => mod.name === "천안시도서관");
+    };
+
+    it("UNREACHABLE_MODULES 에 적은 모듈은 사이트에 묻지 않고 바로 접속 불가로 답한다", async () => {
+      vi.stubEnv("UNREACHABLE_MODULES", "군포시도서관, 천안시도서관");
+
+      const res = await searchCheonan();
+
+      expect(cheonanSearch).not.toHaveBeenCalled();
+      expect(res.body[0].error.code).toBe("UNREACHABLE");
+      expect((await cheonanModule()).unreachable).toBe(true);
+    });
+
+    it("이름 일부로 검색해도 고를 도서관이 접속 불가면 바로 답한다", async () => {
+      vi.stubEnv("UNREACHABLE_MODULES", "천안시도서관");
+
+      const { search } = await import("dongnelibrary");
+
+      // "두정도" 는 천안시도서관의 두정도서관을 고른다
+      const res = await request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("두정도"),
+      );
+
+      expect(search).not.toHaveBeenCalled();
+      expect(res.body[0].error.code).toBe("UNREACHABLE");
+    });
+
+    it("접속 오류가 연달아 나면 그 모듈을 접속 불가로 표시한다", async () => {
+      cheonanSearch.mockImplementation(connectTimeout);
+
+      await searchCheonan();
+      expect((await cheonanModule()).unreachable).toBeUndefined();
+      await searchCheonan();
+      const third = await searchCheonan();
+
+      expect(cheonanSearch).toHaveBeenCalledTimes(2);
+      expect(third.body[0].error.code).toBe("UNREACHABLE");
+      expect((await cheonanModule()).unreachable).toBe(true);
+    });
+
+    it("사이트에 닿으면 접속 오류 횟수를 다시 센다", async () => {
+      cheonanSearch
+        .mockImplementationOnce(connectTimeout)
+        .mockImplementationOnce((_opt, callback) => callback({ msg: "parse error" }))
+        .mockImplementation(connectTimeout);
+
+      await searchCheonan();
+      await searchCheonan();
+      await searchCheonan();
+
+      expect(cheonanSearch).toHaveBeenCalledTimes(3);
+      expect((await cheonanModule()).unreachable).toBeUndefined();
     });
   });
 

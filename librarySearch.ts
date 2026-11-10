@@ -21,6 +21,61 @@ export const findLibraryModules = (libraryName: string, moduleName?: string): Li
       (!moduleName || mod.moduleName === moduleName) && mod.getLibraryNames().includes(libraryName),
   );
 
+// 서버(해외 IP)에서 막힌 도서관 사이트는 매번 접속 시간 초과까지 기다렸다 실패한다.
+// UNREACHABLE_MODULES(쉼표로 구분한 모듈명)에 적었거나 접속 오류가 연달아 난 모듈은
+// 사이트에 묻지 않고 바로 실패로 답한다. 자동으로 막은 모듈은 잠시 뒤 다시 시도한다.
+export const UNREACHABLE_CODE = "UNREACHABLE";
+const UNREACHABLE_MSG = "현재 서버에서 이 도서관 사이트에 접속할 수 없어요";
+const CONNECT_ERROR_CODES = new Set([
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_SOCKET",
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ENOTFOUND",
+  "ETIMEDOUT",
+  "EHOSTUNREACH",
+]);
+const CONNECT_FAILURE_LIMIT = 2;
+const UNREACHABLE_RETRY_MS = 10 * 60 * 1000;
+const moduleHealth = new Map<string, { failures: number; blockedUntil: number }>();
+
+export const resetModuleHealth = (): void => moduleHealth.clear();
+
+const configuredUnreachable = (): string[] =>
+  (process.env.UNREACHABLE_MODULES ?? "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+
+export const isModuleUnreachable = (moduleName: string): boolean =>
+  configuredUnreachable().includes(moduleName) ||
+  (moduleHealth.get(moduleName)?.blockedUntil ?? 0) > Date.now();
+
+const recordModuleResult = (moduleName: string, errorCode?: string): void => {
+  if (!errorCode || !CONNECT_ERROR_CODES.has(errorCode)) {
+    // 사이트에 닿았으면(성공이든 응답 해석 실패든) 접속 문제는 아니다
+    moduleHealth.delete(moduleName);
+    return;
+  }
+  const failures = (moduleHealth.get(moduleName)?.failures ?? 0) + 1;
+  const blockedUntil = failures >= CONNECT_FAILURE_LIMIT ? Date.now() + UNREACHABLE_RETRY_MS : 0;
+  moduleHealth.set(moduleName, { failures, blockedUntil });
+};
+
+const unreachableResult = (
+  mod: LibraryModule,
+  title: string,
+  libraryName: string,
+): LibrarySearchResult => ({
+  title,
+  libraryName,
+  moduleName: mod.moduleName,
+  homeUrl: mod.homeUrl,
+  totalBookCount: 0,
+  booklist: [],
+  error: { msg: UNREACHABLE_MSG, code: UNREACHABLE_CODE, libraryName },
+});
+
 /** 결과 모양은 dongnelibrary 의 search 와 같다 (실패하면 error 와 빈 booklist) */
 const searchModuleLibrary = (
   mod: LibraryModule,
@@ -29,12 +84,17 @@ const searchModuleLibrary = (
   signal?: AbortSignal,
 ): Promise<LibrarySearchResult | null> =>
   new Promise((resolve) => {
+    if (isModuleUnreachable(mod.moduleName)) {
+      resolve(unreachableResult(mod, title, libraryName));
+      return;
+    }
+    const base = { title, libraryName, moduleName: mod.moduleName, homeUrl: mod.homeUrl };
     mod.search({ title, libraryName, signal }, (err, data) => {
       if (signal?.aborted) {
         resolve(null);
         return;
       }
-      const base = { title, libraryName, moduleName: mod.moduleName, homeUrl: mod.homeUrl };
+      recordModuleResult(mod.moduleName, err?.code);
       if (err || !data?.booklist) {
         const error = err ? { ...err, libraryName } : { msg: "invalid Data response", libraryName };
         console.error(error);
@@ -76,7 +136,16 @@ const searchUncached = async (
   moduleName?: string,
 ): Promise<LibrarySearchResult[]> => {
   const mods = libraryName ? findLibraryModules(libraryName, moduleName) : [];
-  if (mods.length === 0) return searchByName(title, libraryName, signal);
+  if (mods.length === 0) {
+    // 이름 검색은 이름 일부가 처음 맞는 도서관을 고른다 (dongnelibrary 와 같은 순서로 찾는다)
+    const picked = libraryName
+      ? LIBRARY_MODULES.find((mod) => mod.getLibraryNames().some((name) => name.includes(libraryName)))
+      : undefined;
+    if (picked && isModuleUnreachable(picked.moduleName)) {
+      return [unreachableResult(picked, title, libraryName)];
+    }
+    return searchByName(title, libraryName, signal);
+  }
   const results = await Promise.all(
     mods.map((mod) => searchModuleLibrary(mod, title, libraryName, signal)),
   );
@@ -131,5 +200,8 @@ export const resultLabel = (result: LibrarySearchResult): string =>
 export const libraryListByModule = (): string =>
   [...LIBRARY_MODULES]
     .sort((a, b) => a.moduleName.localeCompare(b.moduleName, "ko"))
-    .map((mod) => `${mod.moduleName}: ${mod.getLibraryNames().join(", ")}`)
+    .map((mod) => {
+      const note = isModuleUnreachable(mod.moduleName) ? " (현재 서버에서 접속 불가)" : "";
+      return `${mod.moduleName}${note}: ${mod.getLibraryNames().join(", ")}`;
+    })
     .join("\n");
