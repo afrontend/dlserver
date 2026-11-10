@@ -6,9 +6,11 @@ export const LibraryAPI = {
     libraryName,
     module,
     signal,
+    fresh,
   }: LibrarySearchParams): Promise<LibrarySearchResult[]> => {
     const params = new URLSearchParams({ title, libraryName });
     if (module) params.set("module", module);
+    if (fresh) params.set("fresh", "1");
     return fetch(`/search?${params}`, { signal }).then((response) => {
       if (!response.ok) {
         throw new Error("검색에 실패했어요.");

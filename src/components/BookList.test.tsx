@@ -47,6 +47,28 @@ describe("BookList", () => {
     expect(screen.queryByTestId("failed-libraries")).toBeNull();
   });
 
+  it("shows when old results were checked and refreshes on click", async () => {
+    const onRefresh = vi.fn();
+    const checkedAt = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    const books: Book[] = [{ title: "책 1", exist: true, libraryName: "판교", checkedAt }];
+
+    render(<BookList {...defaultProps} books={books} totalBooks={1} onRefresh={onRefresh} />);
+
+    expect(screen.getByTestId("checked-at")).toHaveTextContent("3분 전에 도서관에서 확인한 결과예요.");
+    await userEvent.click(screen.getByTestId("refresh-search"));
+    expect(onRefresh).toHaveBeenCalledOnce();
+  });
+
+  it("hides the checked time for results checked just now", () => {
+    const books: Book[] = [
+      { title: "책 1", exist: true, libraryName: "판교", checkedAt: new Date().toISOString() },
+    ];
+
+    render(<BookList {...defaultProps} books={books} totalBooks={1} onRefresh={vi.fn()} />);
+
+    expect(screen.queryByTestId("checked-at")).toBeNull();
+  });
+
   it("renders book items when books are provided", () => {
     const books: Book[] = [
       { title: "책 1", exist: true, libraryName: "판교" },

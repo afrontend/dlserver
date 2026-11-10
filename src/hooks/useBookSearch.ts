@@ -34,6 +34,7 @@ export const useBookSearch = () => {
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchRunRef = useRef<SearchRun | null>(null);
+  const lastSearchRef = useRef<{ title: string; libName: string; libraries: Library[] } | null>(null);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -78,17 +79,22 @@ export const useBookSearch = () => {
   // 모듈을 알면 서버가 그 모듈로 바로 검색한다. 책의 도서관 이름은 목록의 표시 이름으로 바꿔
   // 이름이 같은 도서관의 결과가 섞이지 않게 한다.
   const updateBookList = useCallback(
-    (title: string, library: Library, signal?: AbortSignal): Promise<Book[]> =>
+    (title: string, library: Library, signal?: AbortSignal, fresh = false): Promise<Book[]> =>
       LibraryAPI.getLibrary({
         title,
         libraryName: library.libraryName ?? library.name,
         module: library.module,
         signal,
+        fresh,
       })
         .then((list) => {
           const result = list?.[0];
           if (result?.error) throw new Error(result.error.msg);
-          return (result?.booklist ?? []).map((book) => ({ ...book, libraryName: library.name }));
+          return (result?.booklist ?? []).map((book) => ({
+            ...book,
+            libraryName: library.name,
+            checkedAt: result?.checkedAt,
+          }));
         })
         .catch((error) => {
           if (error.name !== "AbortError") {
@@ -126,8 +132,9 @@ export const useBookSearch = () => {
   }, [isSearchingAll, librarySearchStates]);
 
   const performSearch = useCallback(
-    (title: string, libName: string, libraries: Library[]) => {
+    (title: string, libName: string, libraries: Library[], { fresh = false } = {}) => {
       if (!title?.length) return;
+      lastSearchRef.current = { title, libName, libraries };
 
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -196,7 +203,7 @@ export const useBookSearch = () => {
               return next;
             });
 
-            updateBookList(title, library, signal)
+            updateBookList(title, library, signal, fresh)
               .then((bookList) => {
                 if (signal.aborted) return;
                 foundBooks.push(...bookList);
@@ -246,7 +253,7 @@ export const useBookSearch = () => {
 
         // 목록에 없는 이름(예전 URL·내 도서관)은 모듈 없이 이름으로 검색한다
         const library = libraries.find((lib) => lib.name === libName) ?? { id: -1, name: libName };
-        updateBookList(title, library, signal)
+        updateBookList(title, library, signal, fresh)
           .then((bookList) => {
             if (signal.aborted) return;
             run.completedCount = 1;
@@ -267,6 +274,12 @@ export const useBookSearch = () => {
     [updateBookList],
   );
 
+  // 마지막 검색을 서버 캐시 없이 다시 한다
+  const refreshSearch = useCallback(() => {
+    const last = lastSearchRef.current;
+    if (last) performSearch(last.title, last.libName, last.libraries, { fresh: true });
+  }, [performSearch]);
+
   const clearResults = useCallback(() => {
     setBooks([]);
     setIsSearchingAll(false);
@@ -280,6 +293,7 @@ export const useBookSearch = () => {
     aggregatedBooks,
     failedLibraries,
     performSearch,
+    refreshSearch,
     cancelSearch,
     clearResults,
   };
