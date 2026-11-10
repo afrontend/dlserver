@@ -2,6 +2,15 @@ import { useState, useEffect } from "react";
 import type { Book } from "../types";
 import { BookItem } from "./BookItem";
 
+const MINUTE_MS = 60 * 1000;
+
+/** 가장 오래전에 확인한 결과가 몇 분 전인지. 1분이 안 되었거나 시각이 없으면 0 */
+const staleMinutes = (books: Book[], now: number): number => {
+  const times = books.flatMap((book) => (book.checkedAt ? [Date.parse(book.checkedAt)] : []));
+  if (times.length === 0) return 0;
+  return Math.floor((now - Math.min(...times)) / MINUTE_MS);
+};
+
 interface BookListProps {
   books: Book[];
   totalBooks: number;
@@ -10,6 +19,8 @@ interface BookListProps {
   isLoading: boolean;
   hideRented: boolean;
   onHideRentedChange: (value: boolean) => void;
+  /** 서버 캐시 없이 마지막 검색을 다시 한다 */
+  onRefresh?: () => void;
 }
 
 export const BookList = ({
@@ -19,6 +30,7 @@ export const BookList = ({
   isLoading,
   hideRented,
   onHideRentedChange,
+  onRefresh,
 }: BookListProps) => {
   const [titleFilter, setTitleFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -38,6 +50,7 @@ export const BookList = ({
 
   const availableCount = filteredBooks.filter((book) => book.exist).length;
   const hiddenCount = totalBooks - books.length;
+  const checkedMinutesAgo = isLoading ? 0 : staleMinutes(books, Date.now());
 
   return (
     <div
@@ -165,6 +178,24 @@ export const BookList = ({
           data-testid="failed-libraries"
         >
           도서관 사이트에 접속하지 못해 검색하지 못했어요: {failedLibraries.join(", ")}
+        </div>
+      )}
+      {checkedMinutesAgo > 0 && (
+        <div
+          className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-base text-gray-600 flex items-center justify-between gap-2"
+          data-testid="checked-at"
+        >
+          <span>{checkedMinutesAgo}분 전에 도서관에서 확인한 결과예요.</span>
+          {onRefresh && (
+            <button
+              type="button"
+              data-testid="refresh-search"
+              onClick={onRefresh}
+              className="shrink-0 text-blue-600 hover:text-blue-800"
+            >
+              새로 확인
+            </button>
+          )}
         </div>
       )}
       {books.length === 0 && !isLoading ? (

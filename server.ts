@@ -37,9 +37,10 @@ app.get("/search", async (req: Request, res: Response) => {
   });
 
   const { title, libraryName, module } = extractSearchParams(req.query);
+  const fresh = req.query.fresh === "1";
 
   try {
-    const books = await searchBooks(title, libraryName, controller.signal, module);
+    const books = await searchBooks(title, libraryName, controller.signal, module, { fresh });
 
     if (res.writableEnded) return;
     res.json(books);

@@ -3,6 +3,8 @@ export interface Book {
   exist: boolean;
   bookUrl?: string;
   libraryName?: string;
+  /** 서버가 도서관 사이트에서 이 결과를 받은 시각 (ISO). 캐시된 결과면 처음 받은 시각 */
+  checkedAt?: string;
 }
 
 export interface Library {
@@ -17,6 +19,7 @@ export interface Library {
 
 export interface LibrarySearchResult {
   booklist: Book[];
+  checkedAt?: string;
   /** 도서관 사이트에 접속하지 못했거나 응답을 읽지 못하면 채워진다 (booklist 는 빈 배열) */
   error?: { msg: string };
 }
@@ -26,6 +29,8 @@ export type LibrarySearchParams = {
   libraryName: string;
   module?: string;
   signal?: AbortSignal;
+  /** 서버 캐시를 건너뛰고 도서관 사이트에서 다시 받는다 */
+  fresh?: boolean;
 };
 
 export interface ModuleInfo {

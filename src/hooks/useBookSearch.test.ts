@@ -102,6 +102,38 @@ describe("useBookSearch", () => {
       expect(result.current.aggregatedBooks[0].libraryName).toBe("중앙도서관 (천안시도서관)");
     });
 
+    it("서버가 확인한 시각을 책에 달고, 새로 확인하면 fresh 로 다시 검색한다", async () => {
+      const checkedAt = "2026-11-10T00:00:00.000Z";
+      vi.mocked(LibraryAPI.getLibrary).mockResolvedValue([
+        { ...makeSearchResult("여주시립도서관", ["해리포터"])[0], checkedAt },
+      ]);
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", "여주시립도서관", mockLibraries);
+      });
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.aggregatedBooks[0].checkedAt).toBe(checkedAt);
+      expect(LibraryAPI.getLibrary).toHaveBeenLastCalledWith(
+        expect.objectContaining({ fresh: false }),
+      );
+
+      act(() => {
+        result.current.refreshSearch();
+      });
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(LibraryAPI.getLibrary).toHaveBeenLastCalledWith(
+        expect.objectContaining({ title: "해리포터", libraryName: "여주시립도서관", fresh: true }),
+      );
+    });
+
     it("검색 결과가 없으면 빈 배열을 반환한다", async () => {
       vi.mocked(LibraryAPI.getLibrary).mockResolvedValue([{ booklist: [] }]);
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "./server";
+import { clearSearchCache } from "./librarySearch";
 
 // 이름이 같은 도서관을 구분하는 모듈 직접 검색 경로용
 const cheonanSearch = vi.hoisted(() => vi.fn());
@@ -55,6 +56,7 @@ const respondWith = (title: string) => (_opt: unknown, callback: (err: null, dat
 describe("Server API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearSearchCache();
   });
 
   describe("GET /libraryList", () => {
@@ -130,7 +132,48 @@ describe("Server API", () => {
       );
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual([failed]);
+      expect(res.body).toEqual([{ ...failed, checkedAt: expect.any(String) }]);
+    });
+  });
+
+  describe("GET /search cache", () => {
+    const searchCheonan = (fresh = false) =>
+      request(app).get(
+        "/search?title=a&libraryName=" + encodeURIComponent("중앙도서관") +
+          "&module=" + encodeURIComponent("천안시도서관") +
+          (fresh ? "&fresh=1" : ""),
+      );
+
+    it("같은 검색은 도서관 사이트에 다시 묻지 않고 처음 확인한 시각과 함께 돌려준다", async () => {
+      cheonanSearch.mockImplementation(respondWith("천안 책"));
+
+      const first = await searchCheonan();
+      const second = await searchCheonan();
+
+      expect(cheonanSearch).toHaveBeenCalledTimes(1);
+      expect(first.body[0].checkedAt).toEqual(expect.any(String));
+      expect(second.body).toEqual(first.body);
+    });
+
+    it("fresh=1 이면 캐시를 건너뛰고 다시 검색한다", async () => {
+      cheonanSearch.mockImplementation(respondWith("천안 책"));
+
+      await searchCheonan();
+      await searchCheonan(true);
+
+      expect(cheonanSearch).toHaveBeenCalledTimes(2);
+    });
+
+    it("실패한 결과는 캐시하지 않는다", async () => {
+      cheonanSearch.mockImplementationOnce((_opt, callback) => callback({ msg: "접속 실패" }));
+      cheonanSearch.mockImplementationOnce(respondWith("천안 책"));
+
+      const failed = await searchCheonan();
+      const retried = await searchCheonan();
+
+      expect(failed.body[0].error.msg).toBe("접속 실패");
+      expect(retried.body[0].booklist[0].title).toBe("천안 책");
+      expect(cheonanSearch).toHaveBeenCalledTimes(2);
     });
   });
 

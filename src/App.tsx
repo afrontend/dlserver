@@ -28,6 +28,7 @@ const App = () => {
     aggregatedBooks,
     failedLibraries,
     performSearch,
+    refreshSearch,
     cancelSearch,
     clearResults,
   } = useBookSearch();
@@ -154,6 +155,7 @@ const App = () => {
             isLoading={isLoading}
             hideRented={hideRented}
             onHideRentedChange={setHideRented}
+            onRefresh={refreshSearch}
           />
         </div>
       </div>
