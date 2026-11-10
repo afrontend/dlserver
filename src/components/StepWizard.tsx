@@ -308,6 +308,7 @@ export const StepWizard = ({
                     {modules.map((mod) => (
                       <option key={mod.name} value={mod.name}>
                         {mod.name}
+                        {mod.unreachable && " (현재 접속 불가)"}
                       </option>
                     ))}
                   </select>
@@ -362,6 +363,7 @@ export const StepWizard = ({
                   {filteredLibraries.map((lib) => (
                     <option key={lib.id} value={lib.name}>
                       {lib.name}
+                      {lib.unreachable && " (현재 접속 불가)"}
                     </option>
                   ))}
                 </select>

@@ -15,13 +15,16 @@ export interface Library {
   libraryName?: string;
   /** 이 도서관을 검색하는 dongnelibrary 모듈 */
   module?: string;
+  /** 서버에서 이 도서관 사이트에 접속할 수 없다 */
+  unreachable?: boolean;
 }
 
 export interface LibrarySearchResult {
   booklist: Book[];
   checkedAt?: string;
   /** 도서관 사이트에 접속하지 못했거나 응답을 읽지 못하면 채워진다 (booklist 는 빈 배열) */
-  error?: { msg: string };
+  /** code 가 "UNREACHABLE" 이면 서버에서 접속할 수 없는 도서관이라 사이트에 묻지 않았다 */
+  error?: { msg: string; code?: string };
 }
 
 export type LibrarySearchParams = {
@@ -36,6 +39,7 @@ export type LibrarySearchParams = {
 export interface ModuleInfo {
   name: string;
   libraries: string[];
+  unreachable?: boolean;
 }
 
 export type LibrarySearchStatus = "pending" | "searching" | "done" | "error";
@@ -44,6 +48,8 @@ export interface LibrarySearchState {
   libraryName: string;
   status: LibrarySearchStatus;
   books: Book[];
+  /** status 가 error 일 때, 서버에서 접속할 수 없는 도서관이라 검색하지 않았다 */
+  unreachable?: boolean;
 }
 
 export interface SearchProgress {

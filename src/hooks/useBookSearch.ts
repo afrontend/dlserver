@@ -6,6 +6,8 @@ import { DEFAULT_LIBRARY } from "../constants";
 import { trackSearchCancel, trackSearchComplete } from "../analytics";
 
 const MAX_CONCURRENT_SEARCHES = 3;
+/** 서버에서 접속할 수 없는 도서관의 오류 코드 (librarySearch.ts 의 UNREACHABLE_CODE) */
+const UNREACHABLE_CODE = "UNREACHABLE";
 
 // 측정용: 진행 중인 검색의 시작 시각과 완료된 도서관 수
 interface SearchRun {
@@ -30,7 +32,9 @@ export const useBookSearch = () => {
     new Map(),
   );
 
-  const [failedLibrary, setFailedLibrary] = useState<string | null>(null);
+  const [failedLibrary, setFailedLibrary] = useState<{ name: string; unreachable: boolean } | null>(
+    null,
+  );
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchRunRef = useRef<SearchRun | null>(null);
@@ -64,11 +68,19 @@ export const useBookSearch = () => {
     };
   }, [librarySearchStates, isSearchingAll]);
 
-  const failedLibraries: string[] = useMemo(() => {
-    if (!isSearchingAll) return failedLibrary ? [failedLibrary] : [];
-    return Array.from(librarySearchStates.values())
-      .filter((s) => s.status === "error")
-      .map((s) => s.libraryName);
+  // 검색하지 못한 도서관. 서버에서 접속할 수 없는 도서관(unreachable)은 따로 모은다
+  const [failedLibraries, unreachableLibraries] = useMemo((): [string[], string[]] => {
+    const failures = isSearchingAll
+      ? Array.from(librarySearchStates.values())
+          .filter((s) => s.status === "error")
+          .map((s) => ({ name: s.libraryName, unreachable: !!s.unreachable }))
+      : failedLibrary
+        ? [failedLibrary]
+        : [];
+    return [
+      failures.filter((f) => !f.unreachable).map((f) => f.name),
+      failures.filter((f) => f.unreachable).map((f) => f.name),
+    ];
   }, [librarySearchStates, isSearchingAll, failedLibrary]);
 
   const aggregatedBooks: Book[] = useMemo(() => {
@@ -89,7 +101,11 @@ export const useBookSearch = () => {
       })
         .then((list) => {
           const result = list?.[0];
-          if (result?.error) throw new Error(result.error.msg);
+          if (result?.error) {
+            throw Object.assign(new Error(result.error.msg), {
+              unreachable: result.error.code === UNREACHABLE_CODE,
+            });
+          }
           return (result?.booklist ?? []).map((book) => ({
             ...book,
             libraryName: library.name,
@@ -218,7 +234,7 @@ export const useBookSearch = () => {
                   return next;
                 });
               })
-              .catch(() => {
+              .catch((error) => {
                 if (signal.aborted) return;
                 failedCount++;
 
@@ -228,6 +244,7 @@ export const useBookSearch = () => {
                     libraryName: library.name,
                     status: "error",
                     books: [],
+                    unreachable: !!error?.unreachable,
                   });
                   return next;
                 });
@@ -265,7 +282,7 @@ export const useBookSearch = () => {
             if (error.name !== "AbortError" && !signal.aborted) {
               run.completedCount = 1;
               finishRun(1, []);
-              setFailedLibrary(libName);
+              setFailedLibrary({ name: libName, unreachable: !!error.unreachable });
               setIsLoading(false);
             }
           });
@@ -292,6 +309,7 @@ export const useBookSearch = () => {
     searchProgress,
     aggregatedBooks,
     failedLibraries,
+    unreachableLibraries,
     performSearch,
     refreshSearch,
     cancelSearch,

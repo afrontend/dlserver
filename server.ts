@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import * as dl from "dongnelibrary";
 import type { Book } from "dongnelibrary";
-import { LIBRARY_MODULES, libraryListByModule, searchBooks } from "./librarySearch";
+import { LIBRARY_MODULES, isModuleUnreachable, libraryListByModule, searchBooks } from "./librarySearch";
 
 
 const app = express();
@@ -61,6 +61,7 @@ app.get("/moduleList", (_req: Request, res: Response) => {
   const modules = LIBRARY_MODULES.map((mod) => ({
     name: mod.moduleName,
     libraries: mod.getLibraryNames(),
+    ...(isModuleUnreachable(mod.moduleName) && { unreachable: true }),
   }));
   res.json(modules);
 });

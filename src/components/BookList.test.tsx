@@ -39,6 +39,21 @@ describe("BookList", () => {
     );
   });
 
+  it("lists libraries the server cannot reach separately", () => {
+    render(
+      <BookList
+        {...defaultProps}
+        failedLibraries={["판교도서관"]}
+        unreachableLibraries={["동탄중앙도서관"]}
+      />,
+    );
+
+    expect(screen.getByTestId("failed-libraries")).not.toHaveTextContent("동탄중앙도서관");
+    expect(screen.getByTestId("unreachable-libraries")).toHaveTextContent(
+      "도서관 사이트에서 직접 확인해 주세요: 동탄중앙도서관",
+    );
+  });
+
   it("hides the failed-library notice while loading", () => {
     render(
       <BookList {...defaultProps} isLoading={true} failedLibraries={["판교도서관"]} />,

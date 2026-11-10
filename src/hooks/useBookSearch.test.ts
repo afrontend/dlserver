@@ -281,6 +281,29 @@ describe("useBookSearch", () => {
       expect(result.current.failedLibraries).toEqual(["강남도서관"]);
     });
 
+    it("서버에서 접속할 수 없는 도서관은 실패한 도서관과 따로 모은다", async () => {
+      vi.mocked(LibraryAPI.getLibrary).mockImplementation(({ libraryName }) =>
+        Promise.resolve(
+          libraryName === "강남도서관"
+            ? [{ booklist: [], error: { msg: "접속 불가", code: "UNREACHABLE" } }]
+            : makeSearchResult(libraryName, ["해리포터"]),
+        ),
+      );
+
+      const { result } = renderHook(() => useBookSearch());
+
+      act(() => {
+        result.current.performSearch("해리포터", DEFAULT_LIBRARY, mockLibraries);
+      });
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.failedLibraries).toEqual([]);
+      expect(result.current.unreachableLibraries).toEqual(["강남도서관"]);
+    });
+
     it("동시 요청 수가 제한된다 (MAX_CONCURRENT_SEARCHES)", async () => {
       const fiveLibraries: Library[] = Array.from({ length: 5 }, (_, i) => ({
         id: i,
