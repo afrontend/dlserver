@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { trackMyLibrarySelect, trackPageView } from "./analytics";
+import { trackMyLibrarySelect, trackPageView, trackSearch } from "./analytics";
 import { BookList } from "./components/BookList";
+import { EmptyResultHelp } from "./components/EmptyResultHelp";
 import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
@@ -28,6 +29,7 @@ const App = () => {
     aggregatedBooks,
     failedLibraries,
     unreachableLibraries,
+    lastSearch,
     performSearch,
     refreshSearch,
     cancelSearch,
@@ -103,6 +105,29 @@ const App = () => {
     [setSelectedRegion, setSelectedModule, setLibraryName],
   );
 
+  // 도서관 하나를 검색했으면 그 도서관 (결과가 없을 때 사이트 링크·범위 넓히기에 쓴다)
+  const lastLibrary = useMemo(
+    () =>
+      lastSearch && lastSearch.libName !== DEFAULT_LIBRARY
+        ? libraryNames.find((lib) => lib.name === lastSearch.libName)
+        : undefined,
+    [lastSearch, libraryNames],
+  );
+  const widenLibraries = useMemo(
+    () => (lastLibrary?.module ? libraryNames.filter((lib) => lib.module === lastLibrary.module) : []),
+    [lastLibrary, libraryNames],
+  );
+
+  // 같은 모듈(시·군 도서관)의 도서관 전체로 넓혀 다시 검색하고, 검색 조건 화면도 그 모듈로 맞춘다
+  const handleWiden = useCallback(() => {
+    if (!lastSearch || !lastLibrary?.module) return;
+    setSelectedRegion("");
+    setSelectedModule(lastLibrary.module);
+    setLibraryName(DEFAULT_LIBRARY);
+    trackSearch(lastSearch.title, DEFAULT_LIBRARY, "group", widenLibraries.length);
+    performSearch(lastSearch.title, DEFAULT_LIBRARY, widenLibraries);
+  }, [lastSearch, lastLibrary, widenLibraries, setSelectedRegion, setSelectedModule, setLibraryName, performSearch]);
+
   useEffect(() => {
     if (pageViewTrackedRef.current) {
       return;
@@ -158,6 +183,17 @@ const App = () => {
             hideRented={hideRented}
             onHideRentedChange={setHideRented}
             onRefresh={refreshSearch}
+            emptyHelp={
+              lastSearch &&
+              aggregatedBooks.length === 0 && (
+                <EmptyResultHelp
+                  libraryName={lastLibrary?.name}
+                  homeUrl={lastLibrary?.homeUrl}
+                  widenModule={widenLibraries.length > 1 ? lastLibrary?.module : undefined}
+                  onWiden={handleWiden}
+                />
+              )
+            }
           />
         </div>
       </div>

@@ -39,6 +39,8 @@ export const useBookSearch = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchRunRef = useRef<SearchRun | null>(null);
   const lastSearchRef = useRef<{ title: string; libName: string; libraries: Library[] } | null>(null);
+  // 화면에 보여 주는 마지막 검색 (결과가 없을 때 안내에 쓴다)
+  const [lastSearch, setLastSearch] = useState<{ title: string; libName: string } | null>(null);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -151,6 +153,7 @@ export const useBookSearch = () => {
     (title: string, libName: string, libraries: Library[], { fresh = false } = {}) => {
       if (!title?.length) return;
       lastSearchRef.current = { title, libName, libraries };
+      setLastSearch({ title, libName });
 
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -298,6 +301,7 @@ export const useBookSearch = () => {
   }, [performSearch]);
 
   const clearResults = useCallback(() => {
+    setLastSearch(null);
     setBooks([]);
     setIsSearchingAll(false);
     setLibrarySearchStates(new Map());
@@ -310,6 +314,7 @@ export const useBookSearch = () => {
     aggregatedBooks,
     failedLibraries,
     unreachableLibraries,
+    lastSearch,
     performSearch,
     refreshSearch,
     cancelSearch,

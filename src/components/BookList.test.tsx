@@ -29,6 +29,12 @@ describe("BookList", () => {
     );
   });
 
+  it("shows next actions under the empty message", () => {
+    render(<BookList {...defaultProps} emptyHelp={<span>다음 행동</span>} />);
+
+    expect(screen.getByTestId("empty-message")).toHaveTextContent("다음 행동");
+  });
+
   it("lists libraries that could not be searched", () => {
     render(
       <BookList {...defaultProps} failedLibraries={["판교도서관", "동탄도서관"]} />,

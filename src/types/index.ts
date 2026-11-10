@@ -17,6 +17,8 @@ export interface Library {
   module?: string;
   /** 서버에서 이 도서관 사이트에 접속할 수 없다 */
   unreachable?: boolean;
+  /** 이 도서관을 검색하는 사이트 주소 */
+  homeUrl?: string;
 }
 
 export interface LibrarySearchResult {
@@ -38,6 +40,7 @@ export type LibrarySearchParams = {
 
 export interface ModuleInfo {
   name: string;
+  homeUrl?: string;
   libraries: string[];
   unreachable?: boolean;
 }

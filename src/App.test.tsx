@@ -14,9 +14,10 @@ vi.mock("./api/library", () => ({
   },
 }));
 
-// Mock URL utils to prevent auto-search from URL params
+// Mock URL utils to prevent auto-search from URL params (테스트에서 바꾸면 공유 링크로 연 것처럼 바로 검색한다)
+const urlParams = vi.hoisted(() => ({ title: "", library: "도서관을 선택하세요." }));
 vi.mock("./utils/url", () => ({
-  getUrlParams: () => ({ title: "", library: "도서관을 선택하세요." }),
+  getUrlParams: () => ({ ...urlParams }),
   updateUrl: vi.fn(),
 }));
 
@@ -153,5 +154,54 @@ describe("App - Cancel Search", () => {
 
     // Verify loading is stopped
     expect(screen.queryByTestId("cancel-button")).not.toBeInTheDocument();
+  });
+});
+
+describe("App - 결과가 없을 때", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetLibrary.mockReset();
+    mockGetModuleList.mockReset();
+    mockGetModuleList.mockResolvedValue([
+      { name: "경기", homeUrl: "https://lib.example", libraries: ["판교", "동탄", "성남"] },
+    ]);
+    mockGetLibrary.mockResolvedValue([{ booklist: [] }]);
+    Object.assign(urlParams, { title: "해리포터", library: "판교" });
+  });
+
+  afterEach(() => {
+    Object.assign(urlParams, { title: "", library: "도서관을 선택하세요." });
+    cleanup();
+  });
+
+  it("도서관 사이트 링크를 주고, 같은 모듈 전체로 넓혀 다시 검색한다", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("empty-result-help")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("library-site-link")).toHaveAttribute("href", "https://lib.example");
+    expect(mockGetLibrary).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByTestId("widen-search"));
+
+    await waitFor(() => {
+      expect(mockGetLibrary).toHaveBeenCalledTimes(4);
+    });
+    const searched = mockGetLibrary.mock.calls.slice(1).map(([params]) => params.libraryName);
+    expect(searched.sort()).toEqual(["동탄", "성남", "판교"]);
+  });
+
+  it("결과가 있으면 안내를 보여 주지 않는다", async () => {
+    mockGetLibrary.mockResolvedValue([
+      { booklist: [{ title: "해리포터", exist: false, libraryName: "판교" }] },
+    ]);
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("book-item")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("empty-result-help")).toBeNull();
   });
 });
