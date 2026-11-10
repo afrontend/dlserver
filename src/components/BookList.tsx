@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import type { Book } from "../types";
 import { BookItem } from "./BookItem";
 
@@ -23,6 +23,8 @@ interface BookListProps {
   onHideRentedChange: (value: boolean) => void;
   /** 서버 캐시 없이 마지막 검색을 다시 한다 */
   onRefresh?: () => void;
+  /** 검색 결과가 없을 때 안내 아래에 보여 줄 다음 행동 */
+  emptyHelp?: ReactNode;
 }
 
 export const BookList = ({
@@ -34,6 +36,7 @@ export const BookList = ({
   hideRented,
   onHideRentedChange,
   onRefresh,
+  emptyHelp,
 }: BookListProps) => {
   const [titleFilter, setTitleFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -216,6 +219,7 @@ export const BookList = ({
           data-testid="empty-message"
         >
           검색 결과가 없습니다.
+          {emptyHelp}
         </div>
       ) : books.length === 0 && isLoading ? (
         <div

@@ -19,6 +19,7 @@ export const modulesToLibraries = (modules: ModuleInfo[]): Library[] => {
         name: (counts.get(name) ?? 0) > 1 ? `${name} (${m.name})` : name,
         libraryName: name,
         module: m.name,
+        homeUrl: m.homeUrl,
         ...(m.unreachable && { unreachable: true }),
       })),
     ),

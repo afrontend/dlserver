@@ -83,6 +83,7 @@ describe("Server API", () => {
           expect(mod).toHaveProperty("libraries");
           expect(typeof mod.name).toBe("string");
           expect(Array.isArray(mod.libraries)).toBe(true);
+          expect(mod).toHaveProperty("homeUrl");
         }
       );
     });

@@ -60,6 +60,7 @@ app.get("/libraryList", (_req: Request, res: Response) => {
 app.get("/moduleList", (_req: Request, res: Response) => {
   const modules = LIBRARY_MODULES.map((mod) => ({
     name: mod.moduleName,
+    homeUrl: mod.homeUrl,
     libraries: mod.getLibraryNames(),
     ...(isModuleUnreachable(mod.moduleName) && { unreachable: true }),
   }));
