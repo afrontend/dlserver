@@ -39,6 +39,8 @@ interface StepWizardProps {
   onSearch: () => void;
   onCancel: () => void;
   isLoading: boolean;
+  /** 내 도서관 범위로 검색 중이면 그 도서관들 (북마클릿·확장으로 들어왔을 때) */
+  scopeLibraries?: Library[];
 }
 
 export const StepWizard = ({
@@ -65,6 +67,7 @@ export const StepWizard = ({
   onSearch,
   onCancel,
   isLoading,
+  scopeLibraries,
 }: StepWizardProps) => {
   const { currentStep, isStepCompleted, completeStep, goToStep } =
     useStepWizard();
@@ -130,7 +133,9 @@ export const StepWizard = ({
     const parts = [];
     if (selectedSido) parts.push([selectedSido, selectedSigungu].filter(Boolean).join(" "));
     if (selectedModule) parts.push(selectedModule);
-    if (selectedLibrary === DEFAULT_LIBRARY) {
+    if (scopeLibraries) {
+      parts.push(`내 도서관 (${scopeLibraries.map((lib) => lib.name).join(", ")})`);
+    } else if (selectedLibrary === DEFAULT_LIBRARY) {
       if (filterText?.trim() && filteredLibraries.length > 0) {
         parts.push(filteredLibraries.map((lib) => lib.name).join(", "));
       } else {

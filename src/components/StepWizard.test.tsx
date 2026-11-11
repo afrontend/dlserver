@@ -110,6 +110,23 @@ describe("StepWizard", () => {
     expect(screen.getByTestId("step-3-content")).toHaveTextContent("전체 도서관");
   });
 
+  it("shows '내 도서관' with names in step 3 summary when my-library scope is active", async () => {
+    const user = userEvent.setup();
+    const scopeLibraries = [
+      { id: 0, name: "가양도서관" },
+      { id: 1, name: "판교도서관" },
+    ];
+    render(
+      <StepWizard {...defaultProps} searchText="해리포터" filterText="" scopeLibraries={scopeLibraries} />,
+    );
+    fireEvent.keyDown(screen.getByTestId("search-input"), { key: "Enter" });
+    await user.click(screen.getByTestId("step-2-next"));
+
+    const step3 = screen.getByTestId("step-3-content");
+    expect(step3).toHaveTextContent("내 도서관 (가양도서관, 판교도서관)");
+    expect(step3).not.toHaveTextContent("전체 도서관");
+  });
+
   it("shows filtered library names in step 2 summary when filter is active", async () => {
     const user = userEvent.setup();
     const filteredLibraries = [
