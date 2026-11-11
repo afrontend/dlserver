@@ -53,6 +53,7 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 - `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`. If unset, production builds use the project's default ID in `src/analytics.ts`. Development builds send nothing.
   - Events: `page_view`, `search` (`search_scope`: `single`/`group`/`all`, `library_count`), `search_complete` (`library_count`, `failed_count`, `result_count`, `available_count`, `duration_ms`), `search_cancel` (`library_count`, `completed_count`, `duration_ms`), `my_library_select`
   - Entry source: open the app with `?ref=<source>` (e.g. `?ref=ext` for the Chrome extension, `?ref=bm` for the bookmarklet; lowercase letters, digits, `-`, `_`, up to 20 chars). The first `page_view` gets `utm_source=<source>` in `page_location`, so GA4 shows it as the session source. `page_view` and `search` also carry `entry_ref`; register it as an event-scoped custom dimension in GA4 to break down searches by source.
+- Bookmarklet: after choosing a library, the bottom of the page shows a "동네 도서관에서 찾기" button to drag to the bookmarks bar. On any site, select a book title (or type one when nothing is selected) and click it to open a search in that library with `?ref=bm`. The library is baked into the bookmarklet because it runs on other sites and cannot read this site's storage; without a chosen library no bookmarklet is offered, since a title-only link searches every library.
 
 ## Library Regions
 
