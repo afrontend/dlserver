@@ -63,6 +63,7 @@ const App = () => {
     libraryName,
     setLibraryName,
     handleSearch,
+    scopeLibraries,
   } = useSearchManager({
     libraryNames,
     filteredLibraries,
@@ -168,6 +169,7 @@ const App = () => {
             onSearch={handleSearch}
             onCancel={cancelSearch}
             isLoading={isLoading}
+            scopeLibraries={scopeLibraries}
           />
           <SearchProgressBar progress={searchProgress} />
           <LibraryTagFilter

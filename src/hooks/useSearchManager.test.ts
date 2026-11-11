@@ -101,6 +101,38 @@ describe("useSearchManager", () => {
       expect(result.current.searchText).toBe("해리포터");
     });
 
+    it("북마클릿 범위가 살아 있으면 검색 버튼도 내 도서관만 검색한다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      const params = createMockParams({ myLibraries: ["강남도서관"] });
+      const { result } = renderHook(() => useSearchManager(params));
+      expect(result.current.scopeLibraries).toEqual([{ id: 2, name: "강남도서관" }]);
+
+      act(() => result.current.handleSearch());
+
+      expect(params.performSearch).toHaveBeenLastCalledWith("해리포터", DEFAULT_LIBRARY, [
+        { id: 2, name: "강남도서관" },
+      ]);
+    });
+
+    it("도서관이나 필터 목록을 바꾸면 내 도서관 범위가 풀린다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      const params = createMockParams({ myLibraries: ["강남도서관"] });
+      const { result, rerender } = renderHook((p: SearchManagerParams) => useSearchManager(p), {
+        initialProps: params,
+      });
+
+      rerender({ ...params, filteredLibraries: filteredYeoju });
+      expect(result.current.scopeLibraries).toBeUndefined();
+      act(() => result.current.handleSearch());
+      expect(params.performSearch).toHaveBeenLastCalledWith("해리포터", DEFAULT_LIBRARY, filteredYeoju);
+
+      rerender(params);
+      act(() => result.current.setLibraryName("서울도서관"));
+      expect(result.current.scopeLibraries).toBeUndefined();
+    });
+
     it("북마클릿으로 들어왔는데 내 도서관이 없으면 제목만 채우고 검색하지 않는다", () => {
       vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
 
