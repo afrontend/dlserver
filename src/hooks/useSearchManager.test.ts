@@ -89,6 +89,37 @@ describe("useSearchManager", () => {
       );
     });
 
+    it("북마클릿으로 도서관 없이 들어오면 내 도서관만 검색한다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      const params = createMockParams({ myLibraries: ["강남도서관", "없는도서관"] });
+      const { result } = renderHook(() => useSearchManager(params));
+
+      expect(params.performSearch).toHaveBeenCalledWith("해리포터", DEFAULT_LIBRARY, [
+        { id: 2, name: "강남도서관" },
+      ]);
+      expect(result.current.searchText).toBe("해리포터");
+    });
+
+    it("북마클릿으로 들어왔는데 내 도서관이 없으면 제목만 채우고 검색하지 않는다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      const params = createMockParams({ myLibraries: [] });
+      const { result } = renderHook(() => useSearchManager(params));
+
+      expect(params.performSearch).not.toHaveBeenCalled();
+      expect(result.current.searchText).toBe("해리포터");
+    });
+
+    it("ref 가 있어도 도서관이 정해져 있으면 그 도서관을 검색한다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: "강남도서관", ref: "bm" });
+
+      const params = createMockParams({ myLibraries: ["서울도서관"] });
+      renderHook(() => useSearchManager(params));
+
+      expect(params.performSearch).toHaveBeenCalledWith("해리포터", "강남도서관", mockLibraries);
+    });
+
     it("URL에 title이 없으면 자동 검색하지 않는다", () => {
       const params = createMockParams();
       renderHook(() => useSearchManager(params));
