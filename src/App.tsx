@@ -71,6 +71,7 @@ const App = () => {
     resetFilters,
     addToHistory,
     addToMyLibraries: addMyLibrary,
+    myLibraries,
   });
 
   const handleModuleChange = useCallback(
@@ -197,7 +198,7 @@ const App = () => {
             }
           />
         </div>
-        <BookmarkletHelp libraryName={libraryName !== DEFAULT_LIBRARY ? libraryName : undefined} />
+        <BookmarkletHelp />
       </div>
       <ScrollToTopButton />
     </div>
