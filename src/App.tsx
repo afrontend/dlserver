@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { trackMyLibrarySelect, trackPageView, trackSearch } from "./analytics";
 import { BookList } from "./components/BookList";
 import { EmptyResultHelp } from "./components/EmptyResultHelp";
+import { BookmarkletHelp } from "./components/BookmarkletHelp";
 import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
@@ -196,6 +197,7 @@ const App = () => {
             }
           />
         </div>
+        <BookmarkletHelp libraryName={libraryName !== DEFAULT_LIBRARY ? libraryName : undefined} />
       </div>
       <ScrollToTopButton />
     </div>
