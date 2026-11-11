@@ -52,6 +52,7 @@ Server will start on port 3000 (or use PORT environment variable to customize)
 - `UNREACHABLE_MODULES`: Optional comma-separated module names the server cannot reach (e.g. `화성시립도서관` blocks overseas IPs). Searches for their libraries answer "unreachable" at once instead of waiting for a timeout, and `/moduleList` marks them with `unreachable: true`. Modules that fail to connect twice in a row are also marked automatically for 10 minutes.
 - `VITE_GA_ID`: Optional GA4 measurement ID for the Vite web app. Example: `G-XXXXXXXXXX`. If unset, production builds use the project's default ID in `src/analytics.ts`. Development builds send nothing.
   - Events: `page_view`, `search` (`search_scope`: `single`/`group`/`all`, `library_count`), `search_complete` (`library_count`, `failed_count`, `result_count`, `available_count`, `duration_ms`), `search_cancel` (`library_count`, `completed_count`, `duration_ms`), `my_library_select`
+  - Entry source: open the app with `?ref=<source>` (e.g. `?ref=ext` for the Chrome extension, `?ref=bm` for the bookmarklet; lowercase letters, digits, `-`, `_`, up to 20 chars). The first `page_view` gets `utm_source=<source>` in `page_location`, so GA4 shows it as the session source. `page_view` and `search` also carry `entry_ref`; register it as an event-scoped custom dimension in GA4 to break down searches by source.
 
 ## Library Regions
 

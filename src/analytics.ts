@@ -19,6 +19,34 @@ const DEFAULT_GA_ID = "G-9WDTNJDBR7";
 const GA_ID = import.meta.env.VITE_GA_ID || DEFAULT_GA_ID;
 const GA_SCRIPT_ID = "google-analytics-gtag";
 
+/**
+ * 들어온 경로(?ref=ext, ?ref=bm 등). 영문 소문자·숫자·-·_ 20자까지만 받는다.
+ * 첫 검색이 주소를 바꾸기 전에 읽어야 하므로 모듈을 불러올 때 한 번 잡아 둔다.
+ */
+export const parseEntryRef = (search: string) => {
+  const ref = new URLSearchParams(search).get("ref");
+  return ref && /^[a-z0-9_-]{1,20}$/.test(ref) ? ref : undefined;
+};
+
+let entryRef = typeof window === "undefined" ? undefined : parseEntryRef(window.location.search);
+
+/** 테스트용: 들어온 경로를 바꾼다 */
+export const setEntryRef = (ref: string | undefined) => {
+  entryRef = ref;
+};
+
+const withEntryRef = <T extends Record<string, unknown>>(params: T) =>
+  entryRef ? { ...params, entry_ref: entryRef } : params;
+
+/** GA 가 유입 소스로 인식하도록 page_location 에 utm_source 를 붙인다 */
+const pageLocation = () => {
+  if (!entryRef) return window.location.href;
+  const url = new URL(window.location.href);
+  url.searchParams.set("utm_source", entryRef);
+  url.searchParams.set("utm_medium", "referral");
+  return url.toString();
+};
+
 const canTrack = () =>
   typeof window !== "undefined" && import.meta.env.PROD && typeof GA_ID === "string" && GA_ID.length > 0;
 
@@ -49,11 +77,15 @@ export const trackPageView = () => {
     return;
   }
 
-  window.gtag("event", "page_view", {
-    page_title: document.title,
-    page_location: window.location.href,
-    page_path: `${window.location.pathname}${window.location.search}`,
-  });
+  window.gtag(
+    "event",
+    "page_view",
+    withEntryRef({
+      page_title: document.title,
+      page_location: pageLocation(),
+      page_path: `${window.location.pathname}${window.location.search}`,
+    }),
+  );
 };
 
 /**
@@ -74,12 +106,16 @@ export const trackSearch = (
     return;
   }
 
-  window.gtag("event", "search", {
-    search_term: searchTerm,
-    library_name: libraryName,
-    search_scope: scope,
-    library_count: libraryCount,
-  });
+  window.gtag(
+    "event",
+    "search",
+    withEntryRef({
+      search_term: searchTerm,
+      library_name: libraryName,
+      search_scope: scope,
+      library_count: libraryCount,
+    }),
+  );
 };
 
 export interface SearchCompleteParams {
