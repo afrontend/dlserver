@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { initAnalytics, trackSearch, trackSearchCancel, trackSearchComplete } from "./analytics";
+import {
+  initAnalytics,
+  parseEntryRef,
+  setEntryRef,
+  trackPageView,
+  trackSearch,
+  trackSearchCancel,
+  trackSearchComplete,
+} from "./analytics";
 
 describe("initAnalytics", () => {
   afterEach(() => {
@@ -38,6 +46,7 @@ describe("analytics", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     delete window.gtag;
+    setEntryRef(undefined);
   });
 
   it("개발 빌드에서는 보내지 않는다", () => {
@@ -85,5 +94,47 @@ describe("analytics", () => {
       completed_count: 120,
       duration_ms: 30000,
     });
+  });
+
+  it("들어온 경로가 있으면 page_view 에 utm_source 와 entry_ref 를 붙인다", () => {
+    vi.stubEnv("PROD", true);
+    setEntryRef("ext");
+
+    trackPageView();
+
+    const params = gtag.mock.calls[0][2];
+    expect(params.entry_ref).toBe("ext");
+    const location = new URL(params.page_location);
+    expect(location.searchParams.get("utm_source")).toBe("ext");
+    expect(location.searchParams.get("utm_medium")).toBe("referral");
+  });
+
+  it("들어온 경로는 search 이벤트에도 남는다", () => {
+    vi.stubEnv("PROD", true);
+    setEntryRef("bm");
+
+    trackSearch("해리포터", "강남도서관", "single", 1);
+
+    expect(gtag.mock.calls[0][2]).toMatchObject({ entry_ref: "bm" });
+  });
+
+  it("들어온 경로가 없으면 page_location 을 그대로 보낸다", () => {
+    vi.stubEnv("PROD", true);
+
+    trackPageView();
+
+    expect(gtag.mock.calls[0][2]).not.toHaveProperty("entry_ref");
+    expect(gtag.mock.calls[0][2].page_location).toBe(window.location.href);
+  });
+});
+
+describe("parseEntryRef", () => {
+  it("짧은 영문 소문자 값만 받는다", () => {
+    expect(parseEntryRef("?title=a&ref=ext")).toBe("ext");
+    expect(parseEntryRef("?ref=bm")).toBe("bm");
+    expect(parseEntryRef("?ref=EXT")).toBeUndefined();
+    expect(parseEntryRef("?ref=<script>")).toBeUndefined();
+    expect(parseEntryRef(`?ref=${"a".repeat(21)}`)).toBeUndefined();
+    expect(parseEntryRef("?title=a")).toBeUndefined();
   });
 });

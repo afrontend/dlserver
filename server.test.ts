@@ -358,3 +358,16 @@ describe("Server API", () => {
     });
   });
 });
+
+describe("POST /api/agent-stream", () => {
+  it("본문이 없으면 400 으로 답한다", async () => {
+    const res = await request(app).post("/api/agent-stream");
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it("query 가 비어 있으면 400 으로 답한다", async () => {
+    const res = await request(app).post("/api/agent-stream").send({ query: "  " });
+    expect(res.status).toBe(400);
+  });
+});

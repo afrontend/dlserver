@@ -140,7 +140,13 @@ app.options("/api/agent-stream", (_req: Request, res: Response) => {
 });
 
 app.post("/api/agent-stream", async (req: Request, res: Response) => {
-  const { query } = req.body as { query: string };
+  // Express 5 는 본문이 없으면 req.body 가 undefined 다
+  const { query } = (req.body ?? {}) as { query?: unknown };
+  if (typeof query !== "string" || !query.trim()) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.status(400).json({ error: "query 가 필요합니다" });
+    return;
+  }
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream");
