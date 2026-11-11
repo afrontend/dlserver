@@ -13,6 +13,12 @@ describe("BookmarkletHelp", () => {
     expect(href).not.toContain('"library"');
   });
 
+  it("북마크 이름이 될 링크 글자는 이모지를 붙인 짧은 제목이다", () => {
+    render(<BookmarkletHelp />);
+
+    expect(screen.getByTestId("bookmarklet-link")).toHaveTextContent("📚 동네 도서관");
+  });
+
   it("페이지에서 누르면 끌어다 놓으라고 안내한다", async () => {
     render(<BookmarkletHelp />);
 

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { buildBookmarklet } from "../utils/bookmarklet";
 
+const BOOKMARKLET_TITLE = "📚 동네 도서관";
+
 /** 다른 사이트에서 책 제목을 드래그해 바로 검색하는 북마클릿 안내 */
 export const BookmarkletHelp = () => {
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -28,7 +30,8 @@ export const BookmarkletHelp = () => {
         }}
         className="mt-2 inline-block cursor-grab rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
       >
-        동네 도서관에서 찾기
+        {/* 끌어다 놓으면 이 글자가 북마크 이름이 된다. 북마클릿은 파비콘이 없어 이모지로 눈에 띄게 한다 */}
+        {BOOKMARKLET_TITLE}
       </a>
       {clicked && <p className="mt-1 text-gray-500">여기서 누르지 말고 북마크바로 끌어다 놓으세요.</p>}
     </section>
