@@ -387,5 +387,42 @@ describe("useSearchManager", () => {
 
       expect(trackSearch).toHaveBeenCalledWith("해리포터", "강남도서관", "single", 1);
     });
+
+    it("북마클릿으로 들어와 내 도서관을 자동 검색해도 group 으로 한 번 보낸다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      const { rerender } = renderHook(() => useSearchManager(createMockParams({ myLibraries: ["강남도서관"] })));
+      rerender();
+
+      expect(trackSearch).toHaveBeenCalledTimes(1);
+      expect(trackSearch).toHaveBeenCalledWith("해리포터", DEFAULT_LIBRARY, "group", 1);
+    });
+
+    it("내 도서관이 없어 자동 검색하지 않으면 보내지 않는다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY, ref: "bm" });
+
+      renderHook(() => useSearchManager(createMockParams({ myLibraries: [] })));
+
+      expect(trackSearch).not.toHaveBeenCalled();
+    });
+
+    it("공유 링크로 도서관과 함께 들어오면 single 로 보낸다", () => {
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: "강남도서관" });
+
+      renderHook(() => useSearchManager(createMockParams()));
+
+      expect(trackSearch).toHaveBeenCalledWith("해리포터", "강남도서관", "single", 1);
+    });
+
+    it("뒤로 가기로 다시 검색할 때는 보내지 않는다", () => {
+      renderHook(() => useSearchManager(createMockParams()));
+      vi.mocked(getUrlParams).mockReturnValue({ title: "해리포터", library: DEFAULT_LIBRARY });
+
+      act(() => {
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+
+      expect(trackSearch).not.toHaveBeenCalled();
+    });
   });
 });

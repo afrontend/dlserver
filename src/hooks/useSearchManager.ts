@@ -4,6 +4,17 @@ import { DEFAULT_LIBRARY } from "../constants";
 import { getUrlParams, updateUrl } from "../utils/url";
 import type { Library } from "../types";
 
+/** 검색 측정용 범위. 도서관 하나면 single, 전체면 all, 그 밖(필터·내 도서관)은 group */
+const searchScope = (libraryName: string, libraryCount: number, totalCount: number): SearchScope =>
+  libraryName !== DEFAULT_LIBRARY ? "single" : libraryCount === totalCount ? "all" : "group";
+
+/** 검색 이벤트를 보낸다. single 이면 도서관 수는 1 */
+const trackSearchScope = (title: string, libraryName: string, libraryCount: number, totalCount: number) => {
+  const scope = searchScope(libraryName, libraryCount, totalCount);
+  trackSearch(title, libraryName, scope, scope === "single" ? 1 : libraryCount);
+  return scope;
+};
+
 export const useSearchManager = (params: {
   libraryNames: Library[];
   filteredLibraries: Library[];
@@ -61,19 +72,24 @@ export const useSearchManager = (params: {
 
   useEffect(() => {
     if (libraryNames.length > 0 && !initialSearchFiredRef.current) {
+      // 첫 검색 판단은 도서관 목록이 준비됐을 때 한 번만 한다.
+      // 제목 없이 열린 뒤 뒤로 가기로 제목이 생겨도 여기서 다시 검색하지 않는다 (popstate 가 맡는다)
+      initialSearchFiredRef.current = true;
       const { title, library, ref } = getUrlParams();
       if (title) {
-        initialSearchFiredRef.current = true;
         if (ref && library === DEFAULT_LIBRARY) {
           // 북마클릿·확장은 도서관을 모른다. 전체(1,342곳) 대신 내 도서관을 검색하고,
           // 내 도서관이 없으면 제목만 채워 두고 도서관을 고르게 한다.
           const mine = libraryNames.filter((lib) => myLibraries.includes(lib.name));
           if (mine.length > 0) {
             setMyScope({ libraries: mine, libraryName: DEFAULT_LIBRARY, filteredLibraries });
+            trackSearchScope(title, DEFAULT_LIBRARY, mine.length, libraryNames.length);
             performSearch(title, DEFAULT_LIBRARY, mine);
           }
           return;
         }
+        // URL 로 들어온 자동 검색(북마클릿·공유 링크)도 검색 버튼과 같이 측정한다
+        trackSearchScope(title, library, libraryNames.length, libraryNames.length);
         performSearch(title, library, libraryNames);
       }
     }
@@ -87,21 +103,10 @@ export const useSearchManager = (params: {
     resetFilters();
     addToHistory(searchText);
     updateUrl(searchText, libraryName);
-    const scope: SearchScope =
-      libraryName !== DEFAULT_LIBRARY
-        ? "single"
-        : libraries.length === libraryNames.length
-          ? "all"
-          : "group";
+    const scope = trackSearchScope(searchText, libraryName, libraries.length, libraryNames.length);
     if (scope === "single") {
       addToMyLibraries?.(libraryName);
     }
-    trackSearch(
-      searchText,
-      libraryName,
-      scope,
-      scope === "single" ? 1 : libraries.length,
-    );
 
     performSearch(searchText, libraryName, libraries);
   }, [
