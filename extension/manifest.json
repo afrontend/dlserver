@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "동네 도서관에서 찾기",
+  "short_name": "동네 도서관",
+  "version": "0.1.0",
+  "description": "웹에서 본 책 제목을 드래그해 내 동네 도서관에서 빌릴 수 있는지 바로 찾습니다.",
+  "homepage_url": "https://dongne.onrender.com/",
+  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "선택한 제목을 동네 도서관에서 찾기",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
