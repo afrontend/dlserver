@@ -1,5 +1,5 @@
 // 확장이 여는 검색 주소. 북마클릿(src/utils/bookmarklet.ts)과 같은 규칙이다.
-export const SITE_ORIGIN = "https://dongne.onrender.com";
+export const SITE_ORIGIN = "https://dongne.afrontend.dev";
 
 /** 선택한 텍스트를 제목으로 다듬는다. 줄바꿈·연속 공백은 한 칸, 최대 100자 */
 export const normalizeTitle = (text) =>

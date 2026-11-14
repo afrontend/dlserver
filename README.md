@@ -124,11 +124,11 @@ Returns JSON array of all library names
 - [책 검색 (HTML)](http://localhost:3000/javascript/판교)
 - [책 검색 (JSON)](http://localhost:3000/search?title=javascript&libraryName=판교)
 
-## 서버에서 확인 (https://dongne.onrender.com/)
+## 서버에서 확인 (https://dongne.afrontend.dev/)
 
-- [도서관 목록 읽기 (JSON)](https://dongne.onrender.com/libraryList)
-- [책 검색 (HTML)](https://dongne.onrender.com/javascript/판교)
-- [책 검색 (JSON)](https://dongne.onrender.com/search?title=javascript&libraryName=판교)
+- [도서관 목록 읽기 (JSON)](https://dongne.afrontend.dev/libraryList)
+- [책 검색 (HTML)](https://dongne.afrontend.dev/javascript/판교)
+- [책 검색 (JSON)](https://dongne.afrontend.dev/search?title=javascript&libraryName=판교)
 
 ## Usage Examples
 
@@ -272,7 +272,7 @@ Claude 설정 > 커넥터 > 커스텀 커넥터 추가 > 원격 MCP 서버 URL �
 | **→ AgentSandbox**   | `list_libraries` / `search_books` MCP Tool이 AgentSandbox Live 모드에서 실연동. Claude Haiku가 이 서버를 실제 도구로 호출하며 AgentEvent 스트림으로 시각화됨 |
 | **← IVI Playground** | AbortController 기반 요청 취소 패턴 공유. 클라이언트 연결 해제 시 스크래핑까지 즉시 중단하는 구조가 IVI의 ScenarioPlayer 중단 로직과 동일                    |
 
-**Live 데모:** [AgentSandbox](https://agent-sandbox-tm5k.onrender.com) · [Dongne](https://dongne.onrender.com) · [IVI Playground](https://ivi-playground.onrender.com)
+**Live 데모:** [AgentSandbox](https://agent-sandbox-tm5k.onrender.com) · [Dongne](https://dongne.afrontend.dev) · [IVI Playground](https://ivi-playground.onrender.com)
 
 ---
 
