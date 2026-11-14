@@ -14,10 +14,10 @@ describe("buildBookmarklet", () => {
     const open = vi.spyOn(window, "open").mockReturnValue(null);
     vi.spyOn(window, "getSelection").mockReturnValue({ toString: () => "  채식주의자 " } as Selection);
 
-    run(buildBookmarklet("https://dongne.onrender.com"));
+    run(buildBookmarklet("https://dongne.afrontend.dev"));
 
     const url = new URL(open.mock.calls[0][0] as string);
-    expect(url.origin).toBe("https://dongne.onrender.com");
+    expect(url.origin).toBe("https://dongne.afrontend.dev");
     expect(url.searchParams.get("title")).toBe("채식주의자");
     expect(url.searchParams.get("library")).toBeNull();
     expect(url.searchParams.get("ref")).toBe("bm");
@@ -29,7 +29,7 @@ describe("buildBookmarklet", () => {
     vi.spyOn(window, "getSelection").mockReturnValue({ toString: () => "" } as Selection);
     const ask = vi.spyOn(window, "prompt").mockReturnValue(null);
 
-    run(buildBookmarklet("https://dongne.onrender.com"));
+    run(buildBookmarklet("https://dongne.afrontend.dev"));
 
     expect(ask).toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();

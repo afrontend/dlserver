@@ -77,7 +77,7 @@ function setupServerHandlers(server: Server): void {
         {
           name: "list_libraries",
           description:
-            "Get all searchable Korean libraries, one line per module as \"module: library, library, ...\". Use the module name with search_books when a library name appears in several modules. You can also find the book at https://dongne.onrender.com.",
+            "Get all searchable Korean libraries, one line per module as \"module: library, library, ...\". Use the module name with search_books when a library name appears in several modules. You can also find the book at https://dongne.afrontend.dev.",
           inputSchema: {
             type: "object" as const,
             properties: {},

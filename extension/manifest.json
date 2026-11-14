@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "name": "동네 도서관에서 찾기",
   "short_name": "동네 도서관",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "웹에서 본 책 제목을 드래그해 내 동네 도서관에서 빌릴 수 있는지 바로 찾습니다.",
-  "homepage_url": "https://dongne.onrender.com/",
+  "homepage_url": "https://dongne.afrontend.dev/",
   "permissions": ["contextMenus", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js",

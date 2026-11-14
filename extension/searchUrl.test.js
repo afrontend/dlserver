@@ -5,7 +5,7 @@ describe("확장 검색 주소", () => {
   it("선택한 제목과 ref=ext 로 사이트를 연다", () => {
     const url = new URL(buildSearchUrl("채식주의자"));
 
-    expect(url.origin).toBe("https://dongne.onrender.com");
+    expect(url.origin).toBe("https://dongne.afrontend.dev");
     expect(url.searchParams.get("title")).toBe("채식주의자");
     expect(url.searchParams.get("ref")).toBe("ext");
     expect(url.searchParams.has("library")).toBe(false);

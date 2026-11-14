@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-// dongne.onrender.com 웹 스트림의 측정 ID. VITE_GA_ID 가 없는 빌드도 이 ID 로 보낸다.
+// 동네 도서관(dongne.afrontend.dev, 옛 주소 dongne.onrender.com) 웹 스트림의 측정 ID. VITE_GA_ID 가 없는 빌드도 이 ID 로 보낸다.
 const DEFAULT_GA_ID = "G-9WDTNJDBR7";
 const GA_ID = import.meta.env.VITE_GA_ID || DEFAULT_GA_ID;
 const GA_SCRIPT_ID = "google-analytics-gtag";
