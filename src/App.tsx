@@ -6,6 +6,7 @@ import { BookmarkletHelp } from "./components/BookmarkletHelp";
 import { StepWizard } from "./components/StepWizard";
 import { Header } from "./components/Header";
 import { SearchProgressBar } from "./components/SearchProgress";
+import { SearchPath, SearchProgressTree } from "./components/SearchProgressTree";
 import { LibraryTagFilter } from "./components/LibraryTagFilter";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import { useSearchHistory } from "./hooks/useSearchHistory";
@@ -15,7 +16,8 @@ import { useLibraries } from "./hooks/useLibraries";
 import { useBookFilters } from "./hooks/useBookFilters";
 import { useSearchManager } from "./hooks/useSearchManager";
 import { DEFAULT_LIBRARY } from "./constants";
-import { getRegionList } from "./utils/regions";
+import { getLibraryPath, getRegionList } from "./utils/regions";
+import { leafStatus } from "./utils/searchTree";
 
 const REGIONS = getRegionList();
 
@@ -27,6 +29,7 @@ const App = () => {
   const {
     isLoading,
     searchProgress,
+    librarySearchStates,
     aggregatedBooks,
     failedLibraries,
     unreachableLibraries,
@@ -131,6 +134,32 @@ const App = () => {
     performSearch(lastSearch.title, DEFAULT_LIBRARY, widenLibraries);
   }, [lastSearch, lastLibrary, widenLibraries, setSelectedRegion, setSelectedModule, setLibraryName, performSearch]);
 
+  // 트리에서 도서관을 누르면 그 도서관만 보이고, 다시 누르면 푼다
+  const handleTreeSelect = useCallback(
+    (name: string) =>
+      setSelectedLibraryTags((prev) => (prev.size === 1 && prev.has(name) ? new Set() : new Set([name]))),
+    [setSelectedLibraryTags],
+  );
+
+  // 도서관 하나를 검색했으면 그 도서관의 지역 경로와 결과
+  const singlePath = useMemo(() => {
+    if (!lastSearch || lastSearch.libName === DEFAULT_LIBRARY) return null;
+    const failed = failedLibraries.includes(lastSearch.libName);
+    const unreachable = unreachableLibraries.includes(lastSearch.libName);
+    const status = leafStatus({
+      libraryName: lastSearch.libName,
+      status: isLoading ? "searching" : failed || unreachable ? "error" : "done",
+      books: aggregatedBooks,
+      unreachable,
+    });
+    return {
+      path: lastLibrary ? getLibraryPath(lastLibrary) : [lastSearch.libName],
+      status,
+      bookCount: aggregatedBooks.length,
+      availableCount: aggregatedBooks.filter((book) => book.exist).length,
+    };
+  }, [lastSearch, lastLibrary, isLoading, failedLibraries, unreachableLibraries, aggregatedBooks]);
+
   useEffect(() => {
     if (pageViewTrackedRef.current) {
       return;
@@ -172,6 +201,16 @@ const App = () => {
             scopeLibraries={scopeLibraries}
           />
           <SearchProgressBar progress={searchProgress} />
+          {searchProgress.isSearchingAll && lastSearch && (
+            <SearchProgressTree
+              key={`${lastSearch.title}\u0000${lastSearch.libName}`}
+              states={librarySearchStates}
+              libraries={libraryNames}
+              selectedLibraries={selectedLibraryTags}
+              onSelectLibrary={handleTreeSelect}
+            />
+          )}
+          {singlePath && <SearchPath {...singlePath} />}
           <LibraryTagFilter
             books={aggregatedBooks}
             selectedLibraries={selectedLibraryTags}

@@ -311,6 +311,7 @@ export const useBookSearch = () => {
   return {
     isLoading,
     searchProgress,
+    librarySearchStates,
     aggregatedBooks,
     failedLibraries,
     unreachableLibraries,
