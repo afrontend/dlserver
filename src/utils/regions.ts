@@ -1,4 +1,5 @@
 import libraryRegions from "../data/libraryRegions.json";
+import type { Library } from "../types";
 
 /**
  * 시도 → 시군구 → 모듈 → 도서관 이름. 시군구를 정하지 못한 도서관은 "" 아래에 있다.
@@ -52,4 +53,47 @@ export const getRegionLibraryNames = (
   const names = new Set<string>();
   getRegionModules(sido, sigungu, regions).forEach((set) => set.forEach((name) => names.add(name)));
   return names;
+};
+
+/** 도서관이 있는 시도·시군구. 시군구를 정하지 못했으면 sigungu 는 "" */
+export interface LibraryRegion {
+  sido: string;
+  sigungu: string;
+}
+
+/** "모듈\u0000도서관 실제 이름" → 지역 */
+export type RegionIndex = Map<string, LibraryRegion>;
+
+const regionKey = (module: string, name: string) => `${module}\u0000${name}`;
+
+/** 모듈과 도서관 이름으로 지역을 찾는 역색인. 같은 도서관이 두 지역에 있으면 먼저 나온 쪽을 쓴다 */
+export const buildRegionIndex = (regions: LibraryRegions = LIBRARY_REGIONS): RegionIndex => {
+  const index: RegionIndex = new Map();
+  for (const [sido, sigungus] of Object.entries(regions)) {
+    for (const [sigungu, modules] of Object.entries(sigungus)) {
+      for (const [module, names] of Object.entries(modules)) {
+        names.forEach((name) => {
+          const key = regionKey(module, name);
+          if (!index.has(key)) index.set(key, { sido, sigungu });
+        });
+      }
+    }
+  }
+  return index;
+};
+
+export const REGION_INDEX: RegionIndex = buildRegionIndex();
+
+export const findLibraryRegion = (
+  library: Library,
+  index: RegionIndex = REGION_INDEX,
+): LibraryRegion | undefined =>
+  library.module ? index.get(regionKey(library.module, library.libraryName ?? library.name)) : undefined;
+
+/** 시도 › 시군구 › 모듈 › 도서관. 모르는 단계는 뺀다 */
+export const getLibraryPath = (library: Library, index: RegionIndex = REGION_INDEX): string[] => {
+  const region = findLibraryRegion(library, index);
+  return [region?.sido, region?.sigungu, library.module, library.libraryName ?? library.name].filter(
+    (part): part is string => !!part,
+  );
 };
